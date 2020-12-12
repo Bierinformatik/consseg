@@ -1,0 +1,17 @@
+Package: ConsSeg
+Title: WEIGHTED RECONCILIATIONS OF SEGMENTATIONS
+Version: 0.1
+Authors@R: 
+    person(given = "Jörg",
+           family = "Fallmann",
+           role = c("aut", "cre"),
+           email = "fall@bioinf.uni-leipzig.de",
+           comment = c(ORCID = "0000-0002-4573-9939"))
+Description: Consensus segmentation extension to segemTier
+License: `use_gpl3_license()`
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+  segmenTier (>= 0.1.2)
