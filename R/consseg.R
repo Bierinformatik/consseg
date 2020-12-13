@@ -13,11 +13,7 @@
 #' Machne, Murray & Stadler (2017) <doi:10.1038/s41598-017-12401-8>,
 #' Machne & Murray (2012) <doi:10.1371/journal.pone.0037906>, and
 #' Lehmann et al. (2013) <doi:10.1186/1471-2105-14-133>
-##'@importFrom segmenTier segments
-##'@importFrom Rcpp evalCpp
-##'@importFrom stats qt sd var BIC AIC
-##'@importFrom graphics image axis par plot matplot points lines legend arrows strheight strwidth text mtext abline polygon
-##'@importFrom grDevices png dev.off rainbow gray xy.coords
+##'@import segmenTier
 NULL # this just ends the global package documentation
 
 ### DYNAMIC PROGRAMMING BASED CONSENSUS SEGMENTATION OF A CLUSTERING
@@ -46,14 +42,24 @@ warn <- function(w, warnings,verb=FALSE) {
 ## We need
 ## dli = sum(1..m){w_q}*sum(seg_end<i){e()}
 
-
 ###RECURSION
-#' @param S, segmentation object from segmenTier
-consensus <- function(S) {
+#' Calculate consensus segements C from segmenTier segments
+#' @param RS, raw segmentation object from segmenTier
+#' @export
+consensus <- function(RS) {
 
-  SM = collapse_segments(S)
-  F <- rep(NA, n) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
+  ##collapse will create extremely sparse matrix of nxm dimensions
+  #S <- collapse_segments(RS)
+  ##extract will retain a data.frame of segments ordered by start/end
+  S <- extract_segments(RS)
+  m <- nrow(S)
+  start <- S[order(S[,"start"], S[,"end"]), ][1,"start"]
+  end <- S[order(S[,"start"], S[,"end"]), ][m,"end"]
+  n <- end-start#+1
+
+  F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
   jmin <- F       ## backtracing vector: store position j in recursion
+  SM <- matrix(0, nrow = m, ncol = n)
 
   for ( k in 1:n) {
     for ( q in 1:m ) {
@@ -62,6 +68,28 @@ consensus <- function(S) {
     ## j1min ## store position of min
   }
 }
+
+
+# EXTRACT SEGMENTS
+#' EXTRACT segements from segmenTier to ordered data.frame SO
+#' @param S list of segmentations (breakpoints)
+#' @export
+extract_segments <- function(S){
+
+  #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
+  SO = subset(S$segments, select = c("ID","type","CL","start","end"))
+  #SO = SO[order(SO[,"start"], SO[,"end"]), ] # no longer need this
+
+  startlist <- split(SO$start, SO$type)
+  names(startlist) <- paste0("start.",1:length(startlist))
+  endlist <- split(SO$end, SO$type)
+  names(endlist) <- paste0("end.",1:length(endlist))
+  returnlist <- c(startlist, endlist)
+
+  return(returnlist)
+}
+
+
 
 # COLLAPSE SEGMENTS
 #####FUTURE Sparsify from S to SM with j = 6 , instead of SM with j = Nr. of segments
@@ -75,23 +103,28 @@ consensus <- function(S) {
 #' where weight is 1/total_nr_of_breakpoints or to be determined
 #' @param S list of segmentations (breakpoints)
 #' @param w weightfunction or 1
+#' @export
 collapse_segments <- function(S, w){
 
-    segs = subset(S$segments, select = c("CL","start","end"))
-    segstart = segs[order(segs[,"start"], segs[,"end"]), ][1,"start"]
-    segend = segs[order(segs[,"start"], segs[,"end"]), ][nrow(segs),"end"]
-    segnr = nrow(segs)
-    seglen = segend-segstart+1
+    segs <- extract_segments(S)
+
+    segstart <- segs[order(segs[,"start"], segs[,"end"]), ][1,"start"] #order not needed if segs already ordered
+    segend <- segs[order(segs[,"start"], segs[,"end"]), ][nrow(segs),"end"] #order not needed if segs already ordered
+    m <- nrow(segs)
+    #n <- segend-segstart+1 # or do we need from 1-end of real sequence?
+    n <- segend # seems so
 
     if (!is.function(w) & w == 1){
-      w = 1/segnr
+      w = 1/segnr #For now we only normalize by nr of segments, each segment has same weight
     }
 
-    SM <- matrix(0,nrow = segnr, ncol = seglen)
+    SM <- matrix(0, nrow = m, ncol = segend)
 
-    for (i in segstart:segend){
-      for (j in 1:segnr){
-        SM[i,j] =
+    for (j in 1:n){
+      for (i in 1:m){
+        if (i %in% segs["CL"] & (j %in% segs["start"] | j %in% segs["end"])){
+          SM[i,j] = w  # w marks existence of boundary and adds weight of that boundary
+        }
       }
     }
 
@@ -102,30 +135,59 @@ collapse_segments <- function(S, w){
 ####From RAIM
 ## \eqn{\e}
 ## function that evaluates an individual segment
+#' @export
 sval <- function() {}
 
 ##  \Delta([j+1,k]) \ref{eq:Delta}
 ## score function,
+#' @export
 scoref <- function(j1,k)
   sval(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k))
 
 ## \delta_{<}(i)
 ## all segments that start and end left of i (used for right border, k)
-dl <- function(i) {}
+#' @export
+dl <- function(i) {
+
+}
 
 ## \delta_{\le}(i)
 ## all segments that start left of i (used for left border, j+1)
-dle <- function(i) {}
+#' @export
+dle <- function(i) {
+
+}
 
 ## \delta^{\cap}_{<}(i)
 ## all segments that span i, count left of i (used for right border, k)
-dlov <- function(i) {}
+#' @export
+dlov <- function(i) {
+
+}
 
 ## \delta^{\cap}_{>}(i)
 ## all segments that span i, count right of i (used left border, j+1)
-drov <- function(i) {}
+#' @export
+drov <- function(i) {
+
+}
 
 ## \delta^*(i',i'')
 ## all segments that span j+1/k (current left and right border)
+#' @export
 ds <- function(i) {}
+
+
+### DATA SET DOC
+
+#' Segements from transcriptome time-series from budding yeast.
+#'
+#' segmenTier processed transcriptome time-series data from a region encompassing
+#' four genes and a regulatory upstream non-coding RNA in budding yeast.
+#' The data set is described in more detail in the publication
+#' Machne, Murray & Stadler (2017) <doi:10.1038/s41598-017-12401-8>.
+#'
+#' @name primseg436_sset
+#' @docType data
+NULL
 
