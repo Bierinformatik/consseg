@@ -48,18 +48,19 @@ warn <- function(w, warnings,verb=FALSE) {
 #' @export
 consensus <- function(RS) {
 
-  ##collapse will create extremely sparse matrix of nxm dimensions
-  #S <- collapse_segments(RS)
-  ##extract will retain a data.frame of segments ordered by start/end
-  S <- extract_segments(RS)
-  m <- nrow(S)
-  start <- S[order(S[,"start"], S[,"end"]), ][1,"start"]
-  end <- S[order(S[,"start"], S[,"end"]), ][m,"end"]
-  n <- end-start#+1
+  ##matrixfy will create extremely sparse matrix of nxm dimensions, mostly made up of 0's
+  ##and a list of segment start/end coordinates
+  S <- matrixfy_segments(RS)
+
+  SM <- S$SM
+  segs <- S$segs
+  m <- S$m
+  n <- S$n
+  S <- NULL
 
   F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
   jmin <- F       ## backtracing vector: store position j in recursion
-  SM <- matrix(0, nrow = m, ncol = n)
+
 
   for ( k in 1:n) {
     for ( q in 1:m ) {
@@ -78,7 +79,6 @@ extract_segments <- function(S){
 
   #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
   SO = subset(S$segments, select = c("ID","type","CL","start","end"))
-  #SO = SO[order(SO[,"start"], SO[,"end"]), ] # no longer need this
 
   startlist <- split(SO$start, SO$type)
   names(startlist) <- paste0("start.",1:length(startlist))
@@ -91,44 +91,43 @@ extract_segments <- function(S){
 
 
 
-# COLLAPSE SEGMENTS
+# CREATE SEGMENTS MATRIX
 #####FUTURE Sparsify from S to SM with j = 6 , instead of SM with j = Nr. of segments
 ## Along sequence n..m all segments
 ## starting and ending at interval n..i-1
 ## all segments starting and ending at i and
 ## all segements starting and ending in interval i+1..m
 #####For now:
-#' Collapse segements S from segmenTier to SM matrix of segmentations,
+#' Matrix from segements S from segmenTier to SM matrix of segmentations,
 #' where breakpoints are indicated by a weight \eqn{w\in 0,{0,\dots,1}}
 #' where weight is 1/total_nr_of_breakpoints or to be determined
 #' @param S list of segmentations (breakpoints)
 #' @param w weightfunction or 1
 #' @export
-collapse_segments <- function(S, w){
+matrixfy_segments <- function(S, w){
 
-    segs <- extract_segments(S)
+  segs <- extract_segments(S)
+  m <- length(segs)/2
+  n <- S$N #Total length of input sequences
 
-    segstart <- segs[order(segs[,"start"], segs[,"end"]), ][1,"start"] #order not needed if segs already ordered
-    segend <- segs[order(segs[,"start"], segs[,"end"]), ][nrow(segs),"end"] #order not needed if segs already ordered
-    m <- nrow(segs)
-    #n <- segend-segstart+1 # or do we need from 1-end of real sequence?
-    n <- segend # seems so
+  if (!is.function(w)){ #if not function we replace with dummy, assuming a sensible weight functions needs i, j and m for normalization
+      w <- function(i,j,m){ i=0; j=0; return(1/m)} #For now we only normalize by nr of segments, each segment has same weight
+  }
 
-    if (!is.function(w) & w == 1){
-      w = 1/segnr #For now we only normalize by nr of segments, each segment has same weight
-    }
+  SM <- matrix(0, nrow = m, ncol = n)
 
-    SM <- matrix(0, nrow = m, ncol = segend)
-
-    for (j in 1:n){
+  for (j in 1:n){
       for (i in 1:m){
-        if (i %in% segs["CL"] & (j %in% segs["start"] | j %in% segs["end"])){
-          SM[i,j] = w  # w marks existence of boundary and adds weight of that boundary
-        }
+          if ( any(sapply(segs[paste0("start.",i)],function(x) x==j)) | any(sapply(segs[paste0("end.",i)],function(x) x==j)) ){
+              SM[i:i,j:j] <- w(i,j,m)  # w marks existence of boundary and adds weight of that boundary
+          }
       }
-    }
+  }
 
-  return(SM)
+  ret <- list(SM, segs, m, n)
+  names(ret) <- c("SM", "segs", "m", "n")
+
+  return(ret)
 }
 
 

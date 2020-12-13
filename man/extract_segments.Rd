@@ -2,7 +2,7 @@
 % Please edit documentation in R/consseg.R
 \name{extract_segments}
 \alias{extract_segments}
-\title{EXTRACT segements S from segmenTier to ordered data.frame segmentations}
+\title{EXTRACT segements from segmenTier to ordered data.frame SO}
 \usage{
 extract_segments(S)
 }
@@ -10,5 +10,5 @@ extract_segments(S)
 \item{S}{list of segmentations (breakpoints)}
 }
 \description{
-EXTRACT segements S from segmenTier to ordered data.frame segmentations
+EXTRACT segements from segmenTier to ordered data.frame SO
 }

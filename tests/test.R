@@ -1,18 +1,16 @@
 ###TEST AREA
 library(ConsSeg)
+#Load Data
 data(primseg436_sset)
-test <- sset
-plotSegmentation(tset, cset, test, cex=.5, lwd=2)
 
-SO <- extract_segments(test)
-S <- collapse_segments(test,1)
+#Extract starts and end of segments
+SO <- extract_segments(sset)
+#Create segment matrix for dyn-prog approach
+SM <- matrixfy_segments(sset, 1)
 
 
-for (j in 7429:7462){
-  for (i in 1:3){
-    if (j %in% segs["start"] | j in segs["end"]){
-      SM[i,j] = w  # w marks existence of boundary and adds weight of that boundary
-    }
-  }
-}
+###Manual
+segs <- extract_segments(sset)
+m <- length(segs)/2
+n <- sset$N #Total length of input sequences
 
