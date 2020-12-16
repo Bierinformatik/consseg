@@ -38,9 +38,15 @@ warn <- function(w, warnings,verb=FALSE) {
 ###TODO Check what is really needed
 ### We define
 ### Scoring Segments d[i,j], E .. potential,
-### e..potential function, w_q .. weight of segment(boundary),
+### e..potential function, w_q .. weight of segment(boundary), kommt vom user
 ## We need
-## dli = sum(1..m){w_q}*sum(seg_end<i){e()}
+## Gleichung 9 und 10 vorher, dann 8, und damit i das DELTA bekomm fuer 8 muss i aus den deltas die Gleichung 12 ausrechnen und dafuer on demand delta* entweder ausrechnen wenn segment das intervall schneidet, sonst is das eh 0
+## Eventuell inverser index mit intervallgrenzen der mir sagt gibts fuer mein i-k intervall irgendwas wo ein intervall drueber haengt in O(1) -> das brauch ich fuer delta* in Gl 12
+## Inverser index fuer jede segmentierung damit ma obere und untere intervallgrenze hat
+## 8&9 muss ma nur einmal befuellen weil die ueber alle segmente zaehlen
+## und dazu muss ma nur was aendern wenn ma eine der segmentgrenzen ueberschreitet und net fuer jede position
+##
+
 
 ###RECURSION
 #' Calculate consensus segements C from segmenTier segments
@@ -112,14 +118,23 @@ matrixfy_segments <- function(S, w){
 
   if (!is.function(w)){ #if not function we replace with dummy, assuming a sensible weight functions needs i, j and m for normalization
       w <- function(i,j,m){ i=0; j=0; return(1/m)} #For now we only normalize by nr of segments, each segment has same weight
+      # Der user gibt irgendwas an und wir scalieren des so das die Summer immer 1 is
   }
 
   SM <- matrix(0, nrow = m, ncol = n)
-
+  # Statt matrix die start/end listen
+  # Zu jeder Position i den intervall wo bin ich fuer jede segmentierung
+  # Auf der einen Seite das interval of interest j+1,k
+  # auf der anderen Seite die Breakpoints
+  # D(k,l) rekursiv indem
+  #
+  # Array der delta erst berechnen als Summe der breakpoints
   for (j in 1:n){
       for (i in 1:m){
           if ( any(sapply(segs[paste0("start.",i)],function(x) x==j)) | any(sapply(segs[paste0("end.",i)],function(x) x==j)) ){
               SM[i:i,j:j] <- w(i,j,m)  # w marks existence of boundary and adds weight of that boundary
+              # Hier net die matrix sondern die deltas anfuellen
+              # delta_i durchschnitt ding is immer e(von der intervallcoverage)
           }
       }
   }
@@ -135,7 +150,12 @@ matrixfy_segments <- function(S, w){
 ## \eqn{\e}
 ## function that evaluates an individual segment
 #' @export
-sval <- function() {}
+sval <- function() {
+  # Gleichung 8/12, e gibt laenge des segments zurueck
+  # [j +1, k] intervall der einen interessiert
+  # Max so viele Eintraege wie inputsegmentierungen
+  # e is wieder user definiert, sowas wie laenge Intervall ^ 2 /2 oder entropie
+}
 
 ##  \Delta([j+1,k]) \ref{eq:Delta}
 ## score function,
@@ -174,7 +194,9 @@ drov <- function(i) {
 ## \delta^*(i',i'')
 ## all segments that span j+1/k (current left and right border)
 #' @export
-ds <- function(i) {}
+ds <- function(i) {
+
+}
 
 
 ### DATA SET DOC
