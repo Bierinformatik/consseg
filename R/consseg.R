@@ -41,7 +41,7 @@ warn <- function(w, warnings,verb=FALSE) {
 ## Gleichung 9 und 10 vorher, dann 8, und damit i das DELTA bekomm fuer 8 muss i aus den deltas die Gleichung 12 ausrechnen und dafuer on demand delta* entweder ausrechnen wenn segment das intervall schneidet, sonst is das eh 0
 ## Eventuell inverser index mit intervallgrenzen der mir sagt gibts fuer mein i-k intervall irgendwas wo ein intervall drueber haengt in O(1) -> das brauch ich fuer delta* in Gl 12
 ## Inverser index fuer jede segmentierung damit ma obere und untere intervallgrenze hat
-## 8&9 muss ma nur einmal befuellen weil die ueber alle segmente zaehlen
+## 9&10 muss ma nur einmal befuellen weil die ueber alle segmente zaehlen
 ## und dazu muss ma nur was aendern wenn ma eine der segmentgrenzen ueberschreitet und net fuer jede position
 ##
 
@@ -53,10 +53,6 @@ warn <- function(w, warnings,verb=FALSE) {
 #' @param e potential function
 #' @export
 consensus <- function(RS, w, e) {
-
-  #S <- lookup_segments(SL)
-  #SM <- S$SM
-  #segments <- RS$segments
 
   segs <- extract_segments(RS) #list of segment start/end coordinates
   m <- length(RS$ids) #number of segmentations
@@ -75,10 +71,6 @@ consensus <- function(RS, w, e) {
     # Max so viele Eintraege wie inputsegmentierungen
   }
 
-  F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
-  jmin <- F       ## backtracing vector: store position j in recursion
-
-
   #Precalculate the potentials for dl, dle, dlov, drov over all i's
 
   dl <- list()
@@ -93,12 +85,20 @@ consensus <- function(RS, w, e) {
     drov[i] <- calc_drov(i, e, segs)
   }
 
+  # Generate lookup for interval overlapping segments
+  #### HIER WEITER ####
+
+    lookup_segments(SL)
 
   ##  \Delta([j+1,k]) \ref{eq:Delta}
   ## score function,
   #' @export
   scoref <- function(j1,k)
     e(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k))
+
+
+  F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
+  jmin <- F       ## backtracing vector: store position j in recursion
 
 
   for ( k in 1:n) {
@@ -114,24 +114,42 @@ consensus <- function(RS, w, e) {
 #' @param S list of segmentations
 #' @export
 
-#### NOTE: We could think about putting this into an IRanges object for easy intersection of position
-#### I think we don't even need this, try directly with dataframe
 extract_segments <- function(S){
 
   #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
   SO = subset(S$segments, select = c("ID","type","CL","start","end"))
   SO$width <- SO$end-SO$start+1
 
-  #startlist <- split(SO$start, SO$type)
-  #names(startlist) <- paste0("start.",1:length(startlist))
-  #endlist <- split(SO$end, SO$type)
-  #names(endlist) <- paste0("end.",1:length(endlist))
   startlist <- split(SO$width, SO$start)
   endlist <- split(SO$width, SO$end)
   returnlist <- list("starts" = startlist, "ends" = endlist)
 
   return(returnlist)
+
 }
+
+
+## inverse_lookup
+## all segments that overlap my j,k interval
+#' @param j interval start
+#' @param k interval end
+#' @param segs starts/ends vector of segments returning segment width
+
+#' @export
+lookup_overlap <- function(j, k, segs) {
+
+  overlap_start <- segs$starts[ i>= which(as.integer(names(segs$starts)) <= k)]
+  potential = 0
+  for (points in breakpoints){
+    for (point in points){
+      potential = potential + e(as.integer(point))
+    }
+  }
+
+  return(potential)
+
+}
+
 
 ## \delta_{<}(i)
 ## all segments that start and end left of i (used for right border, k)
