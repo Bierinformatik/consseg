@@ -22,7 +22,6 @@ NULL # this just ends the global package documentation
 ### FUNCTIONS
 
 ### MESSAGE UTILS
-
 ## nicer time-stamp
 time <- function() format(Sys.time(), "%Y%m%d %H:%M:%S")
 ## messages
@@ -87,25 +86,19 @@ consensus <- function(RS, w, e) {
 
   # Generate lookup for interval overlapping segments
   #### HIER WEITER ####
-
-    lookup_segments(SL)
-
-  ##  \Delta([j+1,k]) \ref{eq:Delta}
-  ## score function,
-  #' @export
-  scoref <- function(j1,k)
-    e(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k))
-
+  lookup <- list()
+    lookup_segments(j, k, segs)
 
   F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
   jmin <- F       ## backtracing vector: store position j in recursion
 
 
-  for ( k in 1:n) {
-    for ( q in 1:m ) {
+  for ( j in 1:n) {
+    for ( k in j+1:n ) {
     }
     ## F[k] = min(scoref(j+1,k) + F[j])
     ## j1min ## store position of min
+    score <= scoref(e, j1, k, dl, dle, dlov, drov, ds)
   }
 }
 
@@ -113,7 +106,6 @@ consensus <- function(RS, w, e) {
 #' EXTRACT segements from segmenTier to ordered data.frame SO
 #' @param S list of segmentations
 #' @export
-
 extract_segments <- function(S){
 
   #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
@@ -128,13 +120,28 @@ extract_segments <- function(S){
 
 }
 
+#### NOTE: We could think about putting this into an IRanges object for easy intersection of position
+extract_segmentwise <- function(S){
+
+  #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
+  SO = subset(S$segments, select = c("ID","type","CL","start","end"))
+  SO$width <- SO$end-SO$start+1
+
+  startlist <- split(SO$start, SO$type)
+  names(startlist) <- paste0("start.",1:length(startlist))
+  endlist <- split(SO$end, SO$type)
+  names(endlist) <- paste0("end.",1:length(endlist))
+
+  returnlist <- c(startlist, endlist)
+
+  return(returnlist)
+}
 
 ## inverse_lookup
 ## all segments that overlap my j,k interval
 #' @param j interval start
 #' @param k interval end
 #' @param segs starts/ends vector of segments returning segment width
-
 #' @export
 lookup_overlap <- function(j, k, segs) {
 
@@ -243,6 +250,22 @@ calc_drov <- function(i, e, segs) {
 #' @export
 calc_ds <- function(j1, k, e, segs) {
 
+}
+
+
+##  \Delta([j+1,k]) \ref{eq:Delta}
+## score function
+#' @param e potential function
+#' @param j1 current span start
+#' @param k current span end
+#' @param dl dl list
+#' @param dle dle list
+#' @param dlov dlov list
+#' @param drov drov list
+#' @param ds delta star
+#' @export
+scoref <- function(e, j1, k, dl, dle, dlov, drov, ds){
+  return (e(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k)))
 }
 
 
