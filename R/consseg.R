@@ -71,69 +71,38 @@ consensus <- function(RS, w, e) {
                                         # Max so viele Eintraege wie inputsegmentierungen
     }
 
-                                        #Precalculate the potentials for dl, dle, dlov, drov over all i's
+    #Precalculate the potentials for dl, dle, dlov, drov over all i's
 
     dl <- list()
     dle <- list()
     dlov <- list()
     drov <- list()
+    F <- list() #
 
     for (i in 1:n){
         dl[i] <- calc_dl(i, w, e, segs)
         dle[i] <- calc_dle(i, w, e, segs)
         dlov[i] <- calc_dlov(i, w, e, segs)
         drov[i] <- calc_drov(i, w, e, segs)
+        F[i] = Inf
     }
 
-# Generate lookup for interval overlapping segments
-#### HIER WEITER ####
-#### for(k=1;k<=n;k++) {
-### dsm[k] = dsm[k-1]
-### dsq[k] = dsm[k-1]
-### dcd[k] = 0
-### dcu[k] = 0
-### for (m=0, m<M, m++) {
-###   if (Bup[k,m]== k) dsm[k] += w(m)*aeh(Bup[k,m]-Bdw[k,m]+1);
-###   if (Bdw[k,m]== k) dsq[k] += w(m)*aeh(Bup[k,m]-Bdw[k,m]+1);
-###   dcd[k] += w(m)*aeh(k-vor[k,m]+1);
-###   dcu[k] += w(m)*aeh(Bup[k,m]-k+1);
-### }
-### dstar = 0
-### F[k]   = infty
-### for(j=0;j<k;j++) {
-###   /* interval = [j+1,k] */
-###     for (m=0, m<M, m++) {
-###       if ( (Blw[k]<j+1) && (Bup[k]>k) ) {
-###         dtmp = aeh(Bup[k]-Blw[k]+1) + aeh(k-j)
-###         - aeh(Blw[k]-j) - aeh(Bup[k]-k+1)
-###         dstar += w(m)*dtmp
-###       }
-###     }
-###   Dtmp = dsm[l] - dsq[j+1] + dcd[k] + dcu[j+1] + dstar
-###   D = aeh(k-j) - 2*Dtmp
-###   /* we don't want to store D, so we keep the pointer */
-###     if( F[j] + D < F[k] ) {
-###         F[k] = F[j]+D
-###         prt[k] = j
-###     }
-###   }
-### }
-####
-####
-#    lookup <- list()
-#    lookup_segments(j, k, segs)
-#
-#    F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
-#    jmin <- F       ## backtracing vector: store position j in recursion
-#
-#
-#    for ( j in 1:n) {
-#        for ( k in j+1:n ) {
-#        }
-#        ## F[k] = min(scoref(j+1,k) + F[j])
-#        ## j1min ## store position of min
-#        score <= scoref(e, j1, k, dl, dle, dlov, drov, ds)
-#    }
+    dstar = 0
+    ptr <- list()
+
+    for (k in 1:n){
+        ptr[k] = k
+        for(j in 1:k) { #i+1
+            dstar <- calc_ds(j+1, k, e, segs)
+            Dtmp = dl[l] - dle[j+1] + dlov[k] + drov[j+1] + dstar
+            D = e(k-j+1) - 2*Dtmp
+            ##we don't want to store D, so we keep the pointer
+            if( F[j] + D < F[k] ) {
+                F[k] = F[j] + D
+                ptr[k] = j
+            }
+        }
+    }
 }
 
 # EXTRACT SEGMENTS
@@ -274,14 +243,18 @@ calc_drov <- function(i, w, e, segs) {
 #' @export
 calc_ds <- function(j1, k, e, segs) {
 
-    look <- IRanges(start=j, end=k)
-    ov <- segs[segs %over% look]
+    look <- IRanges(start=j, end=k)  #Check to make sure we got boundaried right, here we have direct overlap
+    ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
+    diffj <- restrict(ov, end = j1)
+    diffk <- restrict(ov, start = k)
 
     potential = 0
 
     for (len in width(ov)){
-        potential = potential + w(length(ov)) * e(len)
+        potential = potential + e(len) + e(k-j1+1) - e(diffj) -  e(diffk)
     }
+
+    potential = potential * w(length(ov))
 
     return(potential)
 
@@ -303,32 +276,6 @@ calc_ds <- function(j1, k, e, segs) {
 scoref <- function(e, j1, k, dl, dle, dlov, drov, ds){
     return (e(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k)))
 }
-
-
-#####TRASH#####
-#####
-## inverse_lookup
-## all segments that overlap my j,k interval
-#' Create inverse lookup_table
-#' @param j interval start
-#' @param k interval end
-#' @param segs starts/ends vector of segments returning segment width
-##' @export
-lookup_overlap <- function(j, k, segs) {
-
-    look <- IRanges(start=j, end=k)
-    ov <- segs[segs %over% look]
-
-    potential = 0
-
-    for (len in width(diff)){
-        potential = potential + w(length(diff)) * e(len)
-    }
-
-    return(potential)
-
-}
-
 
 
 ### DATA SET DOC
