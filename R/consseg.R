@@ -107,6 +107,15 @@ consensus <- function(RS, w, e) {
             }
         }
     }
+
+    ##Backtrace Kette nach von letztem j nach 0
+    for (k in n:1){
+        if(ptr[[k]] != k){
+            print(ptr[[k]])
+            k = ptr[[k]]
+        }
+    }
+
 }
 
 # EXTRACT SEGMENTS
@@ -307,3 +316,42 @@ scoref <- function(j1, k, dl, dle, dlov, drov, dstar){
     return(dl[[j1]] - dle[[j1]] + dlov[[k]] + drov[[j1]] + dstar)
 }
 
+#' Simulate IRanges of segments
+#' @param l length of sequence
+#' @param n number of sequences
+#' @param s upper bound for number of segmentations per sequence
+#' @param r repeat first segmentation n times
+#' @export
+simulate_ranges <- function(l, n, s, r){
+
+    total <- IRanges(start=1,end=l)
+    ranges <- NULL
+
+    if (r){
+        nr_of_segments <- sample(s, size = 1)
+        if (nr_of_segments %% 2){
+            nr_of_segments = nr_of_segments +1
+        }
+        print(paste0("Simulating ", n, " sequences of length ", l, " with ", nr_of_segments, " segments"))
+        segmentations <- sort(sample(l, size = nr_of_segments, replace = FALSE))
+        starts <- segmentations[c(TRUE, FALSE)]
+        ends <- segmentations[c(FALSE, TRUE)]
+        subr <- c(IRanges(start=starts, end=ends), total)
+        ranges <- disjoin(subr)
+        ranges <- rep(ranges,each=n)
+    }
+    else{
+        for (i in i:n){
+            nr_of_segments <- sample(s, size = 1)
+            if (nr_of_segments %% 2){
+                nr_of_segments = nr_of_segments +1
+            }
+            print(paste0("Simulating ", n, " sequences of length ", l, " with ", nr_of_segments, " segments"))
+            segmentations <- sample(nr_of_segments, size = l, replace = FALSE)
+            subr <- c(IRanges(start=c(), end=sub$end), total)
+            ranges <- c(disjoin(subr), ranges)
+        }
+    }
+
+    return(ranges)
+}

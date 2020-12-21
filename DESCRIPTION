@@ -6,7 +6,7 @@ Authors@R:
            family = "Fallmann",
            role = c("aut", "cre"),
            email = "fall@bioinf.uni-leipzig.de",
-           comment = c(ORCID = "0000-0002-4573-9939")),
+           comment = c(ORCID = "0000-0002-4573-9939"))
     person(given = "Rainer",
            family = "Machne",
            role = c("aut", "cre"),
