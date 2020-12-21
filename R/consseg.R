@@ -4,6 +4,7 @@
 #' Ahmad M. Shahin, Peter F. Stadler \email{studla@bioinf.uni-leipzig.de}
 #'@docType package
 #'@name consseg
+#'@description Calculates consensus segmentation from cluster based segmentation
 #'@section Dependencies: The package strictly depends on
 #' \code{segmenTier} and thus on \code{Rcpp}.
 #' All other dependencies are usually present in a
@@ -77,7 +78,7 @@ consensus <- function(RS, w, e) {
     dle <- list()
     dlov <- list()
     drov <- list()
-    F <- list() #
+    F <- list()
 
     for (i in 1:n){
         dl[i] <- calc_dl(i, w, e, segs)
@@ -91,14 +92,17 @@ consensus <- function(RS, w, e) {
     ptr <- list()
 
     for (k in 1:n){
-        ptr[k] = k
-        for(j in 1:k) { #i+1
-            dstar <- calc_ds(j+1, k, e, segs)
-            Dtmp = dl[l] - dle[j+1] + dlov[k] + drov[j+1] + dstar
-            D = e(k-j+1) - 2*Dtmp
+        ptr[k] <- k
+        if (k == 1){
+            next
+        }
+        for(j in 1:(k-1)) { #j+1
+            dstar <- calc_ds(j, k, w, e, segs)
+            Dtmp = scoref(j, k, dl, dle, dlov, drov, dstar)
+            D = e(k-j) - 2*Dtmp
             ##we don't want to store D, so we keep the pointer
-            if( F[j] + D < F[k] ) {
-                F[k] = F[j] + D
+            if( (F[[j]] + D) < F[[k]] ) {
+                F[[k]] = F[[j]] + D
                 ptr[k] = j
             }
         }
@@ -111,7 +115,7 @@ consensus <- function(RS, w, e) {
 #' @export
 extract_segments <- function(S){
 
-#we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
+    #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
     SO = subset(S$segments, select = c("ID","type","CL","start","end"))
     SO$width <- SO$end-SO$start+1
 
@@ -129,13 +133,12 @@ extract_segments <- function(S){
 #' @export
 extract_ranges <- function(S){
 
-    #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
     SO = subset(S$segments, select = c("ID","type","CL","start","end"))
     total <- IRanges(start=1,end=S$N)
     ranges <- NULL
 
     for (t in unique(SO$type)){
-        sub <- subset(SO, type==t)
+        sub <- subset(SO, SO$type==t)
         subr <- c(IRanges(start=sub$start, end=sub$end),total)
         ranges <- c(disjoin(subr), ranges)
     }
@@ -145,7 +148,7 @@ extract_ranges <- function(S){
 
 ## \delta_{<}(i)
 ## all segments that start and end left of i (used for right border, k)
-#' Calculates \delta_{<}(i)
+#' Calculates delta(<i)
 #' @param i current position
 #' @param w weight function
 #' @param e potential function
@@ -153,11 +156,15 @@ extract_ranges <- function(S){
 #' @export
 calc_dl <- function(i, w, e, segs) {
 
-    breakpoints <- subset(segs, end < i)
+    bps <- subset(segs, end < i)
     potential = 0
 
-    for (len in width(breakpoints)){
-                potential = potential + w(length(breakpoints)) * e(len)
+    if (length(bps) < 1){
+        return(0)
+    }
+
+    for (len in width(bps)){
+                potential = potential + w(length(bps)) * e(len)
     }
 
     return(potential)
@@ -166,7 +173,7 @@ calc_dl <- function(i, w, e, segs) {
 
 ## \delta_{\le}(i)
 ## all segments that start left of i (used for left border, j+1)
-#' Calculates \delta_{\le}(i)
+#' Calculates delta(<=i)
 #' @param i current position
 #' @param w weight function
 #' @param e potential function
@@ -175,11 +182,15 @@ calc_dl <- function(i, w, e, segs) {
 #' @export
 calc_dle <- function(i, w, e, segs) {
 
-    breakpoints <- subset(segs, end < i)
+    bps <- subset(segs, end < i)
     potential = 0
 
-    for (len in width(breakpoints)){
-        potential = potential + w(length(breakpoints)) * e(len)
+    if (length(bps) < 1){
+        return(0)
+    }
+
+    for (len in width(bps)){
+        potential = potential + w(length(bps)) * e(len)
     }
 
     return(potential)
@@ -188,7 +199,7 @@ calc_dle <- function(i, w, e, segs) {
 
 ## \delta^{\cap}_{<}(i)
 ## all segments that span i, count left of i (used for right border, k)
-#' Calculates \delta^{\cap}_{<}(i)
+#' Calculates delta(<i)
 #' @param i current position
 #' @param w weight function
 #' @param e potential function
@@ -198,6 +209,10 @@ calc_dlov <- function(i, w, e, segs) {
 
     breakpoints <- subset(segs, start <= i & end >= i)
     diff <- restrict(breakpoints, end = i)
+
+    if (length(diff) < 1){
+        return(0)
+    }
 
     potential = 0
 
@@ -211,7 +226,7 @@ calc_dlov <- function(i, w, e, segs) {
 
 ## \delta^{\cap}_{>}(i)
 ## all segments that span i, count right of i (used left border, j+1)
-#' Calculates \delta^{\cap}_{>}(i)
+#' Calculates delta(>i)
 #' @param i current position
 #' @param w weight function
 #' @param e potential function
@@ -221,6 +236,10 @@ calc_drov <- function(i, w, e, segs) {
 
     breakpoints <- subset(segs, start <= i & end >= i)
     diff <- restrict(breakpoints, start = i)
+
+    if (length(diff) < 1){
+        return(0)
+    }
 
     potential = 0
 
@@ -234,27 +253,39 @@ calc_drov <- function(i, w, e, segs) {
 
 ## \delta^*(i',i'')
 ## all segments that span j+1/k (current left and right border)
-#' Calculates \delta^*(i',i'')
+#' Calculates delta*(i',i'')
 #' @param j1 current span start
 #' @param k current span end
 #' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
 #' @export
-calc_ds <- function(j1, k, e, segs) {
+calc_ds <- function(j1, k, w, e, segs) {
 
-    look <- IRanges(start=j, end=k)  #Check to make sure we got boundaried right, here we have direct overlap
+    look <- IRanges(start=j1, end=k)  #Check to make sure we got boundaried right, here we have direct overlap
     ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
     diffj <- restrict(ov, end = j1)
     diffk <- restrict(ov, start = k)
 
     potential = 0
 
-    for (len in width(ov)){
-        potential = potential + e(len) + e(k-j1+1) - e(diffj) -  e(diffk)
+    if (length(ov) < 1){
+        return(0)
     }
 
-    potential = potential * w(length(ov))
+    for (len in width(diffj)){
+        potential = potential - e(len)
+    }
+
+    for (len in width(diffk)){
+        potential = potential - e(len)
+    }
+
+    for (len in width(ov)){
+        potential = potential + e(len) + e(k-j1)
+    }
+
+    potential <- potential * w(length(ov))
 
     return(potential)
 
@@ -263,31 +294,16 @@ calc_ds <- function(j1, k, e, segs) {
 
 ##  \Delta([j+1,k]) \ref{eq:Delta}
 ## score function
-#' Calculates \Delta([j+1,k])
-#' @param e potential function
+#' Calculates Delta(j+1,k)
 #' @param j1 current span start
 #' @param k current span end
 #' @param dl dl list
 #' @param dle dle list
 #' @param dlov dlov list
 #' @param drov drov list
-#' @param ds delta star
+#' @param dstar delta star
 #' @export
-scoref <- function(e, j1, k, dl, dle, dlov, drov, ds){
-    return (e(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k)))
+scoref <- function(j1, k, dl, dle, dlov, drov, dstar){
+    return(dl[[j1]] - dle[[j1]] + dlov[[k]] + drov[[j1]] + dstar)
 }
-
-
-### DATA SET DOC
-
-#' Segements from transcriptome time-series from budding yeast.
-#'
-#' segmenTier processed transcriptome time-series data from a region encompassing
-#' four genes and a regulatory upstream non-coding RNA in budding yeast.
-#' The data set is described in more detail in the publication
-#' Machne, Murray & Stadler (2017) <doi:10.1038/s41598-017-12401-8>.
-#'
-#' @name primseg436_sset
-#' @docType data
-NULL
 
