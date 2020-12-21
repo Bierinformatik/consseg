@@ -15,6 +15,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Depends:
   R (>= 2.10)
+biocViews:
 Imports:
-  segmenTier (>= 0.1.2)
+  segmenTier (>= 0.1.2),
   IRanges
