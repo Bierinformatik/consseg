@@ -28,8 +28,8 @@ time <- function() format(Sys.time(), "%Y%m%d %H:%M:%S")
 msg <- function(x) cat(x, file=stdout()) # until piping is implemented
 ## stored "warnings" (actually detailed messages)
 warn <- function(w, warnings,verb=FALSE) {
-  if (verb) cat(w)
-  c(warnings,w)
+    if (verb) cat(w)
+    c(warnings,w)
 }
 
 ###TODO Check what is really needed
@@ -53,53 +53,86 @@ warn <- function(w, warnings,verb=FALSE) {
 #' @export
 consensus <- function(RS, w, e) {
 
-  segs <- extract_segments(RS) #list of segment start/end coordinates
-  m <- length(RS$ids) #number of segmentations
-  n <- RS$N #length of segmented sequence
-  l <- length(RS$segments$ID)#number of segments
-  S <- NULL
+    segs <- extract_segments(RS) #list of segment start/end coordinates
+    m <- length(RS$ids) #number of segmentations
+    n <- RS$N #length of segmented sequence
+    l <- length(RS$segments$ID)#number of segments
+    S <- NULL
 
-  if (!is.function(w)){ #if not function we replace with dummy, assuming a sensible weight functions needs i, j and m for normalization, we now assume the user inputs some value and we strictly normalize such that sum(w) = 1
-    w <- function(i,j,m){ i=0; j=0; return(1/m)} #For now we only normalize by nr of segments, each segment has same weight
-  }
-
-  if (!is.function(e)){ #if not function we replace with dummy. Assuming a sensible potential function is based on segment length we just say lenght^2/2. Could be entropie function of whatever
-    e <- function(width){ return(width^2/2)}
-    # Gleichung 8/12, e gibt laenge des segments zurueck, e is wieder user definiert, sowas wie laenge Intervall ^ 2 /2 oder entropie
-    # [j +1, k] intervall der einen interessiert
-    # Max so viele Eintraege wie inputsegmentierungen
-  }
-
-  #Precalculate the potentials for dl, dle, dlov, drov over all i's
-
-  dl <- list()
-  dle <- list()
-  dlov <- list()
-  drov <- list()
-
-  for (i in 1:n){
-    dl[i] <- calc_dl(i, e, segs)
-    dle[i] <- calc_dle(i, e, segs)
-    dlov[i] <- calc_dlov(i, e, segs)
-    drov[i] <- calc_drov(i, e, segs)
-  }
-
-  # Generate lookup for interval overlapping segments
-  #### HIER WEITER ####
-  lookup <- list()
-    lookup_segments(j, k, segs)
-
-  F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
-  jmin <- F       ## backtracing vector: store position j in recursion
-
-
-  for ( j in 1:n) {
-    for ( k in j+1:n ) {
+    if (!is.function(w)){ #if not function we replace with dummy, assuming a sensible weight functions needs i, j and m for normalization, we now assume the user inputs some value and we strictly normalize such that sum(w) = 1
+        w <- function(m){return(1/m)} #For now we only normalize by nr of segments, each segment has same weight
     }
-    ## F[k] = min(scoref(j+1,k) + F[j])
-    ## j1min ## store position of min
-    score <= scoref(e, j1, k, dl, dle, dlov, drov, ds)
-  }
+
+    if (!is.function(e)){ #if not function we replace with dummy. Assuming a sensible potential function is based on segment length we just say lenght^2/2. Could be entropie function of whatever
+        e <- function(width){ return(width^2/2)}
+                                        # Gleichung 8/12, e gibt laenge des segments zurueck, e is wieder user definiert, sowas wie laenge Intervall ^ 2 /2 oder entropie
+                                        # [j +1, k] intervall der einen interessiert
+                                        # Max so viele Eintraege wie inputsegmentierungen
+    }
+
+                                        #Precalculate the potentials for dl, dle, dlov, drov over all i's
+
+    dl <- list()
+    dle <- list()
+    dlov <- list()
+    drov <- list()
+
+    for (i in 1:n){
+        dl[i] <- calc_dl(i, w, e, segs)
+        dle[i] <- calc_dle(i, w, e, segs)
+        dlov[i] <- calc_dlov(i, w, e, segs)
+        drov[i] <- calc_drov(i, w, e, segs)
+    }
+
+# Generate lookup for interval overlapping segments
+#### HIER WEITER ####
+#### for(k=1;k<=n;k++) {
+### dsm[k] = dsm[k-1]
+### dsq[k] = dsm[k-1]
+### dcd[k] = 0
+### dcu[k] = 0
+### for (m=0, m<M, m++) {
+###   if (Bup[k,m]== k) dsm[k] += w(m)*aeh(Bup[k,m]-Bdw[k,m]+1);
+###   if (Bdw[k,m]== k) dsq[k] += w(m)*aeh(Bup[k,m]-Bdw[k,m]+1);
+###   dcd[k] += w(m)*aeh(k-vor[k,m]+1);
+###   dcu[k] += w(m)*aeh(Bup[k,m]-k+1);
+### }
+### dstar = 0
+### F[k]   = infty
+### for(j=0;j<k;j++) {
+###   /* interval = [j+1,k] */
+###     for (m=0, m<M, m++) {
+###       if ( (Blw[k]<j+1) && (Bup[k]>k) ) {
+###         dtmp = aeh(Bup[k]-Blw[k]+1) + aeh(k-j)
+###         - aeh(Blw[k]-j) - aeh(Bup[k]-k+1)
+###         dstar += w(m)*dtmp
+###       }
+###     }
+###   Dtmp = dsm[l] - dsq[j+1] + dcd[k] + dcu[j+1] + dstar
+###   D = aeh(k-j) - 2*Dtmp
+###   /* we don't want to store D, so we keep the pointer */
+###     if( F[j] + D < F[k] ) {
+###         F[k] = F[j]+D
+###         prt[k] = j
+###     }
+###   }
+### }
+####
+####
+#    lookup <- list()
+#    lookup_segments(j, k, segs)
+#
+#    F <- rep(NA, m) ## recursion vector, F[k] = min(scoref(j+1,k) + F[j])
+#    jmin <- F       ## backtracing vector: store position j in recursion
+#
+#
+#    for ( j in 1:n) {
+#        for ( k in j+1:n ) {
+#        }
+#        ## F[k] = min(scoref(j+1,k) + F[j])
+#        ## j1min ## store position of min
+#        score <= scoref(e, j1, k, dl, dle, dlov, drov, ds)
+#    }
 }
 
 # EXTRACT SEGMENTS
@@ -108,33 +141,26 @@ consensus <- function(RS, w, e) {
 #' @export
 extract_segments <- function(S){
 
-  #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
-  SO = subset(S$segments, select = c("ID","type","CL","start","end"))
-  SO$width <- SO$end-SO$start+1
+#we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
+    SO = subset(S$segments, select = c("ID","type","CL","start","end"))
+    SO$width <- SO$end-SO$start+1
 
-  startlist <- split(SO$width, SO$start)
-  endlist <- split(SO$width, SO$end)
-  returnlist <- list("starts" = startlist, "ends" = endlist)
+    startlist <- split(SO$width, SO$start)
+    endlist <- split(SO$width, SO$end)
+    returnlist <- list("starts" = startlist, "ends" = endlist)
 
-  return(returnlist)
+    return(returnlist)
 
 }
 
-#### NOTE: We could think about putting this into an IRanges object for easy intersection of position
-extract_segmentwise <- function(S){
+#### NOTE: Create IRanges object for easy intersection of position
+extract_ranges <- function(S){
 
-  #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
-  SO = subset(S$segments, select = c("ID","type","CL","start","end"))
-  SO$width <- SO$end-SO$start+1
+    #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
+    SO = subset(S$segments, select = c("ID","type","CL","start","end"))
+    ranges <- IRanges(start=SO$start, end=SO$end)
 
-  startlist <- split(SO$start, SO$type)
-  names(startlist) <- paste0("start.",1:length(startlist))
-  endlist <- split(SO$end, SO$type)
-  names(endlist) <- paste0("end.",1:length(endlist))
-
-  returnlist <- c(startlist, endlist)
-
-  return(returnlist)
+    return(ranges)
 }
 
 ## inverse_lookup
@@ -145,15 +171,15 @@ extract_segmentwise <- function(S){
 #' @export
 lookup_overlap <- function(j, k, segs) {
 
-  overlap_start <- segs$starts[ i>= which(as.integer(names(segs$starts)) <= k)]
-  potential = 0
-  for (points in breakpoints){
-    for (point in points){
-      potential = potential + e(as.integer(point))
+    overlap_start <- segs$starts[ i>= which(as.integer(names(segs$starts)) <= k)]
+    potential = 0
+    for (points in breakpoints){
+        for (point in points){
+            potential = potential + e(as.integer(point))
+        }
     }
-  }
 
-  return(potential)
+    return(potential)
 
 }
 
@@ -161,83 +187,123 @@ lookup_overlap <- function(j, k, segs) {
 ## \delta_{<}(i)
 ## all segments that start and end left of i (used for right border, k)
 #' @param i current position
+#' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
 #' @export
-calc_dl <- function(i, e, segs) {
+calc_dl <- function(i, w, e, segs) {
 
-  breakpoints <- segs$ends[which(as.integer(names(segs$ends)) < i)]
-  potential = 0
+    breakpoints <- segs$ends[which(as.integer(names(segs$ends)) < i)]
+    potential = 0
+    m = lenght(breakpoints)
 
-  for (points in breakpoints){
-    for (point in points){
-      potential = potential + e(as.integer(point))
+    for (points in breakpoints){
+        m = m + lenght(points) #Sum up the number of breakpoint to make sum weight eq 1
     }
-  }
+    for (points in breakpoints){
+        for (point in points){
+            potential = potential + w(m) * e(as.integer(point))
+        }
+    }
 
-  return(potential)
+    return(potential)
 
 }
 
 ## \delta_{\le}(i)
 ## all segments that start left of i (used for left border, j+1)
 #' @param i current position
+#' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
 
 #' @export
-calc_dle <- function(i, e, segs) {
+calc_dle <- function(i, w, e, segs) {
 
-  breakpoints <- segs$starts[which(as.integer(names(segs$starts)) < i)]
-  potential = 0
-  for (points in breakpoints){
-    for (point in points){
-      potential = potential + e(as.integer(point))
+    breakpoints <- segs$starts[which(as.integer(names(segs$starts)) < i)]
+    potential = 0
+    m = lenght(breakpoints)
+
+    for (points in breakpoints){
+        m = m + lenght(points) #Sum up the number of breakpoint to make sum weight eq 1
     }
-  }
+    for (points in breakpoints){
+        for (point in points){
+            potential = potential + w(m) * e(as.integer(point))
+        }
+    }
 
-  return(potential)
+    return(potential)
 
 }
 
 ## \delta^{\cap}_{<}(i)
 ## all segments that span i, count left of i (used for right border, k)
 #' @param i current position
+#' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
 #' @export
-calc_dlov <- function(i, e, segs) {
+calc_dlov <- function(i, w, e, segs) {
 
-  breakpoints <- segs$starts[which(as.integer(names(segs$starts)) < i)]
-  potential = 0
-  for (points in breakpoints){
-    for (point in points){
-      potential = potential + e(as.integer(point-i+1)) #i is the start and we want the cyan part that spans into the j1,k interval
+    breakpoints <- segs$starts[which(as.integer(names(segs$starts)) <= i)]
+    #segs$ends[which(as.integer(names(segs$ends)) >= i)]
+    potential = 0
+    m = 0
+
+    for (seg in segs$starts){
+        for (start in seg){
+            end = start+-i
+            if (diff >0){
+               m = lenght(points) #Sum up the number of segments that span to make sum weight eq 1
+            }
+        }
     }
-  }
+    for (points in breakpoints){
+        m = lenght(points)
+        for (point in points){
+            diff = points+point-i
+            if (diff > 0){
+                potential = potential + w(m) * e(as.integer(diff)) #i is the start and we want the cyan part that spans into the j1,k interval
+            }
+        }
+    }
 
-  return(potential)
+    return(potential)
 
 }
 
 ## \delta^{\cap}_{>}(i)
 ## all segments that span i, count right of i (used left border, j+1)
 #' @param i current position
+#' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
 #' @export
-calc_drov <- function(i, e, segs) {
+calc_drov <- function(i, w, e, segs) {
 
-  breakpoints <- segs$ends[which(as.integer(names(segs$ends)) < i)]
-  potential = 0
+    breakpoints <- segs$starts[which(as.integer(names(segs$starts)) <= i)]
+    potential = 0
+    m = 0
 
-  for (points in breakpoints){
-    for (point in points){
-      potential = potential + e(as.integer(i-point+1)) # i is the end and we want the magenta part that spans into j1,k
+    for (points in breakpoints){
+        for (point in points){
+            if (points + point > i){
+                m = m + lenght(points) #Sum up the number of breakpoints to make sum weight eq 1
+            }
+        }
     }
-  }
+    for (points in breakpoints){
+        m = lenght(points)
+        for (point in points){
+            diff = points-(point+i)
+            if (diff > 0){
+               potential = potential + w(m) * e(as.integer(point-(points-i-1)+1)) # i is the end and we want the magenta part that spans into j1,k
+            }
+        }
+    }
 
-  return(potential)
+    return(potential)
 
 }
 
@@ -245,6 +311,7 @@ calc_drov <- function(i, e, segs) {
 ## all segments that span j+1/k (current left and right border)
 #' @param j1 current span start
 #' @param k current span end
+#' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
 #' @export
@@ -265,14 +332,14 @@ calc_ds <- function(j1, k, e, segs) {
 #' @param ds delta star
 #' @export
 scoref <- function(e, j1, k, dl, dle, dlov, drov, ds){
-  return (e(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k)))
+    return (e(j1,k) -2*(dl(k) - dle(j1) + dlov(k) + drov(j1) + ds(j1,k)))
 }
 
 
 ##### TRASH #####
 ##### ##### #####
 
-# CREATE BREAKPOINT REVERSE LOOKUP
+                                        # CREATE BREAKPOINT REVERSE LOOKUP
 #####FUTURE Sparsify from S to SM with j = 6 , instead of SM with j = Nr. of segments
 ## Along sequence n..m all segments
 ## starting and ending at interval n..i-1
@@ -286,32 +353,32 @@ scoref <- function(e, j1, k, dl, dle, dlov, drov, ds){
 #' @export
 lookup_segments <- function(S){
 
-  segs <- extract_segments(S)
-  m <- length(segs)/2
-  n <- S$N #Total length of input sequences
+    segs <- extract_segments(S)
+    m <- length(segs)/2
+    n <- S$N #Total length of input sequences
 
-  SM <- matrix(0, nrow = m, ncol = n)
-  # Statt matrix die start/end listen
-  # Zu jeder Position i den intervall wo bin ich fuer jede segmentierung
-  # Auf der einen Seite das interval of interest j+1,k
-  # auf der anderen Seite die Breakpoints
-  # D(k,l) rekursiv indem
-  #
-  # Array der delta erst berechnen als Summe der breakpoints
-  for (j in 1:n){
-    for (i in 1:m){
-      if ( any(sapply(segs[paste0("start.",i)],function(x) x==j)) | any(sapply(segs[paste0("end.",i)],function(x) x==j)) ){
-        SM[i:i,j:j] <- w(i,j,m)  # w marks existence of boundary and adds weight of that boundary
-        # Hier net die matrix sondern die deltas anfuellen
-        # delta_i durchschnitt ding is immer e(von der intervallcoverage)
-      }
+    SM <- matrix(0, nrow = m, ncol = n)
+                                        # Statt matrix die start/end listen
+                                        # Zu jeder Position i den intervall wo bin ich fuer jede segmentierung
+                                        # Auf der einen Seite das interval of interest j+1,k
+                                        # auf der anderen Seite die Breakpoints
+                                        # D(k,l) rekursiv indem
+                                        #
+                                        # Array der delta erst berechnen als Summe der breakpoints
+    for (j in 1:n){
+        for (i in 1:m){
+            if ( any(sapply(segs[paste0("start.",i)],function(x) x==j)) | any(sapply(segs[paste0("end.",i)],function(x) x==j)) ){
+                SM[i:i,j:j] <- w(i,j,m)  # w marks existence of boundary and adds weight of that boundary
+                                        # Hier net die matrix sondern die deltas anfuellen
+                                        # delta_i durchschnitt ding is immer e(von der intervallcoverage)
+            }
+        }
     }
-  }
 
-  ret <- list(SM, segs, m, n)
-  names(ret) <- c("SM", "segs", "m", "n")
+    ret <- list(SM, segs, m, n)
+    names(ret) <- c("SM", "segs", "m", "n")
 
-  return(ret)
+    return(ret)
 }
 
 
