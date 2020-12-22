@@ -119,6 +119,7 @@ consensus <- function(RS, w, e) {
 }
 
 # EXTRACT SEGMENTS
+# NO LONGER FUNCTIONAL!
 #' EXTRACT segements from segmenTier to ordered data.frame SO
 #' @param S list of segmentations
 #' @return A list of segment starts and ends (breakpoints)
@@ -169,7 +170,7 @@ extract_ranges <- function(S){
 #' @export
 calc_dl <- function(i, w, e, segs) {
 
-    bps <- subset(segs, end < i) #<i or <=i ?
+    bps <- subset(segs, end <= i) #<i or <=i ?
 
     if (length(bps) < 1){
         return(0)
@@ -195,7 +196,7 @@ calc_dl <- function(i, w, e, segs) {
 #' @export
 calc_dle <- function(i, w, e, segs) {
 
-    bps <- subset(segs, start < i) #<i or <= 1 ?
+    bps <- subset(segs, start <= i) #<i or <= 1 ?
 
     if (length(bps) < 1){
         return(0)
@@ -222,7 +223,7 @@ calc_dle <- function(i, w, e, segs) {
 #' @export
 calc_dlov <- function(i, w, e, segs) {
 
-    breakpoints <- subset(segs, start < i & end > i) # < > or <= >=?
+    breakpoints <- subset(segs, start <= i & end >= i) # < > or <= >=?
     diff <- restrict(breakpoints, end = (i-1)) # i-1?
 
     if (length(diff) < 1){
@@ -251,7 +252,7 @@ calc_dlov <- function(i, w, e, segs) {
 #' @export
 calc_drov <- function(i, w, e, segs) {
 
-    breakpoints <- subset(segs, start < i & end > i) # < > or <= >= ?
+    breakpoints <- subset(segs, start <= i & end >= i) # < > or <= >= ?
     diff <- restrict(breakpoints, start = (i+1)) # i+1?
 
     if (length(diff) < 1){
@@ -282,15 +283,15 @@ calc_drov <- function(i, w, e, segs) {
 #' @export
 calc_ds <- function(j, k, w, e, segs) {
 
-    look <- IRanges(start=j, end=k+1)  #Check to make sure we got boundaries right, here we have direct overlap
+    look <- IRanges(start=j, end=k+1)  #Check to make sure we got boundaries right, here we have direct overlap, so we need j+1-1 as start and k+1 as end otherwise blunt end overlaps will count as well
     ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
 
-    if (length(ov) < 1 | j == 1){
+    if (length(ov) < 1 | j == 1 | k == max(end(segs))){
         return(0)
     }
 
-    diffj <- restrict(ov, end = (j)) # -1?
-    diffk <- restrict(ov, start = (k)) # +1?
+    diffk <- restrict(ov, end = k) # -1? aeh(k-Blw[k]+1)
+    diffj <- restrict(ov, start = j) # +1? aeh(Bup[k]-j)
 
     potential = 0
 

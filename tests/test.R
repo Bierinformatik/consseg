@@ -6,7 +6,7 @@ data(primseg436_sset)
 
 #Extract starts and end of segments
 #segs <- simulate_ranges(200,10,12,TRUE) #repeat
-segs <- simulate_ranges(200,3,5,FALSE)
+segs <- simulate_ranges(200,1,3,FALSE)
 plotRanges(segs)
 
 # test potential functions
@@ -51,10 +51,10 @@ for (k in 1:n){
 
 ##Backtrace Kette nach von letztem j nach 0
 for (k in n:2){
-    if(ptr[k]){
+    if(!is.na(ptr[k])){
         print(paste0("k ",k," : ",ptr[k]))
         #print(ptr[[k]])
-        k = ptr[k]
+        #k = ptr[k]
     }
 }
 
