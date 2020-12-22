@@ -52,6 +52,8 @@ warn <- function(w, warnings,verb=FALSE) {
 #' @param RS, raw segmentation object from segmenTier
 #' @param w weight function or 1
 #' @param e potential function
+#' @importFrom methods is
+#' @return The consesus segmentation as IRanges object
 #' @export
 consensus <- function(RS, w, e) {
 
@@ -78,20 +80,20 @@ consensus <- function(RS, w, e) {
     dle <- list()
     dlov <- list()
     drov <- list()
-    F <- list()
 
     for (i in 1:n){
         dl[i] <- calc_dl(i, w, e, segs)
         dle[i] <- calc_dle(i, w, e, segs)
         dlov[i] <- calc_dlov(i, w, e, segs)
         drov[i] <- calc_drov(i, w, e, segs)
-        F[i] = Inf
     }
 
     dstar = 0
+    F <- list()
     ptr <- list()
 
     for (k in 1:n){
+        F[k] <- .Machine$integer.max #close to infinite
         ptr[k] <- k
         if (k == 1){
             next
@@ -108,7 +110,7 @@ consensus <- function(RS, w, e) {
         }
     }
 
-    ##Backtrace Kette nach von letztem j nach 0
+    ##Backtrace Kette von letztem k nach 0
     for (k in n:1){
         if(ptr[[k]] != k){
             print(ptr[[k]])
@@ -121,6 +123,7 @@ consensus <- function(RS, w, e) {
 # EXTRACT SEGMENTS
 #' EXTRACT segements from segmenTier to ordered data.frame SO
 #' @param S list of segmentations
+#' @return A list of segment starts and ends (breakpoints)
 #' @export
 extract_segments <- function(S){
 
@@ -139,6 +142,8 @@ extract_segments <- function(S){
 #### NOTE: Create IRanges object for easy intersection of position
 #' EXTRACT segements from segmenTier to IRanges
 #' @param S list of segmentations
+#' @importFrom IRanges disjoin
+#' @return An IRanges object of segement blocks
 #' @export
 extract_ranges <- function(S){
 
@@ -162,10 +167,11 @@ extract_ranges <- function(S){
 #' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
+#' @return delta(<i)
 #' @export
 calc_dl <- function(i, w, e, segs) {
 
-    bps <- subset(segs, end < i)
+    bps <- subset(segs, end <= i) #<i or <=i ?
     potential = 0
 
     if (length(bps) < 1){
@@ -187,11 +193,11 @@ calc_dl <- function(i, w, e, segs) {
 #' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
-
+#' @return delta(<=i)
 #' @export
 calc_dle <- function(i, w, e, segs) {
 
-    bps <- subset(segs, end < i)
+    bps <- subset(segs, start < i) #<i or <= 1 ?
     potential = 0
 
     if (length(bps) < 1){
@@ -208,16 +214,18 @@ calc_dle <- function(i, w, e, segs) {
 
 ## \delta^{\cap}_{<}(i)
 ## all segments that span i, count left of i (used for right border, k)
-#' Calculates delta(<i)
+#' Calculates delta^(<i)
 #' @param i current position
 #' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
+#' @importFrom IRanges restrict
+#' @return delta^(<i)
 #' @export
 calc_dlov <- function(i, w, e, segs) {
 
-    breakpoints <- subset(segs, start <= i & end >= i)
-    diff <- restrict(breakpoints, end = i)
+    breakpoints <- subset(segs, start < i & end > i) # < > or <= >=?
+    diff <- restrict(breakpoints, end = (i-1)) # i-1?
 
     if (length(diff) < 1){
         return(0)
@@ -235,16 +243,18 @@ calc_dlov <- function(i, w, e, segs) {
 
 ## \delta^{\cap}_{>}(i)
 ## all segments that span i, count right of i (used left border, j+1)
-#' Calculates delta(>i)
+#' Calculates delta^(>i)
 #' @param i current position
 #' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
+#' @importFrom IRanges restrict
+#' @return delta^(>i)
 #' @export
 calc_drov <- function(i, w, e, segs) {
 
-    breakpoints <- subset(segs, start <= i & end >= i)
-    diff <- restrict(breakpoints, start = i)
+    breakpoints <- subset(segs, start < i & end > i) # < > or <= >= ?
+    diff <- restrict(breakpoints, start = (i+1)) # i+1?
 
     if (length(diff) < 1){
         return(0)
@@ -263,24 +273,28 @@ calc_drov <- function(i, w, e, segs) {
 ## \delta^*(i',i'')
 ## all segments that span j+1/k (current left and right border)
 #' Calculates delta*(i',i'')
-#' @param j1 current span start
+#' @param j current span start
 #' @param k current span end
 #' @param w weight function
 #' @param e potential function
 #' @param segs starts/ends vector of segments returning segment width
+#' @import IRanges
+#' @import S4Vectors
+#' @return delta*(i',i'')
 #' @export
-calc_ds <- function(j1, k, w, e, segs) {
+calc_ds <- function(j, k, w, e, segs) {
 
-    look <- IRanges(start=j1, end=k)  #Check to make sure we got boundaried right, here we have direct overlap
+    look <- IRanges(start=(j+1), end=k)  #Check to make sure we got boundaries right, here we have direct overlap
     ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
-    diffj <- restrict(ov, end = j1)
-    diffk <- restrict(ov, start = k)
-
-    potential = 0
 
     if (length(ov) < 1){
         return(0)
     }
+
+    diffj <- restrict(ov, end = (j)) # -1?
+    diffk <- restrict(ov, start = (k)) # +1?
+
+    potential = 0
 
     for (len in width(diffj)){
         potential = potential - e(len)
@@ -291,7 +305,7 @@ calc_ds <- function(j1, k, w, e, segs) {
     }
 
     for (len in width(ov)){
-        potential = potential + e(len) + e(k-j1)
+        potential = potential + e(len) + e(k-j)
     }
 
     potential <- potential * w(length(ov))
@@ -304,16 +318,17 @@ calc_ds <- function(j1, k, w, e, segs) {
 ##  \Delta([j+1,k]) \ref{eq:Delta}
 ## score function
 #' Calculates Delta(j+1,k)
-#' @param j1 current span start
+#' @param j current span start
 #' @param k current span end
 #' @param dl dl list
 #' @param dle dle list
 #' @param dlov dlov list
 #' @param drov drov list
 #' @param dstar delta star
+#' @return Delta(j+1,k)
 #' @export
-scoref <- function(j1, k, dl, dle, dlov, drov, dstar){
-    return(dl[[j1]] - dle[[j1]] + dlov[[k]] + drov[[j1]] + dstar)
+scoref <- function(j, k, dl, dle, dlov, drov, dstar){
+    return(dl[[k]] - dle[[j]] + dlov[[k]] + drov[[(j+1)]] + dstar)
 }
 
 #' Simulate IRanges of segments
@@ -321,6 +336,8 @@ scoref <- function(j1, k, dl, dle, dlov, drov, dstar){
 #' @param n number of sequences
 #' @param s upper bound for number of segmentations per sequence
 #' @param r repeat first segmentation n times
+#' @importFrom IRanges disjoin
+#' @return An IRanges object of simulated segments
 #' @export
 simulate_ranges <- function(l, n, s, r){
 
@@ -330,7 +347,7 @@ simulate_ranges <- function(l, n, s, r){
     if (r){
         nr_of_segments <- sample(s, size = 1)
         if (nr_of_segments %% 2){
-            nr_of_segments = nr_of_segments +1
+            nr_of_segments = nr_of_segments + 1
         }
         print(paste0("Simulating ", n, " sequences of length ", l, " with ", nr_of_segments, " segments"))
         segmentations <- sort(sample(l, size = nr_of_segments, replace = FALSE))
@@ -341,17 +358,49 @@ simulate_ranges <- function(l, n, s, r){
         ranges <- rep(ranges,each=n)
     }
     else{
-        for (i in i:n){
+        print(paste0("Simulating ", n, " sequences of length ", l))
+        for (i in 1:n){
             nr_of_segments <- sample(s, size = 1)
             if (nr_of_segments %% 2){
-                nr_of_segments = nr_of_segments +1
+                nr_of_segments = nr_of_segments + 1
             }
-            print(paste0("Simulating ", n, " sequences of length ", l, " with ", nr_of_segments, " segments"))
-            segmentations <- sample(nr_of_segments, size = l, replace = FALSE)
-            subr <- c(IRanges(start=c(), end=sub$end), total)
+            print(paste0("Sequence ", i, " with ", nr_of_segments, " segments"))
+            segmentations <- sort(sample(l, size = nr_of_segments, replace = FALSE))
+            starts <- segmentations[c(TRUE, FALSE)]
+            ends <- segmentations[c(FALSE, TRUE)]
+            subr <- c(IRanges(start=starts, end=ends), total)
             ranges <- c(disjoin(subr), ranges)
         }
     }
 
     return(ranges)
+}
+
+
+#' Plot Ranges of segments
+#' Adopted from [IRangesOverview](https://www.bioconductor.org/packages/devel/bioc/vignettes/IRanges/inst/doc/IRangesOverview.pdf)
+#' @param x ranges
+#' @param xlim x-axis limit
+#' @param main plot main title
+#' @param col color for plot
+#' @param sep separator for consecutive segment blocks
+#' @return A plot of segments
+#' @import graphics
+#' @importFrom methods is
+#' @export
+plotRanges <- function(x, xlim=x, main=deparse(substitute(x)), col="black", sep=0.5){
+
+    height <- 1
+    if (is(xlim, "IntegerRanges")){
+        xlim <- c(min(start(xlim)), max(end(xlim)))
+    }
+    bins <- disjointBins(IRanges(start(x), end(x) + 1))
+    plot.new()
+    plot.window(xlim, c(0, max(bins)*(height + sep)))
+    ybottom <- bins*(sep + height) - height
+    rect(start(x)-0.5, ybottom, end(x)+0.5, ybottom + height, col=col)
+    title(main)
+    axis(1)
+
+    return(plot)
 }

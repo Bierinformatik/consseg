@@ -11,7 +11,7 @@ Authors@R:
            family = "Machne",
            role = c("aut", "cre"),
            email = "raim@tbi.univie.ac.at")       
-Description: Consensus segmentation extension to segemTier
+Description: ConsSeg finds consensus segmentation from cluster based segementation input: In particular in the context of transcript identification it is of interest to reconcile segmentations obtained from different experiments or from the same experiment(s) with different segmentation algorithms or parameter settings. While boundaries may not be clearly visible in individual data tracks,aggregation of multiple experiments can lead to a much clearer picture. Still, any particular choice of parameters tends to produce both false positive and false negative segment boundaries. A natural way to reduce this noise is to compute a consensus.
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -22,4 +22,6 @@ Depends:
 biocViews:
 Imports:
   segmenTier (>= 0.1.2),
-  IRanges (>= 2.22.2)
+  IRanges (>= 2.22.2),
+  S4Vectors,
+  methods
