@@ -80,22 +80,22 @@ consensus <- function(RS, w, e) {
     dle <- numeric()
     dlov <- numeric()
     drov <- numeric()
-
-    for (i in 1:n){
-        dl[i] <- calc_dl(i, w, e, segs)
-        dle[i] <- calc_dle(i, w, e, segs)
-        dlov[i] <- calc_dlov(i, w, e, segs)
-        drov[i] <- calc_drov(i, w, e, segs)
-    }
-
     F <- numeric()
     ptr <- numeric()
 
     for (k in 1:n){
+
+        dl[k] <- calc_dl(k, w, e, segs)
+        dle[k] <- calc_dle(k, w, e, segs)
+        dlov[k] <- calc_dlov(k, w, e, segs)
+        drov[k] <- calc_drov(k, w, e, segs)
+
         F[k] <- .Machine$integer.max #close to infinite
+
         if (k == 1){
             next
         }
+
         for(j in 1:(k-1)) { #j+1
             dstar <- calc_ds(j, k, w, e, segs)
             Dtmp = scoref(j, k, dl, dle, dlov, drov, dstar)
@@ -169,15 +169,15 @@ extract_ranges <- function(S){
 #' @export
 calc_dl <- function(i, w, e, segs) {
 
-    bps <- subset(segs, end <= i) #<i or <=i ?
-    potential = 0
+    bps <- subset(segs, end < i) #<i or <=i ?
 
     if (length(bps) < 1){
         return(0)
     }
 
+    potential <- 0
     for (len in width(bps)){
-                potential = potential + w(length(bps)) * e(len)
+                potential <- potential + w(length(bps)) * e(len)
     }
 
     return(potential)
@@ -196,14 +196,14 @@ calc_dl <- function(i, w, e, segs) {
 calc_dle <- function(i, w, e, segs) {
 
     bps <- subset(segs, start < i) #<i or <= 1 ?
-    potential = 0
 
     if (length(bps) < 1){
         return(0)
     }
 
+    potential <- 0
     for (len in width(bps)){
-        potential = potential + w(length(bps)) * e(len)
+        potential <- potential + w(length(bps)) * e(len)
     }
 
     return(potential)
@@ -229,10 +229,10 @@ calc_dlov <- function(i, w, e, segs) {
         return(0)
     }
 
-    potential = 0
+    potential <- 0
 
     for (len in width(diff)){
-        potential = potential + w(length(diff)) * e(len)
+        potential <- potential + w(length(diff)) * e(len)
     }
 
     return(potential)
@@ -258,10 +258,10 @@ calc_drov <- function(i, w, e, segs) {
         return(0)
     }
 
-    potential = 0
+    potential <- 0
 
     for (len in width(diff)){
-        potential = potential + w(length(diff)) * e(len)
+        potential <- potential + w(length(diff)) * e(len)
     }
 
     return(potential)
@@ -282,10 +282,10 @@ calc_drov <- function(i, w, e, segs) {
 #' @export
 calc_ds <- function(j, k, w, e, segs) {
 
-    look <- IRanges(start=(j+1), end=k)  #Check to make sure we got boundaries right, here we have direct overlap
+    look <- IRanges(start=j, end=k+1)  #Check to make sure we got boundaries right, here we have direct overlap
     ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
 
-    if (length(ov) < 1){
+    if (length(ov) < 1 | j == 1){
         return(0)
     }
 
@@ -329,6 +329,7 @@ scoref <- function(j, k, dl, dle, dlov, drov, dstar){
     return(dl[k] - dle[j] + dlov[k] + drov[(j+1)] + dstar)
 }
 
+
 #' Simulate IRanges of segments
 #' @param l length of sequence
 #' @param n number of sequences
@@ -344,7 +345,7 @@ simulate_ranges <- function(l, n, s, r){
 
     if (r){
         nr_of_segments <- sample(s, size = 1)
-        if (nr_of_segments %% 2){
+        if (nr_of_segments %% 2){ #need start/end pairs so %2 == 0
             nr_of_segments = nr_of_segments + 1
         }
         print(paste0("Simulating ", n, " sequences of length ", l, " with ", nr_of_segments, " segments"))
@@ -359,7 +360,7 @@ simulate_ranges <- function(l, n, s, r){
         print(paste0("Simulating ", n, " sequences of length ", l))
         for (i in 1:n){
             nr_of_segments <- sample(s, size = 1)
-            if (nr_of_segments %% 2){
+            if (nr_of_segments %% 2){ #need start/end pairs so %2 == 0
                 nr_of_segments = nr_of_segments + 1
             }
             print(paste0("Sequence ", i, " with ", nr_of_segments, " segments"))
@@ -381,22 +382,30 @@ simulate_ranges <- function(l, n, s, r){
 #' @param xlim x-axis limit
 #' @param main plot main title
 #' @param col color for plot
+#' @param border color for plot borders
 #' @param sep separator for consecutive segment blocks
 #' @return A plot of segments
 #' @import graphics
 #' @importFrom methods is
 #' @export
-plotRanges <- function(x, xlim=x, main=deparse(substitute(x)), col="black", sep=0.5){
+plotRanges <- function(x, xlim=x, main=deparse(substitute(x)), col="lightgrey", border="black", sep=0.5){
 
     height <- 1
     if (is(xlim, "IntegerRanges")){
         xlim <- c(min(start(xlim)), max(end(xlim)))
     }
-    bins <- disjointBins(IRanges(start(x), end(x) + 1))
+    #bins <- disjointBins(IRanges(start(x), end(x) + 1))
     plot.new()
-    plot.window(xlim, c(0, max(bins)*(height + sep)))
-    ybottom <- bins*(sep + height) - height
-    rect(start(x)-0.5, ybottom, end(x)+0.5, ybottom + height, col=col)
+    segnr <- length(subset(start(x), start(x) == 1))
+    plot.window(xlim, c(0, segnr*(height + sep)))
+    nr <- 0
+    for (i in 1:length(start(x))){
+        if (start(x)[i] == 1){
+           nr <- nr + 1
+        }
+        ybottom <- nr*(sep + height) - height
+        rect(start(x)[i]-0.5, ybottom, end(x)[i]+0.5, ybottom + height, col=col, border=border)
+    }
     title(main)
     axis(1)
 
