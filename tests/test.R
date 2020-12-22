@@ -20,10 +20,10 @@ l <- 10
 w <- function(m){return(1/m)}
 e <- function(width){ return(width^2/2)}
 
-dl <- list()
-dle <- list()
-dlov <- list()
-drov <- list()
+dl <- numeric()
+dle <- numeric()
+dlov <- numeric()
+drov <- numeric()
 
 for (i in 1:n){
     dl[i] <- calc_dl(i, w, e, segs)
@@ -32,12 +32,11 @@ for (i in 1:n){
     drov[i] <- calc_drov(i, w, e, segs)
 }
 
-F <- list()
-ptr <- list()
+F <- numeric()
+ptr <- numeric()
 
 for (k in 1:n){
     F[k] <- .Machine$integer.max #as close to infinite as is comes
-    ptr[k] <- NULL
     dstar = 0
     if (k == 1){
         next #just need to initialize F[k] and pointer here
@@ -45,12 +44,12 @@ for (k in 1:n){
     print(paste0("k ",k))
     for(j in 1:(k-1)) { #j+1
         dstar <- calc_ds(j, k, w, e, segs)
-        Dtmp = scoref((j+1), k, dl, dle, dlov, drov, dstar)
+        Dtmp = scoref(j, k, dl, dle, dlov, drov, dstar)
         D = e(k-j+2) - 2*Dtmp
         ##we don't want to store D, so we keep the pointer
-        if( (F[[j]] + D) < F[[k]] ) { # Da hats was, F[k] is hier fast immer groesser als F[j] + D
-            print(paste0("FOUND NEW MINIMA ",(F[[j]] + D)," lower than ",F[[k]]," for k ",k," and j ",j))
-            F[[k]] = F[[j]] + D
+        if( (F[j] + D) < F[k] ) { # Da hats was, F[k] is hier fast immer groesser als F[j] + D
+            print(paste0("FOUND NEW MINIMA ",(F[j] + D)," lower than ",F[k]," for k ",k," and j ",j))
+            F[k] = F[j] + D
             ptr[k] = j
         }
     }
@@ -58,10 +57,10 @@ for (k in 1:n){
 
 ##Backtrace Kette nach von letztem j nach 0
 for (k in n:2){
-    if(ptr[[k]]){
-        print(paste0("k ",k," : ",ptr[[k]]))
+    if(ptr[k]){
+        print(paste0("k ",k," : ",ptr[k]))
         #print(ptr[[k]])
-        k = ptr[[k]]
+        k = ptr[k]
     }
 }
 

@@ -76,10 +76,10 @@ consensus <- function(RS, w, e) {
 
     #Precalculate the potentials for dl, dle, dlov, drov over all i's
 
-    dl <- list()
-    dle <- list()
-    dlov <- list()
-    drov <- list()
+    dl <- numeric()
+    dle <- numeric()
+    dlov <- numeric()
+    drov <- numeric()
 
     for (i in 1:n){
         dl[i] <- calc_dl(i, w, e, segs)
@@ -88,13 +88,11 @@ consensus <- function(RS, w, e) {
         drov[i] <- calc_drov(i, w, e, segs)
     }
 
-    dstar = 0
-    F <- list()
-    ptr <- list()
+    F <- numeric()
+    ptr <- numeric()
 
     for (k in 1:n){
         F[k] <- .Machine$integer.max #close to infinite
-        ptr[k] <- k
         if (k == 1){
             next
         }
@@ -103,8 +101,8 @@ consensus <- function(RS, w, e) {
             Dtmp = scoref(j, k, dl, dle, dlov, drov, dstar)
             D = e(k-j) - 2*Dtmp
             ##we don't want to store D, so we keep the pointer
-            if( (F[[j]] + D) < F[[k]] ) {
-                F[[k]] = F[[j]] + D
+            if( (F[j] + D) < F[k] ) {
+                F[k] = F[j] + D
                 ptr[k] = j
             }
         }
@@ -112,9 +110,9 @@ consensus <- function(RS, w, e) {
 
     ##Backtrace Kette von letztem k nach 0
     for (k in n:1){
-        if(ptr[[k]] != k){
-            print(ptr[[k]])
-            k = ptr[[k]]
+        if(ptr[k] != k){
+            print(ptr[k])
+            k = ptr[k]
         }
     }
 
@@ -328,7 +326,7 @@ calc_ds <- function(j, k, w, e, segs) {
 #' @return Delta(j+1,k)
 #' @export
 scoref <- function(j, k, dl, dle, dlov, drov, dstar){
-    return(dl[[k]] - dle[[j]] + dlov[[k]] + drov[[(j+1)]] + dstar)
+    return(dl[k] - dle[j] + dlov[k] + drov[(j+1)] + dstar)
 }
 
 #' Simulate IRanges of segments
