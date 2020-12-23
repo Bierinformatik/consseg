@@ -49,7 +49,7 @@ warn <- function(w, warnings,verb=FALSE) {
 
 ###RECURSION
 #' Calculate consensus segements C from segmenTier segments
-#' @param RS, raw segmentation object from segmenTier
+#' @param RS, raw segmentation object from segmenTier or dataframe
 #' @param w weight function or 1
 #' @param e potential function
 #' @importFrom methods is
@@ -58,16 +58,9 @@ warn <- function(w, warnings,verb=FALSE) {
 consensus <- function(RS, w, e) {
 
     segs <- extract_ranges(RS) #list of segment ranges
-    m <- length(RS$ids) #number of segmentations
-    n <- RS$N #length of segmented sequence
-    l <- length(RS$segments$ID)#number of segments
-    S <- NULL
 
-    n <- max(end(segs)) # for testing
+    n <- max(end(segs))
     M <- length(subset(start(segs), start(segs) == 1))
-    w <- function(m){return(1/m)}
-    e <- function(width){ return(width^2/2)}
-    w <- w(M)
 
     if (!is.function(w)){ #if not function we replace with dummy, assuming a sensible weight functions needs i, j and m for normalization, we now assume the user inputs some value and we strictly normalize such that sum(w) = 1
         w <- function(m){return(1/m)} #For now we only normalize by nr of segments, each segment has same weight
@@ -80,7 +73,7 @@ consensus <- function(RS, w, e) {
                                         # Max so viele Eintraege wie inputsegmentierungen
     }
 
-    #Precalculate the potentials for dl, dle, dlov, drov over all i's
+    w <- w(M) #use weight function to normalize weight of segmentations
 
     dl <- numeric()
     dle <- numeric()
@@ -96,7 +89,7 @@ consensus <- function(RS, w, e) {
         dlov[k] <- calc_dlov(k, w, e, segs)
         drov[k] <- calc_drov(k, w, e, segs)
 
-        F[k] <- .Machine$integer.max #close to infinite
+        F[k] <- .Machine$integer.max
 
         if (k == 1){
             next
@@ -114,35 +107,44 @@ consensus <- function(RS, w, e) {
         }
     }
 
-    ##Backtrace Kette von letztem k nach 0
-    for (k in n:2){
-        if(ptr[k] != k){
-            print(ptr[k])
-            k = ptr[k]
-        }
+    consensus <- backtrace(ptr)
+
+    return(consensus)
+
+}
+
+#### NOTE: Create IRanges object for easy intersection of position
+#' EXTRACT segements from segmenTier to IRanges
+#' @param ptr pointer of segment ends
+#' @return segment blocks
+#' @import IRanges
+#' @importFrom methods is
+#' @export
+backtrace <- function(ptr){
+
+    ends <- numeric()
+    ends <- c(ends, length(ptr))
+    k <- tail(ptr, n=1)
+    while(!is.na(k)){
+        ends <- c(ends, k)
+        k <- ptr[k]
     }
 
+    ends <- rev(ends)
+
+    starts <- numeric()
+    starts <- c(starts, 1)
+
+    for (e in ends){
+        if (e == tail(ends, n=1)){
+            next
+        }
+        starts <- c(starts, (e+1))
+    }
+
+    return(IRanges(start=starts,end=ends))
 }
 
-# EXTRACT SEGMENTS
-# NO LONGER FUNCTIONAL!
-#' EXTRACT segements from segmenTier to ordered data.frame SO
-#' @param S list of segmentations
-#' @return A list of segment starts and ends (breakpoints)
-#' @export
-extract_segments <- function(S){
-
-    #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
-    SO = subset(S$segments, select = c("ID","type","CL","start","end"))
-    SO$width <- SO$end-SO$start+1
-
-    startlist <- split(SO$width, SO$start)
-    endlist <- split(SO$width, SO$end)
-    returnlist <- list("starts" = startlist, "ends" = endlist)
-
-    return(returnlist)
-
-}
 
 #### NOTE: Create IRanges object for easy intersection of position
 #' EXTRACT segements from segmenTier to IRanges
@@ -152,8 +154,18 @@ extract_segments <- function(S){
 #' @export
 extract_ranges <- function(S){
 
-    SO = subset(S$segments, select = c("ID","type","CL","start","end"))
-    total <- IRanges(start=1,end=S$N)
+    SO <- NULL
+    total <- NULL
+
+    if(isS4(S)){
+        SO <- subset(S$segments, select = c("type","start","end")) #this is specific for segmenTier output
+        total <- IRanges(start=1,end=S$N)
+    }
+    else{#we assume its a data.frame
+        SO <- subset(S, select = c("type","start","end")) #this is for any data.frame
+        total <- IRanges(start=1,end=max(S$end))
+    }
+
     ranges <- NULL
 
     for (t in unique(SO$type)){
@@ -401,10 +413,11 @@ scoref <- function(j, k, dl, dle, dlov, drov, dstar){
 #' @param n number of sequences
 #' @param s upper bound for number of segmentations per sequence
 #' @param r repeat first segmentation n times
+#' @param df return dataframe
 #' @importFrom IRanges disjoin
 #' @return An IRanges object of simulated segments
 #' @export
-simulate_ranges <- function(l, n, s, r){
+simulate_ranges <- function(l, n, s, r, df){
 
     total <- IRanges(start=1,end=l)
     ranges <- NULL
@@ -438,9 +451,14 @@ simulate_ranges <- function(l, n, s, r){
         }
     }
 
+    if(df){
+        ranges <- as.data.frame(ranges)
+        counter <- 0
+        ranges$type <- sapply(ranges$start, function(s) if(s == 1){paste0("segmentation",counter<<-counter+1)} else paste0("segmentation",counter))
+    }
+
     return(ranges)
 }
-
 
 #' Plot Ranges of segments
 #' Adopted from [IRangesOverview](https://www.bioconductor.org/packages/devel/bioc/vignettes/IRanges/inst/doc/IRangesOverview.pdf)
@@ -485,3 +503,25 @@ plot_Ranges <- function(segs, xlim=segs, main=deparse(substitute(segs)), col="li
 
     return(plot)
 }
+
+
+# EXTRACT SEGMENTS
+# DEPRECATED
+#' EXTRACT segements from segmenTier to ordered data.frame SO
+#' @param S list of segmentations
+#' @return A list of segment starts and ends (breakpoints)
+##' @export
+extract_segments <- function(S){
+
+    #we need to transform this into a list of sequences that contains a list of starts,ends per segment of that sequence
+    SO = subset(S$segments, select = c("ID","type","CL","start","end"))
+    SO$width <- SO$end-SO$start+1
+
+    startlist <- split(SO$width, SO$start)
+    endlist <- split(SO$width, SO$end)
+    returnlist <- list("starts" = startlist, "ends" = endlist)
+
+    return(returnlist)
+
+}
+

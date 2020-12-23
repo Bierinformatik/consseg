@@ -7,9 +7,16 @@ data(primseg436_sset)
 #Extract starts and end of segments
 #segs <- simulate_ranges(200,10,12,TRUE) #repeat
 #plotRanges(segs,rep=TRUE)
-segs <- simulate_ranges(200,10,12,FALSE)
+segs <- simulate_ranges(50,10,5,FALSE, df=TRUE)
+
+w <- function(m){return(1/m)}
+e <- function(width){ return(width^2/2)}
+
+cons <- consensus(segs, w, e)
+
+segs <- IRanges(start=segs$start,end=segs$end)
 plot_Ranges(segs)
-segs
+
 
 # test potential functions
 #m <- length(sset$ids) #number of segmentations
