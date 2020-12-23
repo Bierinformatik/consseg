@@ -63,6 +63,12 @@ consensus <- function(RS, w, e) {
     l <- length(RS$segments$ID)#number of segments
     S <- NULL
 
+    n <- max(end(segs)) # for testing
+    M <- length(subset(start(segs), start(segs) == 1))
+    w <- function(m){return(1/m)}
+    e <- function(width){ return(width^2/2)}
+    w <- w(M)
+
     if (!is.function(w)){ #if not function we replace with dummy, assuming a sensible weight functions needs i, j and m for normalization, we now assume the user inputs some value and we strictly normalize such that sum(w) = 1
         w <- function(m){return(1/m)} #For now we only normalize by nr of segments, each segment has same weight
     }
@@ -178,7 +184,7 @@ calc_dl <- function(i, w, e, segs) {
 
     potential <- 0
     for (len in width(bps)){
-                potential <- potential + w(length(bps)) * e(len)
+                potential <- potential + w * e(len)
     }
 
     return(potential)
@@ -204,7 +210,7 @@ calc_dle <- function(i, w, e, segs) {
 
     potential <- 0
     for (len in width(bps)){
-        potential <- potential + w(length(bps)) * e(len)
+        potential <- potential + w * e(len)
     }
 
     return(potential)
@@ -233,7 +239,7 @@ calc_dlov <- function(i, w, e, segs) {
     potential <- 0
 
     for (len in width(diff)){
-        potential <- potential + w(length(diff)) * e(len)
+        potential <- potential + w * e(len)
     }
 
     return(potential)
@@ -262,7 +268,7 @@ calc_drov <- function(i, w, e, segs) {
     potential <- 0
 
     for (len in width(diff)){
-        potential <- potential + w(length(diff)) * e(len)
+        potential <- potential + w * e(len)
     }
 
     return(potential)
@@ -296,15 +302,15 @@ calc_ds <- function(j, k, w, e, segs) {
     potential = 0
 
     for (len in width(diffj)){
-        potential = potential - w(length(diffj)) * e(len)
+        potential = potential - w * e(len)
     }
 
     for (len in width(diffk)){
-        potential = potential - w(length(diffk)) * e(len)
+        potential = potential - w * e(len)
     }
 
     for (len in width(ov)){
-        potential = potential + w(length(ov)) * (e(len) + e(k-j))
+        potential = potential + w * (e(len) + e(k-j))
     }
 
     return(potential)

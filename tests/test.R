@@ -7,7 +7,7 @@ data(primseg436_sset)
 #Extract starts and end of segments
 #segs <- simulate_ranges(200,10,12,TRUE) #repeat
 #plotRanges(segs,rep=TRUE)
-segs <- simulate_ranges(50,1,5,FALSE)
+segs <- simulate_ranges(200,10,12,FALSE)
 plot_Ranges(segs)
 segs
 
@@ -16,9 +16,10 @@ segs
 #n <- sset$N #length of segmented sequence
 #l <- length(sset$segments$ID)#number of segments
 n <- max(end(segs)) # for testing
-
+M <- length(subset(start(segs), start(segs) == 1))
 w <- function(m){return(1/m)}
 e <- function(width){ return(width^2/2)}
+w <- w(M)
 
 dl <- numeric()
 dle <- numeric()
@@ -65,11 +66,13 @@ subset(bla, !grepl('dstar:0',bla))
 subset(blubb, !grepl('Dtmp:0',blubb))
 subset(blibb, !grepl('D:0',blibb))
 ##Backtrace Kette nach von letztem j nach 0
+##
+ptr
 for (k in n:2){
     if(!is.na(ptr[k])){
         print(paste0("k ",k," : ",ptr[k]))
         #print(ptr[[k]])
-        #k = ptr[k]
+        k = ptr[k]
     }
 }
 segs
