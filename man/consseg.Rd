@@ -5,6 +5,9 @@
 \alias{consseg}
 \title{consseg: consensus segment for segmenTier cluster-based segmentation
 from a sequential clustering}
+\description{
+Calculates consensus segmentation from cluster based segmentation
+}
 \section{Dependencies}{
  The package strictly depends on
 \code{segmenTier} and thus on \code{Rcpp}.

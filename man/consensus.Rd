@@ -4,10 +4,17 @@
 \alias{consensus}
 \title{Calculate consensus segements C from segmenTier segments}
 \usage{
-consensus(RS)
+consensus(RS, w, e)
 }
 \arguments{
 \item{RS, }{raw segmentation object from segmenTier}
+
+\item{w}{weight function or 1}
+
+\item{e}{potential function}
+}
+\value{
+The consesus segmentation as IRanges object
 }
 \description{
 Calculate consensus segements C from segmenTier segments

@@ -108,16 +108,22 @@ lines(dle, type = "o", col = "red")
 lines(dlov, type = "o", col = "magenta")
 lines(drov, type = "o", col = "green")
 lines(Fs,type = "o", col = "black")
-####MANUAL
 
+
+
+
+####MANUAL D berechnen
+
+segs <- simulate_ranges(10,1,3,FALSE)
+n <- max(end(segs)) # for testing
+
+w <- function(m){return(1/m)}
+e <- function(width){ return(width^2/2)}
 
 dl <- numeric()
 dle <- numeric()
 dlov <- numeric()
 drov <- numeric()
-F <- numeric()
-ptr <- numeric(1)
-
 
 for (k in 1:n){
     dl[k] <- calc_dl(k, w, e, segs)
@@ -126,6 +132,66 @@ for (k in 1:n){
     drov[k] <- calc_drov(k, w, e, segs)
 }
 
+D <- matrix(nrow = n, ncol = n)
+
+for (k in 1:n){
+    if (k == 1){
+        D[,k] <- 1
+        next #just need to initialize D[,k] here
+    }
+    print(paste0("k ",k))
+
+    for(j in 1:(k-1)) { #i+1
+        D[j,k] <- calc_DELTA(j,k,w,e,segs)
+    }
+}
+
+
+#### VS AUTO
+####
+dl <- numeric()
+dle <- numeric()
+dlov <- numeric()
+drov <- numeric()
+F <- numeric()
+ptr <- numeric(1)
+
+bla <- character()
+blubb <- character()
+blibb <- character()
+
+Dm <- matrix(nrow = n, ncol = n)
+
+for (k in 1:n){
+    dl[k] <- calc_dl(k, w, e, segs)
+    dle[k] <- calc_dle(k, w, e, segs)
+    dlov[k] <- calc_dlov(k, w, e, segs)
+    drov[k] <- calc_drov(k, w, e, segs)
+    F[k] <- .Machine$integer.max #as close to infinite as is comes
+    if (k == 1){
+        next #just need to initialize F[k] and pointer here
+    }
+    print(paste0("k ",k))
+    for(j in 1:(k-1)) { #j+1
+        dstar <- calc_ds((j+1), k, w, e, segs)
+        Dtmp <- scoref(j, k, dl, dle, dlov, drov, dstar)
+        Dm[j,k] <- e(k-j) - 2*Dtmp
+    }
+}
+
+
+subset(bla, !grepl('dstar:0',bla))
+subset(blubb, !grepl('Dtmp:0',blubb))
+subset(blibb, !grepl('D:0',blibb))
+##Backtrace Kette nach von letztem j nach 0
+for (k in n:2){
+    if(!is.na(ptr[k])){
+        print(paste0("k ",k," : ",ptr[k]))
+        #print(ptr[[k]])
+        #k = ptr[k]
+    }
+}
+segs
 
 ##TODO
 ##Simulieren 1000 lang, 30-40 Segmente, zufaellig segmentieren

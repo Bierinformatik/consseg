@@ -7,7 +7,10 @@
 extract_segments(S)
 }
 \arguments{
-\item{S}{list of segmentations (breakpoints)}
+\item{S}{list of segmentations}
+}
+\value{
+A list of segment starts and ends (breakpoints)
 }
 \description{
 EXTRACT segements from segmenTier to ordered data.frame SO

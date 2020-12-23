@@ -312,6 +312,67 @@ calc_ds <- function(j, k, w, e, segs) {
 }
 
 
+## \delta^*(i',i'')
+## all segments that span j+1/k (current left and right border)
+#' Calculates delta*(i',i'')
+#' @param j current span start
+#' @param k current span end
+#' @param w weight function
+#' @param e potential function
+#' @param segs starts/ends vector of segments returning segment width
+#' @import IRanges
+#' @import S4Vectors
+#' @return delta*(i',i'')
+#' @export
+calc_DELTA <- function(j, k, w, e, segs) {
+
+    ###D[i,k] = aeh(k-i+1)
+    ###for m = 1 to M {      /* aufsummieren ueber die input segementations */
+    ###        tmp = 0
+    ###        u = Bup[i,m]       /* bounds of the first (partial) segment */
+    ###            l = i
+    ###        while u < k {      /* add up segments with upper bound u before k
+    ###            tmp += aeh(u-l+1)
+    ###            l=u+1
+    ###            u=Bup[l,m]
+    ###        }
+    ###        tmp += aeh(k-l+1)  /* add last segment */
+    ###
+    ###            D[i,k] += 2*w(m)*tmp
+    ###}
+
+    D = e(k-j)
+
+    look <- IRanges(start=j-1, end=j+1)  #Check to make sure we     got boundaries right, here we have direct overlap, so we need j-1 as start and k+1 as end otherwise blunt end overlaps will count as well
+    ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
+    diffj <- restrict(ov, start = j) # -1? aeh(k-Blw[k]+1)
+    breakpoints <- subset(segs, end < k)
+    look <- IRanges(start=k-1, end=k+1)  #Check to make sure we     got boundaries right, here we have direct overlap, so we need j-1 as start and k+1 as end otherwise blunt end overlaps will count as well
+    ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
+    diffk <- restrict(ov, end = k) # -1? aeh(k-Blw[k]+1)
+
+    m <- length(diffj) + length(breakpoints) + length(diffk)
+
+    tmp = 0
+    if (length(diffj) > 0){
+        tmp = tmp + w(m) * e(width(diffj))
+    }
+    if (length(diffk) > 0){
+        tmp = tmp + w(m) * e(width(diffk))
+    }
+    if (length(breakpoints) > 0){
+        for (len in width(breakpoints)){
+            tmp = tmp + w(m) * e(len)
+        }
+    }
+
+    D = D + 2*tmp
+
+    return(D)
+
+}
+
+
 ##  \Delta([j+1,k]) \ref{eq:Delta}
 ## score function
 #' Calculates Delta(j+1,k)
