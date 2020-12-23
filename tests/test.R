@@ -6,14 +6,16 @@ data(primseg436_sset)
 
 #Extract starts and end of segments
 #segs <- simulate_ranges(200,10,12,TRUE) #repeat
-segs <- simulate_ranges(200,1,3,FALSE)
-plotRanges(segs)
+#plotRanges(segs,rep=TRUE)
+segs <- simulate_ranges(50,1,5,FALSE)
+plot_Ranges(segs)
+segs
 
 # test potential functions
 #m <- length(sset$ids) #number of segmentations
 #n <- sset$N #length of segmented sequence
 #l <- length(sset$segments$ID)#number of segments
-n <- 200 # for testing
+n <- max(end(segs)) # for testing
 
 w <- function(m){return(1/m)}
 e <- function(width){ return(width^2/2)}
@@ -25,21 +27,31 @@ drov <- numeric()
 F <- numeric()
 ptr <- numeric(1)
 
+bla <- character()
+blubb <- character()
+blibb <- character()
+
 for (k in 1:n){
     dl[k] <- calc_dl(k, w, e, segs)
     dle[k] <- calc_dle(k, w, e, segs)
     dlov[k] <- calc_dlov(k, w, e, segs)
     drov[k] <- calc_drov(k, w, e, segs)
     F[k] <- .Machine$integer.max #as close to infinite as is comes
-    dstar = 0
     if (k == 1){
         next #just need to initialize F[k] and pointer here
     }
     print(paste0("k ",k))
     for(j in 1:(k-1)) { #j+1
-        dstar <- calc_ds(j, k, w, e, segs)
-        Dtmp = scoref(j, k, dl, dle, dlov, drov, dstar)
-        D = e(k-j) - 2*Dtmp
+        dstar <- calc_ds((j+1), k, w, e, segs)
+        Dtmp <- scoref(j, k, dl, dle, dlov, drov, dstar)
+        D <- e(k-j) - 2*Dtmp
+
+        bla <- c(bla, paste0("j:",j," k:",k," dstar:",dstar))
+        blubb <- c(blubb, paste0("j:",j," k:",k," Dtmp:",Dtmp))
+        if (D<0){
+            blibb <- c(blibb, paste0("j:",j," k:",k," D:",D))
+        }
+
         ##we don't want to store D, so we keep the pointer
         if( (F[j] + D) < F[k] ) { # Da hats was, F[k] is hier fast immer groesser als F[j] + D
             #print(paste0("FOUND NEW MINIMA ",(F[j] + D)," lower than ",F[k]," for k ",k," and j ",j))
@@ -49,6 +61,9 @@ for (k in 1:n){
     }
 }
 
+subset(bla, !grepl('dstar:0',bla))
+subset(blubb, !grepl('Dtmp:0',blubb))
+subset(blibb, !grepl('D:0',blibb))
 ##Backtrace Kette nach von letztem j nach 0
 for (k in n:2){
     if(!is.na(ptr[k])){
@@ -57,8 +72,42 @@ for (k in n:2){
         #k = ptr[k]
     }
 }
+segs
 
+#plot all
+#
+library(scales)
+height <- max(dl,dle,dlov,drov)
+Fs <- rescale(F, to = c(0,height))
+segs
+xlim <- segs
+sep <- 0.5
+col="lightgrey"
+border="black"
+if (is(xlim, "IntegerRanges")){
+    xlim <- c(min(start(xlim)), max(end(xlim)))
+}
+#bins <- disjointBins(IRanges(start(x), end(x) + 1))
+plot.new()
+segnr <- length(subset(start(segs), start(segs) == 1))
+plot.window(xlim, c(0, (segnr)*(height + sep)))
+nr <- 0
+#par(mfrow=c(2,1))
+for (i in 1:length(start(segs))){
+    if (start(segs)[i] == 1){
+        nr <- nr + 1
+    }
+    ybottom <- nr*(sep + height) - height
+    rect(start(segs)[i], ybottom, end(segs)[i], ybottom + height, col=col, border=border)
+}
+title("compare")
+axis(1)
 
+lines(dl, type = "o", col = "blue")
+lines(dle, type = "o", col = "red")
+lines(dlov, type = "o", col = "magenta")
+lines(drov, type = "o", col = "green")
+lines(Fs,type = "o", col = "black")
 ####MANUAL
 
 

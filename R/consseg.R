@@ -109,7 +109,7 @@ consensus <- function(RS, w, e) {
     }
 
     ##Backtrace Kette von letztem k nach 0
-    for (k in n:1){
+    for (k in n:2){
         if(ptr[k] != k){
             print(ptr[k])
             k = ptr[k]
@@ -283,10 +283,10 @@ calc_drov <- function(i, w, e, segs) {
 #' @export
 calc_ds <- function(j, k, w, e, segs) {
 
-    look <- IRanges(start=j, end=k+1)  #Check to make sure we got boundaries right, here we have direct overlap, so we need j+1-1 as start and k+1 as end otherwise blunt end overlaps will count as well
+    look <- IRanges(start=j-1, end=k+1)  #Check to make sure we got boundaries right, here we have direct overlap, so we need j-1 as start and k+1 as end otherwise blunt end overlaps will count as well
     ov <- segs[subjectHits(findOverlaps(look, segs, type="within"))]
 
-    if (length(ov) < 1 | j == 1 | k == max(end(segs))){
+    if (length(ov) < 1 | k == max(end(segs)) | j == 1 | j == k){
         return(0)
     }
 
@@ -296,18 +296,16 @@ calc_ds <- function(j, k, w, e, segs) {
     potential = 0
 
     for (len in width(diffj)){
-        potential = potential - e(len)
+        potential = potential - w(length(diffj)) * e(len)
     }
 
     for (len in width(diffk)){
-        potential = potential - e(len)
+        potential = potential - w(length(diffk)) * e(len)
     }
 
     for (len in width(ov)){
-        potential = potential + e(len) + e(k-j)
+        potential = potential + w(length(ov)) * (e(len) + e(k-j))
     }
-
-    potential <- potential * w(length(ov))
 
     return(potential)
 
@@ -379,33 +377,41 @@ simulate_ranges <- function(l, n, s, r){
 
 #' Plot Ranges of segments
 #' Adopted from [IRangesOverview](https://www.bioconductor.org/packages/devel/bioc/vignettes/IRanges/inst/doc/IRangesOverview.pdf)
-#' @param x ranges
+#' @param segs ranges
 #' @param xlim x-axis limit
 #' @param main plot main title
 #' @param col color for plot
 #' @param border color for plot borders
 #' @param sep separator for consecutive segment blocks
+#' @param rep are repeats of segements to be plotted
 #' @return A plot of segments
 #' @import graphics
 #' @importFrom methods is
 #' @export
-plotRanges <- function(x, xlim=x, main=deparse(substitute(x)), col="lightgrey", border="black", sep=0.5){
+plot_Ranges <- function(segs, xlim=segs, main=deparse(substitute(segs)), col="lightgrey", border="black", sep=0.5, rep=FALSE){
 
     height <- 1
     if (is(xlim, "IntegerRanges")){
         xlim <- c(min(start(xlim)), max(end(xlim)))
     }
-    #bins <- disjointBins(IRanges(start(x), end(x) + 1))
     plot.new()
-    segnr <- length(subset(start(x), start(x) == 1))
-    plot.window(xlim, c(0, segnr*(height + sep)))
-    nr <- 0
-    for (i in 1:length(start(x))){
-        if (start(x)[i] == 1){
-           nr <- nr + 1
+    if(rep){
+        bins <- disjointBins(IRanges(start(segs), end(segs) + 1))
+        plot.window(xlim, c(0, max(bins)*(height + sep)))
+        ybottom <- bins*(sep + height) - height
+        rect(start(segs)-0.5, ybottom, end(segs)+0.5, ybottom + height, col=col)
+    }
+    else{
+        segnr <- length(subset(start(segs), start(segs) == 1))
+        plot.window(xlim, c(0, segnr*(height + sep)))
+        nr <- 0
+        for (i in 1:length(start(segs))){
+            if (start(segs)[i] == 1){
+                nr <- nr + 1
+            }
+            ybottom <- nr*(sep + height) - height
+            rect(start(segs)[i]-0.5, ybottom, end(segs)[i]+0.5, ybottom + height, col=col, border=border)
         }
-        ybottom <- nr*(sep + height) - height
-        rect(start(x)[i]-0.5, ybottom, end(x)[i]+0.5, ybottom + height, col=col, border=border)
     }
     title(main)
     axis(1)
