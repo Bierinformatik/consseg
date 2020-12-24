@@ -7,7 +7,7 @@
 consensus(RS, w, e)
 }
 \arguments{
-\item{RS, }{raw segmentation object from segmenTier}
+\item{RS, }{raw segmentation object from segmenTier or dataframe}
 
 \item{w}{weight function or 1}
 

@@ -4,10 +4,10 @@
 \alias{scoref}
 \title{Calculates Delta(j+1,k)}
 \usage{
-scoref(j1, k, dl, dle, dlov, drov, dstar)
+scoref(j, k, dl, dle, dlov, drov, dstar)
 }
 \arguments{
-\item{j1}{current span start}
+\item{j}{current span start}
 
 \item{k}{current span end}
 

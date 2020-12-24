@@ -57,6 +57,7 @@ warn <- function(w, warnings,verb=FALSE) {
 #' @export
 consensus <- function(RS, w, e) {
 
+
     segs <- extract_ranges(RS) #list of segment ranges
 
     n <- max(end(segs))
@@ -149,21 +150,25 @@ backtrace <- function(ptr){
 #### NOTE: Create IRanges object for easy intersection of position
 #' EXTRACT segements from segmenTier to IRanges
 #' @param S list of segmentations
+#' @param l length of sequence
 #' @importFrom IRanges disjoin
 #' @return An IRanges object of segement blocks
 #' @export
-extract_ranges <- function(S){
+extract_ranges <- function(S, l=NULL){
 
     SO <- NULL
     total <- NULL
 
     if(isS4(S)){
+        if (class(S)[1] == "IRanges"){ # if already IRanges
+            return(S)
+        }
         SO <- subset(S$segments, select = c("type","start","end")) #this is specific for segmenTier output
-        total <- IRanges(start=1,end=S$N)
+        total <- IRanges(start=1,end=max(S$N,l))
     }
     else{#we assume its a data.frame
         SO <- subset(S, select = c("type","start","end")) #this is for any data.frame
-        total <- IRanges(start=1,end=max(S$end))
+        total <- IRanges(start=1,end=max(S$end,l))
     }
 
     ranges <- NULL
@@ -417,7 +422,7 @@ scoref <- function(j, k, dl, dle, dlov, drov, dstar){
 #' @importFrom IRanges disjoin
 #' @return An IRanges object of simulated segments
 #' @export
-simulate_ranges <- function(l, n, s, r, df){
+simulate_ranges <- function(l, n, s, r, df=FALSE){
 
     total <- IRanges(start=1,end=l)
     ranges <- NULL

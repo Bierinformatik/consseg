@@ -4,7 +4,7 @@
 \alias{simulate_ranges}
 \title{Simulate IRanges of segments}
 \usage{
-simulate_ranges(l, n, s, r)
+simulate_ranges(l, n, s, r, df = FALSE)
 }
 \arguments{
 \item{l}{length of sequence}
@@ -14,6 +14,8 @@ simulate_ranges(l, n, s, r)
 \item{s}{upper bound for number of segmentations per sequence}
 
 \item{r}{repeat first segmentation n times}
+
+\item{df}{return dataframe}
 }
 \value{
 An IRanges object of simulated segments
