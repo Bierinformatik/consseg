@@ -22,7 +22,7 @@ sset$segments <- rbind(sset$segments,
 sset$ids <- c(sset$ids,"consensus")
 
 png("data_consensus.png", units="in", res=200, width=2*3.5, height=3.5/2)
-par(mfcol=c(1,1), mai=c(.5,.1,.1,.1))
+par(mfcol=c(1,1), mai=c(.5,2,.1,.1))
 plot(sset)
 axis(1,at=pretty(c(0,10000)))
 dev.off()
