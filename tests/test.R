@@ -1,12 +1,12 @@
 ###TEST AREA
 library(ConsSeg)
 library(IRanges)
-#Load Data
-data(primseg436_sset)
 
 #Extract starts and end of segments
 #segs <- simulate_ranges(200,10,12,TRUE) #repeat
 #plotRanges(segs,rep=TRUE)
+
+set.seed(1) # for constant results
 segs <- simulate_ranges(50,10,5,FALSE, df=TRUE)
 
 w <- function(m){return(1/m)}
@@ -16,7 +16,15 @@ cons <- consensus(segs, w, e)
 
 segs <- IRanges(start=segs$start,end=segs$end)
 unique(sort(end(segs)))
+
+##png("test_consensus.png", units="in", res=200, width=3.5, height=3.5)
+par(mfcol=c(2,1), mai=c(.5,.05,.05,.05))
 plot_Ranges(segs)
+plot_Ranges(cons)
+##dev.off()
+
+
+
 
 ### test potential functions
 ###m <- length(sset$ids) #number of segmentations
