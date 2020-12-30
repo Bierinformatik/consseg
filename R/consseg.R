@@ -126,7 +126,7 @@ backtrace <- function(ptr){
     ends <- numeric()
     ends <- c(ends, length(ptr))
     k <- tail(ptr, n=1)
-    while(!is.na(k)){
+    while(!is.na(k) & k>1){
         ends <- c(ends, k)
         k <- ptr[k]
     }
