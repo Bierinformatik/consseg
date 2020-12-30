@@ -1,5 +1,4 @@
 ###TEST AREA
-library(segmenTier)
 library(ConsSeg)
 library(IRanges)
 
@@ -9,6 +8,8 @@ data(primseg436_sset)
 
 outfile <- "sset_done.rda"
 if ( !file.exists(outfile) ) {
+    w <- function(m){return(1/m)}
+    e <- function(width){ return(width^2/2)}
     cons <- consensus(sset$segments, w, e)
     save.image(outfile)
 } else {
@@ -36,6 +37,7 @@ dev.off()
 
 ## TODO: use segment_data.R to re-create Figure 3 from paper,
 ##       calculate consensus, and re-create Figure 3+consensus.
+## library(segmenTier)
 ##plotdev("segment_data_examples",res=300,width=10,height=5,type=fig.type)
 ##layout(matrix(1:10,ncol=1),heights=c(.25,.5,.5,.075,.075,.075,.075,.075,.075,.075))
 ##par(mai=c(0.1,2,0.05,0.01),xaxs="i",yaxs="r")
