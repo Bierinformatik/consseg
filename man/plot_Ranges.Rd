@@ -5,15 +5,8 @@
 \title{Plot Ranges of segments
 Adopted from \href{https://www.bioconductor.org/packages/devel/bioc/vignettes/IRanges/inst/doc/IRangesOverview.pdf}{IRangesOverview}}
 \usage{
-plot_Ranges(
-  segs,
-  xlim = segs,
-  main = deparse(substitute(segs)),
-  col = "lightgrey",
-  border = "black",
-  sep = 0.5,
-  rep = FALSE
-)
+plot_Ranges(segs, xlim = segs, main = deparse(substitute(segs)),
+  col = "lightgrey", border = "black", sep = 0.5, rep = FALSE)
 }
 \arguments{
 \item{segs}{ranges}

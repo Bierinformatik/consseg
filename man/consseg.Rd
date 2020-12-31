@@ -3,6 +3,7 @@
 \docType{package}
 \name{consseg}
 \alias{consseg}
+\alias{consseg-package}
 \title{consseg: consensus segment for segmenTier cluster-based segmentation
 from a sequential clustering}
 \description{

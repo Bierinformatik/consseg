@@ -21,7 +21,10 @@ Depends:
   R (>= 2.10)
 biocViews:
 Imports:
+  Rcpp (>= 0.12.18),
   segmenTier (>= 0.1.2),
   IRanges (>= 2.16.0),
   S4Vectors,
   methods
+LinkingTo: Rcpp
+
