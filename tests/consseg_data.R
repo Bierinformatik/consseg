@@ -36,25 +36,9 @@ sset <- segmentCluster.batch(cset, varySettings=vary,
                              type.name=c("E","M","nui"), # segment type names
                              verb=1, save.matrix=FALSE) 
 
-
-
-## convert from segment start/end table to breakpoint list
-## add +1 to ends, defining segment starts as breakpoints
-n <- sset$N
-blst <- split(sset$segments, f=sset$segments$type)
-b <- lapply(blst, function(x) c(x$start,x$end+1))
-M <- length(b)
-
 ## CALCULATE CONSENSUS
-w <- function(m){return(1/M)}
-e <- function(L){ return(L^2/2)}
-##cons <- consensus_r(b, n=n, w=w, aeh=e, store.matrix=TRUE) 
-bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-cons <- consensus_c(bl, n=n)#, w=w, aeh=e, test.slow=FALSE) 
+csegs <- consensus(sset, return="breakpoints")
 
-
-## convert to segment list as used in plot.breaklist
-csegs <- list(consensus=bp2seg(cons$breakpoints))
 
 ## plot all
 plotdev("consseg_data_c",res=300,width=10,height=5,type=fig.type)
@@ -66,17 +50,17 @@ axis(1,at=pretty(c(0,10000)))
 par(cex=1.2) # increase axis labels
 par(mai=c(0.01,2,0.01,0.1))
 plot(sset,"segments",lwd=3)
-abline(v=cons$breakpoints)
+abline(v=csegs)
 axis(1,at=pretty(c(0,10000)),labels=NA)
 axis(1,at=pretty(c(0,10000)),labels=NA,tcl=-par("tcl"))
 ## ADD CONSENSUS BREAKPOINTS
 par(mai=c(0.1,2,0.05,0.1),tcl=0)
-plot.breaklist(csegs, n=n, axis1=FALSE)
-abline(v=cons$breakpoints)
+plot.breaklist(list(consensus=bp2seg(csegs)), n=sset$N, axis1=FALSE)
+abline(v=csegs)
 par(tcl=-.25)
 axis(1,at=pretty(c(0,10000)),labels=NA,tcl=-par("tcl"))
 dev.off()
 
 
 ## dump breakpoints
-cons$breakpoints
+csegs

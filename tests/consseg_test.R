@@ -27,7 +27,7 @@ w <- function(m){return(1/m)}
 ## ignore m and take global M
 w <- function(m) return(1/M) 
 
-cons <- consensus_r(b, n=n, w=w, aeh=aeh, store.matrix=TRUE, test.slow=FALSE)
+cons <- consensus_r(b, n=n, w=w, aeh=aeh, store=TRUE, test=FALSE)
 
 ## plot segments, leave room for consensus arrows
 png("consseg_test.png", units="in", width=3.5, height=7, res=200)

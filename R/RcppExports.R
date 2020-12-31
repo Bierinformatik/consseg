@@ -12,13 +12,9 @@ backtrace_c <- function(imax) {
 #' Calculate consensus segments from a list of segmentation breakpoints
 #' @param b list of breakpoints of different segmentations
 #' @param n total sequence length (\code{max(b)} if not provided)
-#' @param w weight function, taking one argument: the index \code{m} of
-#' the respective segmentation in the breakpoint list \code{b}
-#' @param e potential function, taking one argument: the length \code{L}
-#' of the evaluated interval
-#' @param store.matrix for debugging: store and return all internal vectors
+#' @param store for debugging: store and return all internal vectors
 #'@export
-consensus_c <- function(b, n, store_matrix = 0L) {
-    .Call('_ConsSeg_consensus_c', PACKAGE = 'ConsSeg', b, n, store_matrix)
+consensus_c <- function(b, n, store = 0L) {
+    .Call('_ConsSeg_consensus_c', PACKAGE = 'ConsSeg', b, n, store)
 }
 

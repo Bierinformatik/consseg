@@ -10,7 +10,7 @@ outfile <- "sset_done.rda"
 if ( !file.exists(outfile) ) {
     w <- function(m){return(1/m)}
     e <- function(width){ return(width^2/2)}
-    cons <- consensus(sset$segments, w, e)
+    cons <- consensus_old(sset$segments, w, e)
     save.image(outfile)
 } else {
     load(outfile)

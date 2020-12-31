@@ -1,3 +1,49 @@
+#' Calculate consensus segments from a list of segmentation breakpoints
+#' @param b list of breakpoints of different segmentations
+#' @param n total sequence length (\code{max(b)} if not provided)
+# @param w weight function, taking one argument: the index \code{m} of
+# the respective segmentation in the breakpoint list \code{b}
+# @param e potential function, taking one argument: the length \code{L}
+# of the evaluated interval
+#' @param return return class of
+#' @param store for debugging: store and return all internal vectors
+#' @param test for debugging
+#'@export
+consensus <- function(b, n, #w=function(m) return(1/m), aeh=function(L) L^2/2,
+                      return="breakpoints",store=FALSE, test=FALSE) {
+
+    ## get class of breakpoints
+    if ( "segments"%in%class(b) ) {
+        n <- b$N
+        blst <- split(b$segments, f=b$segments$type)
+        b <- lapply(blst, function(x) c(x$start,x$end))
+    } else if ( "IRanges"%in%class(b) ) {
+        b <- unique(c(start(b), end(b)))
+    } else if ( "data.frame"%in%class(b) ) { # start, end and type columns!
+        blst <- split(b, f=b$type)
+        b <- lapply(blst, function(x) c(x$start,x$end))
+    }
+
+    if ( missing(n) ) {
+        n <- max(unlist(b))
+        warning("total sequence length missing, ",
+                "taking the maximal breakpoint at ", n)
+    }
+    ## prepare breakpoints such that they:
+    ## * are sorted and unique,
+    ## * start with 1 and end with n, 
+    ## and adding n+1 to for convenience in look-up table.
+    b <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
+    M <- length(b)
+
+    ## call C function
+    cons <- consensus_c(b, n=n, store=store)#, w=w, aeh=e, test=FALSE) 
+
+    if ( return=="breakpoints" ) res <- cons$breakpoints
+    else if ( return=="segments" ) res <- bp2seg(cons$breakpoints, end=-1)
+    return(res)
+}
+
 
 
 
@@ -8,12 +54,12 @@
 #' the respective segmentation in the breakpoint list \code{b}
 #' @param e potential function, taking one argument: the length \code{L}
 #' of the evaluated interval
-#' @param store.matrix for debugging: store and return all internal vectors
-#' @param test.slow for debugging: compare the incrementally calculated
+#' @param store for debugging: store and return all internal vectors
+#' @param test for debugging: compare the incrementally calculated
 #' Delta with the very slow direct calculation 
 #'@export
-consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^5/5,
-                      store.matrix=FALSE, test.slow=FALSE) {
+consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^2/2,
+                      store=FALSE, test=FALSE) {
 
     if ( missing(n) ) {
         n <- max(unlist(b))
@@ -54,7 +100,7 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^5/5,
     ptr <- rep(0, n)
     
     ## store \Delta and \delta^* for debugging
-    if ( store.matrix )
+    if ( store )
         Dk <- Ds <- rep(NA,n) 
     
     ## the recursion
@@ -96,7 +142,7 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^5/5,
 
             ## straightforward slow implementation for debugging
             ## this should deliver the correct D
-            if ( test.slow ) {
+            if ( test ) {
                 Dslow = aeh(k-j)    #/* e(A) */
                 for( m  in 1:M ) {  #/* loop ueber die input segmenierungen */
                     summe = 0
@@ -123,7 +169,7 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^5/5,
             } else if ( F[j]+D < F[k] ) {
                 F[k] = F[j]+D
                 ptr[k] = j
-                if ( store.matrix ) { # store for debugging or plots
+                if ( store ) { # store for debugging or plots
                     Dk[k] <- D
                     Ds[k] <- dstar
                 }
@@ -138,7 +184,7 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^5/5,
 
     ## results
     results <- list(breakpoints=bp)
-    if ( store.matrix )
+    if ( store )
         results <- append(results,
                           list(F=F, ptr=ptr, Dk=Dk, dstar=Ds,
                                dsm=dsm, dsq=dsq, dcd=dcd, dcu=dcu,
@@ -148,6 +194,7 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^5/5,
 }
 
 
+#' backtrace function for consseg
 #' @param ptr pointer of segment ends
 #' @return breakpoints
 #' @export
@@ -174,10 +221,13 @@ backtrace_r <- function(ptr) {
 #' ending 1 before the next start/breakpoint
 #' @param bp vector of breakpoints 
 #' @return a data.frame with start and end positions of each segment
-bp2seg <- function(bp) 
-    data.frame(start=bp[2:length(bp)-1],
-               end=bp[2:length(bp)], type="consensus")
-
+bp2seg <- function(bp, start, end) { 
+    df <- data.frame(start=bp[2:length(bp)-1],
+                     end=bp[2:length(bp)], type="consensus")
+    if ( !missing(start) ) df$start <- df$start + start 
+    if ( !missing(end) ) df$end <- df$end + end
+    df
+}
 
 #' Simulate IRanges of segments
 #' @param l length of sequence

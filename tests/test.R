@@ -12,7 +12,7 @@ segs <- simulate_ranges(50,10,5,FALSE, df=TRUE)
 w <- function(m){return(1/m)}
 e <- function(width){ return(width^2/2)}
 
-cons <- consensus(segs, w, e)
+cons <- consensus_old(segs, w, e)
 
 segs <- IRanges(start=segs$start,end=segs$end)
 unique(sort(end(segs)))

@@ -6,7 +6,7 @@
 adjacent segments, starting at the breakpoints and
 ending 1 before the next start/breakpoint}
 \usage{
-bp2seg(bp)
+bp2seg(bp, start, end)
 }
 \arguments{
 \item{bp}{vector of breakpoints}

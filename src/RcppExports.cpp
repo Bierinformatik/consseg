@@ -29,15 +29,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // consensus_c
-List consensus_c(List b, int n, bool store_matrix);
-RcppExport SEXP _ConsSeg_consensus_c(SEXP bSEXP, SEXP nSEXP, SEXP store_matrixSEXP) {
+List consensus_c(List b, int n, bool store);
+RcppExport SEXP _ConsSeg_consensus_c(SEXP bSEXP, SEXP nSEXP, SEXP storeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type b(bSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< bool >::type store_matrix(store_matrixSEXP);
-    rcpp_result_gen = Rcpp::wrap(consensus_c(b, n, store_matrix));
+    Rcpp::traits::input_parameter< bool >::type store(storeSEXP);
+    rcpp_result_gen = Rcpp::wrap(consensus_c(b, n, store));
     return rcpp_result_gen;
 END_RCPP
 }

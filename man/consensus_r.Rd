@@ -4,8 +4,8 @@
 \alias{consensus_r}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus_r(b, n, w = function(m) return(1/m), aeh = function(L) L^5/5,
-  store.matrix = FALSE, test.slow = FALSE)
+consensus_r(b, n, w = function(m) return(1/m), aeh = function(L) L^2/2,
+  store = FALSE, test = FALSE)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations}
@@ -15,9 +15,9 @@ consensus_r(b, n, w = function(m) return(1/m), aeh = function(L) L^5/5,
 \item{w}{weight function, taking one argument: the index \code{m} of
 the respective segmentation in the breakpoint list \code{b}}
 
-\item{store.matrix}{for debugging: store and return all internal vectors}
+\item{store}{for debugging: store and return all internal vectors}
 
-\item{test.slow}{for debugging: compare the incrementally calculated
+\item{test}{for debugging: compare the incrementally calculated
 Delta with the very slow direct calculation}
 
 \item{e}{potential function, taking one argument: the length \code{L}

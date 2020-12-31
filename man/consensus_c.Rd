@@ -4,20 +4,14 @@
 \alias{consensus_c}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus_c(b, n, store_matrix = 0L)
+consensus_c(b, n, store = 0L)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations}
 
 \item{n}{total sequence length (\code{max(b)} if not provided)}
 
-\item{w}{weight function, taking one argument: the index \code{m} of
-the respective segmentation in the breakpoint list \code{b}}
-
-\item{e}{potential function, taking one argument: the length \code{L}
-of the evaluated interval}
-
-\item{store.matrix}{for debugging: store and return all internal vectors}
+\item{store}{for debugging: store and return all internal vectors}
 }
 \description{
 Calculate consensus segments from a list of segmentation breakpoints

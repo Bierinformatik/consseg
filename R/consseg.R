@@ -47,6 +47,7 @@ warn <- function(w, warnings,verb=FALSE) {
 ##
 
 
+
 ###RECURSION
 #' Calculate consensus segements C from segmenTier segments
 #' @param RS, raw segmentation object from segmenTier or dataframe
@@ -55,7 +56,7 @@ warn <- function(w, warnings,verb=FALSE) {
 #' @importFrom methods is
 #' @return The consesus segmentation as IRanges object
 #' @export
-consensus <- function(RS, w, e) {
+consensus_old <- function(RS, w, e) {
 
 
     segs <- extract_ranges(RS) #list of segment ranges

@@ -31,11 +31,16 @@ w <- function(m){return(1/m)}
 ## ignore m and take global M
 w <- function(m) return(1/M) 
 
-cons <- consensus_r(b, n=n, w=w, aeh=aeh, store.matrix=TRUE, test.slow=FALSE)
+cons <- consensus_r(b, n=n, w=w, aeh=aeh, store=TRUE, test=FALSE)
 
 bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
 conc <- consensus_c(bl, n=n)
 
+## to reproduce above results, we need
+## add 1 to ends
+nsegs <- segs
+nsegs$end <- nsegs$end+1
+test <- consensus(nsegs,n=50)
 
 ## plot segments, leave room for consensus arrows
 png("consseg_c.png", units="in", width=3.5, height=7, res=200)

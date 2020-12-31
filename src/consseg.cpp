@@ -31,18 +31,21 @@ NumericVector backtrace_c(NumericVector imax) {
 
 }
 
+
+// TODO
+// @param w weight function, taking one argument: the index \code{m} of
+// the respective segmentation in the breakpoint list \code{b}
+// @param e potential function, taking one argument: the length \code{L}
+// of the evaluated interval
+
 //' Calculate consensus segments from a list of segmentation breakpoints
 //' @param b list of breakpoints of different segmentations
 //' @param n total sequence length (\code{max(b)} if not provided)
-//' @param w weight function, taking one argument: the index \code{m} of
-//' the respective segmentation in the breakpoint list \code{b}
-//' @param e potential function, taking one argument: the length \code{L}
-//' of the evaluated interval
-//' @param store.matrix for debugging: store and return all internal vectors
+//' @param store for debugging: store and return all internal vectors
 //'@export
 // [[Rcpp::export]]
 List consensus_c(List b, int n, //std::string w, std::string aeh,
-		 bool store_matrix=0) {
+		 bool store=0) {
 
   // TODO: outside in R, add argument n if missing, add 1, n  to b list
 
@@ -83,7 +86,7 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
   NumericVector ptr(n+1); // TODO: integer
     
   // store \Delta and \delta^* for debugging
-  if ( store_matrix ) {
+  if ( store ) {
     NumericVector Dk(n+1);
     NumericVector Ds(n+1);
   }
@@ -143,7 +146,7 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
       } else if ( F[j]+D < F[k] ) {
 	F[k] = F[j]+D;
 	ptr[k] = j;
-	//if ( store_matrix ) { // store for debugging or plots
+	//if ( store ) { // store for debugging or plots
 	//  Dk[k] = D;
 	//  Ds[k] = dstar;
 	//}
