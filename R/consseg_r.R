@@ -140,8 +140,9 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^5/5,
     results <- list(breakpoints=bp)
     if ( store.matrix )
         results <- append(results,
-                          list(F=F, Dk=Dk, dstar=Ds,
-                               dsm=dsm, dsq=dsq, dcd=dcd, dcu=dcu))
+                          list(F=F, ptr=ptr, Dk=Dk, dstar=Ds,
+                               dsm=dsm, dsq=dsq, dcd=dcd, dcu=dcu,
+                               Bup=Bup, Blw=Blw))
     return(results)
                                         
 }

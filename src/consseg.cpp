@@ -1,5 +1,34 @@
+#include <Rcpp.h>
+using namespace Rcpp;
 
 
+double w(int m, int M) {
+  return 1/M;
+}
+
+double aeh(int L) {
+  return L^2/2;
+}
+
+// [[Rcpp::export]]
+NumericVector backtrace_c(NumericVector imax) {
+
+  int end = imax.size();
+  NumericVector ends (end);
+  ends[0] = end;
+  int cnt = 1; 
+  while ( end>1 ) {
+    end = imax[end-1];
+    ends[cnt] = end;
+    cnt++;
+  }
+  // cut and reverse
+  NumericVector res (cnt);
+  for ( int i=0; i<cnt; i++ ) 
+    res[cnt-i-1] = ends[i];
+  return res;
+
+}
 
 //' Calculate consensus segments from a list of segmentation breakpoints
 //' @param b list of breakpoints of different segmentations
@@ -11,12 +40,12 @@
 //' @param store.matrix for debugging: store and return all internal vectors
 //'@export
 // [[Rcpp::export]]
-List consensus_c(List b, int n, std::string w, std::string aeh,
+List consensus_c(List b, int n, //std::string w, std::string aeh,
 		 bool store_matrix=0) {
 
   // TODO: outside in R, add argument n if missing, add 1, n  to b list
-  
-  M = b.length(); // number of input segmentations
+
+  int M = b.length(); // number of input segmentations
 
   
   //  FILL UP INTERVAL BORDER LOOKUP TABLES
@@ -24,19 +53,25 @@ List consensus_c(List b, int n, std::string w, std::string aeh,
   // position index is index-1
   NumericMatrix Blw(n, M); // todo: int matrix
   NumericMatrix Bup(n, M);
+  NumericVector bq;
+  int up;
+  int lw;
   for ( int q=0; q<M; q++ ) {
-    int i = 1;
-    while ( b[[q]][i] <= n ) {
-      lw = b[[q]][i];
-      up = b[[q]][i+1]-1;
+    bq = b[q];
+    int i = 0;
+    while ( bq[i] <= n ) {
+      lw = bq[i];
+      up = bq[i+1]-1;
       if ( up>n ) up = n ;
       for ( int k=lw-1; k<up; k++) { // k in lw:up ) { 
-	Blw[k,q] = lw;
-	Bup[k,q] = up;
+	Blw(k,q) = lw;
+	Bup(k,q) = up;
       }
       i++; 
     } 
   }
+
+  Rcpp::Rcout << "RECURSION: " << n << std::endl;
     
   //  RECURSION
     
@@ -55,19 +90,20 @@ List consensus_c(List b, int n, std::string w, std::string aeh,
   }
 
   // initialize vectors
-  F[0] = dsm[0] = dsq[0] = dcd[0] = dsq[0] = 0;
+  F[0] = dsm[0] = dsq[0] = dcd[0] = dsq[0] = 0.0;
+  std::fill( ptr.begin(), ptr.end(), 0.0 );
 
   // helper variables and Delta
   long double D = 0.0; 
   long double Dtmp = 0.0;
   long double dtmp = 0.0;
   long double dstar = 0.0;
-  
+
   // the recursion
   // NOTE: using n+1/F(0) et al. for convenience
   // and comparability with R:
   // counter = position index = vector index
-  for ( int k=1; k<=n; n++ ) { // in 1:n ) { 
+  for ( int k=1; k<=n; k++ ) { // in 1:n ) { 
     
     dsm[k] = dsm[k-1];
     dsq[k] = dsq[k-1];
@@ -75,49 +111,64 @@ List consensus_c(List b, int n, std::string w, std::string aeh,
     dcu[k] = 0; 
         
     for ( int m=0; m<M; m++ ) {
-      if ( Bup[k-1,m] == k ) // \delta_<(k), start and end left of k 
-	dsm[k] += w(m)*aeh(Bup[k-1,m]-Blw[k-1,m]+1);
-      if ( Blw[k-1,m] == k ) // \delta_le(j), start left of j, to subtract
-	dsq[k] += w(m)*aeh(Bup[k-1,m]-Blw[k-1,m]+1);
-      if ( Bup[k-1,m] > k ) // \delta^\cap_<(k), left end to k
-	dcd[k] += w(m)*aeh(k-Blw[k-1,m]+1);
-      if ( Blw[k-1,m] < k ) // \delta^\cap_>(j+1), j+1 to right end
-	dcu[k] += w(m)*aeh(Bup[k-1,m]-k+1);
+      if ( Bup(k-1,m) == k ) // \delta_<(k), start and end left of k 
+	dsm[k] += w(m,M)*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
+      if ( Blw(k-1,m) == k ) // \delta_le(j), start left of j, to subtract
+	dsq[k] += w(m,M)*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
+      if ( Bup(k-1,m) > k ) // \delta^\cap_<(k), left end to k
+	dcd[k] += w(m,M)*aeh(k-Blw(k-1,m)+1);
+      if ( Blw(k-1,m) < k ) // \delta^\cap_>(j+1), j+1 to right end
+	dcu[k] += w(m,M)*aeh(Bup(k-1,m)-k+1);
     }
-        
+
+    double tmp = aeh(Bup(k-1,1)-k+1);
+    
+    if ( dcu[k]==0.0 )
+      Rcpp::Rcout << tmp << "," << std::endl;
+    
     /* scan interval = [j+1,k] for minimum j */
-    for ( int j=0; j<k-1; j++ ) { //in 0:(k-1) ) { 
+    for ( int j=0; j<k; j++ ) { //in 0:(k-1) ) { 
       // \delta^*: correct for segments that span [j+1,k]
       dstar = 0.0;
       for ( int m=0; m<M; m++ ) {
-	if ( ( Blw[k-1,m] < j+1 ) && ( Bup[k-1,m] > k ) ) {
-	  dtmp = aeh(Bup[k-1,m]-Blw[k-1,m]+1) + aeh(k-j) -
-	    aeh(k-Blw[k-1,m]+1) - aeh(Bup[k-1,m]-j);
-	  dstar += w(m)*dtmp;
+	if ( ( Blw(k-1,m) < j+1 ) && ( Bup(k-1,m) > k ) ) {
+	  dtmp = aeh(Bup(k-1,m)-Blw(k-1,m)+1) + aeh(k-j) -
+	    aeh(k-Blw(k-1,m)+1) - aeh(Bup(k-1,m)-j);
+	  dstar += w(m,M)*dtmp;
 	}
       }
-      Dtmp = dsm[k] + dcd[k] + dcu[j+1] + dstar;
-      if ( j>0 ) Dtmp = Dtmp - dsq[j];
+      Dtmp = dsm[k] - dsq[j] + dcd[k] + dcu[j+1] + dstar;
         
       D = aeh(k-j) - 2*Dtmp;
 
       // find F[k] = min Delta(j+1,k) + F(j)
       // and store the j that delivered it
+      //ptr[k] = 0;
       if ( j==0 ) {
 	F[k] = D;
       } else if ( F[j]+D < F[k] ) {
 	F[k] = F[j]+D;
 	ptr[k] = j;
-	if ( store_matrix ) { // store for debugging or plots
-	  Dk[k] = D;
-	  Ds[k] = dstar;
-	}
+	//if ( store_matrix ) { // store for debugging or plots
+	//  Dk[k] = D;
+	//  Ds[k] = dstar;
+	//}
       }
     }
   }
     
-  // TODO: BACKTRACE
+  // BACKTRACE
+  NumericVector bp;
+  bp = backtrace_c(ptr+1);
   // TODO: add generated matrices
-  return ptr;
+  return List::create(Named("breakpoints") = bp,
+		      Named("ptr") = ptr,
+		      Named("F") = F,
+		      Named("dsm") = dsm,
+		      Named("dsq") = dsq,
+		      Named("dcu") = dcu,
+		      Named("dcd") = dcd,
+		      Named("Bup") = Bup,
+		      Named("Blw") = Blw);  
 }
 
