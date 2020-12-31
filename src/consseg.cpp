@@ -2,12 +2,13 @@
 using namespace Rcpp;
 
 
+// [[Rcpp::export]]
 double w(int m, int M) {
-  return 1/M;
+  return 1/(1.0*M); // note implicit cast to double
 }
 
-double aeh(int L) {
-  return L^2/2;
+long double aeh(int L) {
+  return (L*L)/2;
 }
 
 // [[Rcpp::export]]
@@ -71,7 +72,6 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
     } 
   }
 
-  Rcpp::Rcout << "RECURSION: " << n << std::endl;
     
   //  RECURSION
     
@@ -121,11 +121,6 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
 	dcu[k] += w(m,M)*aeh(Bup(k-1,m)-k+1);
     }
 
-    double tmp = aeh(Bup(k-1,1)-k+1);
-    
-    if ( dcu[k]==0.0 )
-      Rcpp::Rcout << tmp << "," << std::endl;
-    
     /* scan interval = [j+1,k] for minimum j */
     for ( int j=0; j<k; j++ ) { //in 0:(k-1) ) { 
       // \delta^*: correct for segments that span [j+1,k]
@@ -160,14 +155,15 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
   // BACKTRACE
   NumericVector bp;
   bp = backtrace_c(ptr+1);
-  // TODO: add generated matrices
+  bp = bp[Rcpp::Range(0, bp.length()-2)];
+  // TODO: only add  matrices with option
   return List::create(Named("breakpoints") = bp,
 		      Named("ptr") = ptr,
-		      Named("F") = F,
-		      Named("dsm") = dsm,
-		      Named("dsq") = dsq,
-		      Named("dcu") = dcu,
-		      Named("dcd") = dcd,
+		      Named("F") = F[Rcpp::Range(1,n)],
+		      Named("dsm") = dsm[Rcpp::Range(1,n)],
+		      Named("dsq") = dsq[Rcpp::Range(1,n)],
+		      Named("dcu") = dcu[Rcpp::Range(1,n)],
+		      Named("dcd") = dcd[Rcpp::Range(1,n)],
 		      Named("Bup") = Bup,
 		      Named("Blw") = Blw);  
 }
