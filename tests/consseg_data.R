@@ -6,6 +6,8 @@
 library(segmenTier)
 data(primseg436)
 source("../R/consseg_r.R")
+library(Rcpp)
+sourceCpp("../src/consseg.cpp")
 
 fig.type <- "png"
 
@@ -46,14 +48,16 @@ M <- length(b)
 ## CALCULATE CONSENSUS
 w <- function(m){return(1/M)}
 e <- function(L){ return(L^2/2)}
-cons <- consensus_r(b, n=n, w=w, aeh=e, test.slow=FALSE) 
+##cons <- consensus_r(b, n=n, w=w, aeh=e, store.matrix=TRUE) 
+bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
+cons <- consensus_c(bl, n=n)#, w=w, aeh=e, test.slow=FALSE) 
 
 
 ## convert to segment list as used in plot.breaklist
 csegs <- list(consensus=bp2seg(cons$breakpoints))
 
 ## plot all
-plotdev("consseg_data",res=300,width=10,height=5,type=fig.type)
+plotdev("consseg_data_c",res=300,width=10,height=5,type=fig.type)
 layout(matrix(1:4,ncol=1), heights=c(.25,.5,.5,.15))
 par(mai=c(0.1,2,0.05,0.1),mgp=c(1.3,.4,0),tcl=-.25, xaxs="i",yaxs="r")
 par(cex=1) 

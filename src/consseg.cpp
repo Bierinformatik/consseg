@@ -50,8 +50,7 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
 
   
   //  FILL UP INTERVAL BORDER LOOKUP TABLES
-  // TODO: make sure that this is size m and
-  // position index is index-1
+
   NumericMatrix Blw(n, M); // todo: int matrix
   NumericMatrix Bup(n, M);
   NumericVector bq;
@@ -132,13 +131,13 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
 	  dstar += w(m,M)*dtmp;
 	}
       }
+
+      // calculate \Delta(j+1,k)
       Dtmp = dsm[k] - dsq[j] + dcd[k] + dcu[j+1] + dstar;
-        
       D = aeh(k-j) - 2*Dtmp;
 
-      // find F[k] = min Delta(j+1,k) + F(j)
+      // find F[k] = min \Delta(j+1,k) + F(j)
       // and store the j that delivered it
-      //ptr[k] = 0;
       if ( j==0 ) {
 	F[k] = D;
       } else if ( F[j]+D < F[k] ) {
