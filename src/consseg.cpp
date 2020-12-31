@@ -22,7 +22,7 @@ List consensus_c(List b, int n, std::string w, std::string aeh,
   //  FILL UP INTERVAL BORDER LOOKUP TABLES
   // TODO: make sure that this is size m and
   // position index is index-1
-  NumericMatrix Blw(n, M);
+  NumericMatrix Blw(n, M); // todo: int matrix
   NumericMatrix Bup(n, M);
   for ( int q=0; q<M; q++ ) {
     int i = 1;
@@ -56,6 +56,12 @@ List consensus_c(List b, int n, std::string w, std::string aeh,
 
   // initialize vectors
   F[0] = dsm[0] = dsq[0] = dcd[0] = dsq[0] = 0;
+
+  // helper variables and Delta
+  long double D = 0.0; 
+  long double Dtmp = 0.0;
+  long double dtmp = 0.0;
+  long double dstar = 0.0;
   
   // the recursion
   // NOTE: using n+1/F(0) et al. for convenience
@@ -70,26 +76,26 @@ List consensus_c(List b, int n, std::string w, std::string aeh,
         
     for ( int m=0; m<M; m++ ) {
       if ( Bup[k-1,m] == k ) // \delta_<(k), start and end left of k 
-	dsm[k] = dsm[k] + w(m)*aeh(Bup[k-1,m]-Blw[k-1,m]+1);
+	dsm[k] += w(m)*aeh(Bup[k-1,m]-Blw[k-1,m]+1);
       if ( Blw[k-1,m] == k ) // \delta_le(j), start left of j, to subtract
-	dsq[k] = dsq[k] + w(m)*aeh(Bup[k-1,m]-Blw[k-1,m]+1);
+	dsq[k] += w(m)*aeh(Bup[k-1,m]-Blw[k-1,m]+1);
       if ( Bup[k-1,m] > k ) // \delta^\cap_<(k), left end to k
-	dcd[k] = dcd[k] + w(m)*aeh(k-Blw[k-1,m]+1);
+	dcd[k] += w(m)*aeh(k-Blw[k-1,m]+1);
       if ( Blw[k-1,m] < k ) // \delta^\cap_>(j+1), j+1 to right end
-	dcu[k] = dcu[k] + w(m)*aeh(Bup[k-1,m]-k+1);
+	dcu[k] += w(m)*aeh(Bup[k-1,m]-k+1);
     }
         
     /* scan interval = [j+1,k] for minimum j */
     for ( int j=0; j<k-1; j++ ) { //in 0:(k-1) ) { 
       // \delta^*: correct for segments that span [j+1,k]
-      long double dstar = 0;
-      for ( int m=0; m<M; m++ ) 
+      dstar = 0.0;
+      for ( int m=0; m<M; m++ ) {
 	if ( ( Blw[k-1,m] < j+1 ) && ( Bup[k-1,m] > k ) ) {
 	  dtmp = aeh(Bup[k-1,m]-Blw[k-1,m]+1) + aeh(k-j) -
 	    aeh(k-Blw[k-1,m]+1) - aeh(Bup[k-1,m]-j);
-	  dstar = dstar + w(m)*dtmp;
+	  dstar += w(m)*dtmp;
 	}
-      
+      }
       Dtmp = dsm[k] + dcd[k] + dcu[j+1] + dstar;
       if ( j>0 ) Dtmp = Dtmp - dsq[j];
         
