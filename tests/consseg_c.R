@@ -37,7 +37,7 @@ conc <- consensus_c(bl, n=n, w=w)
 ## add 1 to ends
 nsegs <- segs
 nsegs$end <- nsegs$end+1
-test <- consensus(nsegs,n=50)
+test <- consensus(nsegs,n=50,w=2*w)
 
 ## plot segments, leave room for consensus arrows
 png("consseg_c.png", units="in", width=3.5, height=7, res=200)

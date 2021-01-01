@@ -38,6 +38,9 @@ consensus <- function(b, n, w, #aeh=function(L) L^2/2,
 
     ## generate or normalize weight vector
     if ( missing(w) ) w <- rep(1/M, M)
+    else if ( length(w)!=M )
+        stop("Weight vector must be of the same length as number of",
+             " input segmentations")
     else if ( sum(w)!=1 ) {
         warning("Weight vector does not sum up to 1, normalizing\n")
         w <- w/sum(w) 
