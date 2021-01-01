@@ -2,6 +2,7 @@
 using namespace Rcpp;
 
 
+// [[Rcpp::export]]
 long double aeh(int L) {
   return (L*L)/2;
 }
