@@ -5,18 +5,6 @@
 
 using namespace Rcpp;
 
-// w
-double w(int m, int M);
-RcppExport SEXP _ConsSeg_w(SEXP mSEXP, SEXP MSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type m(mSEXP);
-    Rcpp::traits::input_parameter< int >::type M(MSEXP);
-    rcpp_result_gen = Rcpp::wrap(w(m, M));
-    return rcpp_result_gen;
-END_RCPP
-}
 // backtrace_c
 NumericVector backtrace_c(NumericVector imax);
 RcppExport SEXP _ConsSeg_backtrace_c(SEXP imaxSEXP) {
@@ -29,23 +17,23 @@ BEGIN_RCPP
 END_RCPP
 }
 // consensus_c
-List consensus_c(List b, int n, bool store);
-RcppExport SEXP _ConsSeg_consensus_c(SEXP bSEXP, SEXP nSEXP, SEXP storeSEXP) {
+List consensus_c(List b, int n, NumericVector w, bool store);
+RcppExport SEXP _ConsSeg_consensus_c(SEXP bSEXP, SEXP nSEXP, SEXP wSEXP, SEXP storeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type b(bSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type w(wSEXP);
     Rcpp::traits::input_parameter< bool >::type store(storeSEXP);
-    rcpp_result_gen = Rcpp::wrap(consensus_c(b, n, store));
+    rcpp_result_gen = Rcpp::wrap(consensus_c(b, n, w, store));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ConsSeg_w", (DL_FUNC) &_ConsSeg_w, 2},
     {"_ConsSeg_backtrace_c", (DL_FUNC) &_ConsSeg_backtrace_c, 1},
-    {"_ConsSeg_consensus_c", (DL_FUNC) &_ConsSeg_consensus_c, 3},
+    {"_ConsSeg_consensus_c", (DL_FUNC) &_ConsSeg_consensus_c, 4},
     {NULL, NULL, 0}
 };
 

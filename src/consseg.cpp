@@ -2,11 +2,6 @@
 using namespace Rcpp;
 
 
-// [[Rcpp::export]]
-double w(int m, int M) {
-  return 1/(1.0*M); // note implicit cast to double
-}
-
 long double aeh(int L) {
   return (L*L)/2;
 }
@@ -33,18 +28,17 @@ NumericVector backtrace_c(NumericVector imax) {
 
 
 // TODO
-// @param w weight function, taking one argument: the index \code{m} of
-// the respective segmentation in the breakpoint list \code{b}
 // @param e potential function, taking one argument: the length \code{L}
 // of the evaluated interval
 
 //' Calculate consensus segments from a list of segmentation breakpoints
 //' @param b list of breakpoints of different segmentations
-//' @param n total sequence length (\code{max(b)} if not provided)
+//' @param n total sequence length 
+//' @param w weights vector, must sum up to 1
 //' @param store for debugging: store and return all internal vectors
 //'@export
 // [[Rcpp::export]]
-List consensus_c(List b, int n, //std::string w, std::string aeh,
+List consensus_c(List b, int n, NumericVector w, //std::string aeh,
 		 bool store=0) {
 
   // TODO: outside in R, add argument n if missing, add 1, n  to b list
@@ -114,13 +108,13 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
         
     for ( int m=0; m<M; m++ ) {
       if ( Bup(k-1,m) == k ) // \delta_<(k), start and end left of k 
-	dsm[k] += w(m,M)*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
+	dsm[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
       if ( Blw(k-1,m) == k ) // \delta_le(j), start left of j, to subtract
-	dsq[k] += w(m,M)*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
+	dsq[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
       if ( Bup(k-1,m) > k ) // \delta^\cap_<(k), left end to k
-	dcd[k] += w(m,M)*aeh(k-Blw(k-1,m)+1);
+	dcd[k] += w[m]*aeh(k-Blw(k-1,m)+1);
       if ( Blw(k-1,m) < k ) // \delta^\cap_>(j+1), j+1 to right end
-	dcu[k] += w(m,M)*aeh(Bup(k-1,m)-k+1);
+	dcu[k] += w[m]*aeh(Bup(k-1,m)-k+1);
     }
 
     /* scan interval = [j+1,k] for minimum j */
@@ -131,7 +125,7 @@ List consensus_c(List b, int n, //std::string w, std::string aeh,
 	if ( ( Blw(k-1,m) < j+1 ) && ( Bup(k-1,m) > k ) ) {
 	  dtmp = aeh(Bup(k-1,m)-Blw(k-1,m)+1) + aeh(k-j) -
 	    aeh(k-Blw(k-1,m)+1) - aeh(Bup(k-1,m)-j);
-	  dstar += w(m,M)*dtmp;
+	  dstar += w[m]*dtmp;
 	}
       }
 

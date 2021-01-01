@@ -4,16 +4,15 @@
 \alias{consensus_r}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus_r(b, n, w = function(m) return(1/m), aeh = function(L) L^2/2,
-  store = FALSE, test = FALSE)
+consensus_r(b, n, w, aeh = function(L) L^2/2, store = FALSE,
+  test = FALSE)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations}
 
 \item{n}{total sequence length (\code{max(b)} if not provided)}
 
-\item{w}{weight function, taking one argument: the index \code{m} of
-the respective segmentation in the breakpoint list \code{b}}
+\item{w}{weights vector, must sum up to 1 or will be normalized}
 
 \item{store}{for debugging: store and return all internal vectors}
 

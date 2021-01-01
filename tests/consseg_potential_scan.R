@@ -25,11 +25,8 @@ b <- lapply(blst, function(x) unique(x$start))
 
 ## potential
 aeh <- function(L) {L^2/2}
-## weight
-w <- function(m){return(1/m)}
-## override as in Fall's code
-## ignore m and take global M
-w <- function(m) return(1/M) 
+## weights
+w <- rep(1/M, M)
 
 
 aehs <- list(negentropy=function(L,n=50) (L/n)*log(L/n),

@@ -25,16 +25,13 @@ b <- lapply(blst, function(x) unique(x$start))
 
 ## potential
 aeh <- function(L) {L^2/2}
-## weight
-w <- function(m){return(1/m)}
-## override as in Fall's code
-## ignore m and take global M
-w <- function(m) return(1/M) 
+## weights
+w <- rep(1/M,M)
 
 cons <- consensus_r(b, n=n, w=w, aeh=aeh, store=TRUE, test=FALSE)
 
 bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-conc <- consensus_c(bl, n=n)
+conc <- consensus_c(bl, n=n, w=w)
 
 ## to reproduce above results, we need
 ## add 1 to ends

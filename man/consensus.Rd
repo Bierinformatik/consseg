@@ -4,12 +4,15 @@
 \alias{consensus}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus(b, n, return = "breakpoints", store = FALSE, test = FALSE)
+consensus(b, n, w, return = "breakpoints", store = FALSE,
+  test = FALSE)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations}
 
 \item{n}{total sequence length (\code{max(b)} if not provided)}
+
+\item{w}{weights vector, must sum up to 1 or will be normalized}
 
 \item{return}{return class of}
 

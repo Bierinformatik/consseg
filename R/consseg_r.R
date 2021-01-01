@@ -1,16 +1,15 @@
 #' Calculate consensus segments from a list of segmentation breakpoints
 #' @param b list of breakpoints of different segmentations
 #' @param n total sequence length (\code{max(b)} if not provided)
-# @param w weight function, taking one argument: the index \code{m} of
-# the respective segmentation in the breakpoint list \code{b}
+#' @param w weights vector, must sum up to 1 or will be normalized
 # @param e potential function, taking one argument: the length \code{L}
 # of the evaluated interval
 #' @param return return class of
 #' @param store for debugging: store and return all internal vectors
 #' @param test for debugging
 #'@export
-consensus <- function(b, n, #w=function(m) return(1/m), aeh=function(L) L^2/2,
-                      return="breakpoints",store=FALSE, test=FALSE) {
+consensus <- function(b, n, w, #aeh=function(L) L^2/2,
+                      return="breakpoints", store=FALSE, test=FALSE) {
 
     ## get class of breakpoints
     if ( "segments"%in%class(b) ) {
@@ -29,6 +28,7 @@ consensus <- function(b, n, #w=function(m) return(1/m), aeh=function(L) L^2/2,
         warning("total sequence length missing, ",
                 "taking the maximal breakpoint at ", n)
     }
+    
     ## prepare breakpoints such that they:
     ## * are sorted and unique,
     ## * start with 1 and end with n, 
@@ -36,8 +36,15 @@ consensus <- function(b, n, #w=function(m) return(1/m), aeh=function(L) L^2/2,
     b <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
     M <- length(b)
 
-    ## call C function
-    cons <- consensus_c(b, n=n, store=store)#, w=w, aeh=e, test=FALSE) 
+    ## generate or normalize weight vector
+    if ( missing(w) ) w <- rep(1/M, M)
+    else if ( sum(w)!=1 ) {
+        warning("Weight vector does not sum up to 1, normalizing\n")
+        w <- w/sum(w) 
+    }
+    
+    ## call recursion in C
+    cons <- consensus_c(b, n=n, w=w, store=store)#aeh=e, test=FALSE) 
 
     if ( return=="breakpoints" ) res <- cons$breakpoints
     else if ( return=="segments" ) res <- bp2seg(cons$breakpoints, end=-1)
@@ -50,16 +57,15 @@ consensus <- function(b, n, #w=function(m) return(1/m), aeh=function(L) L^2/2,
 #' Calculate consensus segments from a list of segmentation breakpoints
 #' @param b list of breakpoints of different segmentations
 #' @param n total sequence length (\code{max(b)} if not provided)
-#' @param w weight function, taking one argument: the index \code{m} of
-#' the respective segmentation in the breakpoint list \code{b}
+#' @param w weights vector, must sum up to 1 or will be normalized
 #' @param e potential function, taking one argument: the length \code{L}
 #' of the evaluated interval
 #' @param store for debugging: store and return all internal vectors
 #' @param test for debugging: compare the incrementally calculated
 #' Delta with the very slow direct calculation 
 #'@export
-consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^2/2,
-                      store=FALSE, test=FALSE) {
+consensus_r <- function(b, n, w, aeh=function(L) L^2/2,
+                        store=FALSE, test=FALSE) {
 
     if ( missing(n) ) {
         n <- max(unlist(b))
@@ -69,12 +75,20 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^2/2,
 
     M <- length(b) # number of input segmentations
 
+
     ## prepare breakpoints such that they:
     ## * are sorted and unique,
     ## * start with 1 and end with n, 
     ## and adding n+1 to for convenience in look-up table.
     b <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
     
+    ## generate or normalize weight vector
+    if ( missing(w) ) w <- rep(1/M, M)
+    else if ( sum(w)!=1 ) {
+        warning("Weight vector does not sum up to 1, normalizing\n")
+        w <- w/sum(w) 
+    }
+
     ##  FILL UP INTERVAL BORDER LOOKUP TABLES
     Blw <- Bup <- matrix(NA, nrow=n, ncol=M)
     for ( q in 1:M ) {
@@ -115,13 +129,13 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^2/2,
         
         for ( m in 1:M ) {             
             if ( Bup[k,m] == k ) # \delta_<(k), start and end left of k 
-                dsm[k] = dsm[k] + w(m)*aeh(Bup[k,m]-Blw[k,m]+1)
+                dsm[k] = dsm[k] + w[m]*aeh(Bup[k,m]-Blw[k,m]+1)
             if ( Blw[k,m] == k ) # \delta_le(j), start left of j, to subtract
-                dsq[k] = dsq[k] + w(m)*aeh(Bup[k,m]-Blw[k,m]+1)
+                dsq[k] = dsq[k] + w[m]*aeh(Bup[k,m]-Blw[k,m]+1)
             if ( Bup[k,m] > k ) # \delta^\cap_<(k), left end to k
-                dcd[k] = dcd[k] + w(m)*aeh(k-Blw[k,m]+1)
+                dcd[k] = dcd[k] + w[m]*aeh(k-Blw[k,m]+1)
             if ( Blw[k,m] < k ) # \delta^\cap_>(j+1), j+1 to right end
-                dcu[k] = dcu[k] + w(m)*aeh(Bup[k,m]-k+1) 
+                dcu[k] = dcu[k] + w[m]*aeh(Bup[k,m]-k+1) 
         }
         
         ## /* scan interval = [j+1,k] for minimum j */
@@ -132,7 +146,7 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^2/2,
                 if ( ( Blw[k,m] < j+1 ) & ( Bup[k,m] > k ) ) {
                     dtmp = aeh(Bup[k,m]-Blw[k,m]+1) + aeh(k-j) -
                         aeh(k-Blw[k,m]+1) - aeh(Bup[k,m]-j)
-                    dstar = dstar + w(m)*dtmp
+                    dstar = dstar + w[m]*dtmp
                 }
         
             Dtmp = dsm[k] + dcd[k] + dcu[j+1] + dstar
@@ -154,7 +168,7 @@ consensus_r <- function(b, n, w=function(m) return(1/m), aeh=function(L) L^2/2,
                         up = Bup[lw,m]
                     } 
                     summe = summe + aeh(k-lw+1)
-                    Dslow = Dslow - 2*w(m)*summe 
+                    Dslow = Dslow - 2*w[m]*summe 
                 }
                 if ( abs(D-Dslow)>0.000000000001 ) # TODO: relative error
                     cat(paste("DIFFERENCE", k, j, D, Dslow, "\n"))
