@@ -3,6 +3,8 @@ using namespace Rcpp;
 
 
 // signature of potential functions
+// TODO: rcpp export causes compilation error in sourcCpp,
+// but missing causes missing typedef error in R CMD INSTALL!
 typedef long double (*funcPtr)(int L);
 
 //' default potential function, \code{L^2/2}
