@@ -10,12 +10,18 @@ library(RcppXPtrUtils)
 sourceCpp("test_ptr.cpp")
 
 ## user-supplied function
-cpp <- "long double my_aeh(int L) { return (L*L*L/3); }"
+## NOTE: 3.0 is required, otherwise 21 is returned!
+cpp <- "long double my_aeh(int L) { return (L*L*L)/3.0; }"
 ptr <- cppXPtr(cpp)
 checkXPtr(ptr, type="long double", args=c("int")) # returns silently
 callViaXPtr(4, ptr)
 
-cpp <- "long double my_aeh(int L) { return (exp(L/2)-1); }"
+cpp <- "long double my_aeh(int L) { return std::pow(L,3)/3; }"
+ptr <- cppXPtr(cpp)
+checkXPtr(ptr, type="long double", args=c("int")) # returns silently
+callViaXPtr(4, ptr)
+
+cpp <- "long double my_aeh(int L) { return exp(L/2)-1; }"
 ptr <- cppXPtr(cpp)
 checkXPtr(ptr, type="long double", args=c("int")) # returns silently
 callViaXPtr(4, ptr)
