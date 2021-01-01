@@ -5,6 +5,27 @@
 
 using namespace Rcpp;
 
+// aeh
+long double aeh(int L);
+RcppExport SEXP _ConsSeg_aeh(SEXP LSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type L(LSEXP);
+    rcpp_result_gen = Rcpp::wrap(aeh(L));
+    return rcpp_result_gen;
+END_RCPP
+}
+// e_ptr
+XPtr<funcPtr> e_ptr();
+RcppExport SEXP _ConsSeg_e_ptr() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(e_ptr());
+    return rcpp_result_gen;
+END_RCPP
+}
 // backtrace_c
 NumericVector backtrace_c(NumericVector imax);
 RcppExport SEXP _ConsSeg_backtrace_c(SEXP imaxSEXP) {
@@ -17,23 +38,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // consensus_c
-List consensus_c(List b, int n, NumericVector w, bool store);
-RcppExport SEXP _ConsSeg_consensus_c(SEXP bSEXP, SEXP nSEXP, SEXP wSEXP, SEXP storeSEXP) {
+List consensus_c(List b, int n, NumericVector w, SEXP e, bool store);
+RcppExport SEXP _ConsSeg_consensus_c(SEXP bSEXP, SEXP nSEXP, SEXP wSEXP, SEXP eSEXP, SEXP storeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type b(bSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type w(wSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type e(eSEXP);
     Rcpp::traits::input_parameter< bool >::type store(storeSEXP);
-    rcpp_result_gen = Rcpp::wrap(consensus_c(b, n, w, store));
+    rcpp_result_gen = Rcpp::wrap(consensus_c(b, n, w, e, store));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ConsSeg_aeh", (DL_FUNC) &_ConsSeg_aeh, 1},
+    {"_ConsSeg_e_ptr", (DL_FUNC) &_ConsSeg_e_ptr, 0},
     {"_ConsSeg_backtrace_c", (DL_FUNC) &_ConsSeg_backtrace_c, 1},
-    {"_ConsSeg_consensus_c", (DL_FUNC) &_ConsSeg_consensus_c, 4},
+    {"_ConsSeg_consensus_c", (DL_FUNC) &_ConsSeg_consensus_c, 5},
     {NULL, NULL, 0}
 };
 

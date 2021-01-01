@@ -2,15 +2,40 @@
 #' @param b list of breakpoints of different segmentations
 #' @param n total sequence length (\code{max(b)} if not provided)
 #' @param w weights vector, must sum up to 1 or will be normalized
-# @param e potential function, taking one argument: the length \code{L}
-# of the evaluated interval
+#' @param e potential function either a \code{XPtr} pointer to a
+#' pre-compiled function or a string providing \code{Rcpp} code for
+#' this function, eg. \code{"long double my_aeh(int L){return (exp(L/2)-1);}"}.
+#' of the evaluated interval
 #' @param return return class of
 #' @param store for debugging: store and return all internal vectors
 #' @param test for debugging
+#' @param verb verbosity level, 0 is silent
 #'@export
-consensus <- function(b, n, w, #aeh=function(L) L^2/2,
-                      return="breakpoints", store=FALSE, test=FALSE) {
+consensus <- function(b, n, w, e,
+                      return="breakpoints", store=FALSE, test=FALSE, verb=1) {
 
+    ## get pointer to potential function
+    if ( missing(e) )
+        e <- e_ptr() # default, aeh function in cpp file
+    else if ( class(e)=="XPtr" ) { # test pre-compiled function
+        tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
+                                            args=c("int")))
+        if ( "try-error"%in%class(tmp) ) 
+            stop("wrong potential function signature, should be: ",
+                 "`long double my_aeh(int L)`")
+    } else if ( class(e)=="character" ) { # compile from string
+        ##eg: "long double my_aeh(int L) { return (exp(L/2)-1); }"
+        if ( verb>0 )
+            cat(paste("Compiling user supplied potential function.\n"))
+        e <- RcppXPtrUtils::cppXPtr(e)
+        tmp <- try(RcppXPtrUtils::checkXPtr(e,
+                                            type="long double", args=c("int")))
+        if ( "try-error"%in%class(tmp) ) 
+            stop("wrong potential function signature, should be: ",
+                 "`long double my_aeh(int L)`")
+    }
+    
+    
     ## get class of breakpoints
     if ( "segments"%in%class(b) ) {
         n <- b$N
@@ -25,8 +50,8 @@ consensus <- function(b, n, w, #aeh=function(L) L^2/2,
 
     if ( missing(n) ) {
         n <- max(unlist(b))
-        warning("total sequence length missing, ",
-                "taking the maximal breakpoint at ", n)
+        warning("total sequence length `n` is missing, ",
+                "using the maximal breakpoint at ", n)
     }
     
     ## prepare breakpoints such that they:
@@ -47,7 +72,9 @@ consensus <- function(b, n, w, #aeh=function(L) L^2/2,
     }
     
     ## call recursion in C
-    cons <- consensus_c(b, n=n, w=w, store=store)#aeh=e, test=FALSE) 
+    if ( verb>0 )
+        cat(paste("Running Recursion.\n"))
+    cons <- consensus_c(b, n=n, w=w, e=e, store=store)#aeh=e, test=FALSE) 
 
     if ( return=="breakpoints" ) res <- cons$breakpoints
     else if ( return=="segments" ) res <- bp2seg(cons$breakpoints, end=-1)

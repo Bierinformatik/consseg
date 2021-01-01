@@ -2,11 +2,26 @@
 using namespace Rcpp;
 
 
+// signature of potential functions
+typedef long double (*funcPtr)(int L);
+
+//' default potential function, \code{L^2/2}
+//' @param L interval length
 // [[Rcpp::export]]
 long double aeh(int L) {
-  return (L*L)/2.0;
+  long double e =  (L*L)/2.0;
+  return(e);
 }
 
+// TODO: use string to switch between internal functions?
+//' get internal potential function
+// [[Rcpp::export]]
+XPtr<funcPtr> e_ptr() {
+  return(XPtr<funcPtr>(new funcPtr(&aeh)));
+}
+
+
+// backtrace function
 // [[Rcpp::export]]
 NumericVector backtrace_c(NumericVector imax) {
 
@@ -29,20 +44,21 @@ NumericVector backtrace_c(NumericVector imax) {
 
 
 // TODO
-// @param e potential function, taking one argument: the length \code{L}
-// of the evaluated interval
-
 //' Calculate consensus segments from a list of segmentation breakpoints
 //' @param b list of breakpoints of different segmentations
 //' @param n total sequence length 
 //' @param w weights vector, must sum up to 1
+//' @param e potential function, taking one argument: the length \code{L}
+//' of the evaluated interval
 //' @param store for debugging: store and return all internal vectors
 //'@export
 // [[Rcpp::export]]
-List consensus_c(List b, int n, NumericVector w, //std::string aeh,
+List consensus_c(List b, int n, NumericVector w, SEXP e,//std::string aeh,
 		 bool store=0) {
 
-  // TODO: outside in R, add argument n if missing, add 1, n  to b list
+  // get potential function
+  XPtr<funcPtr> xpfun(e);
+  funcPtr aeh = *xpfun;
 
   int M = b.length(); // number of input segmentations
 

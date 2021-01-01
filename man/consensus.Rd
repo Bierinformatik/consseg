@@ -4,8 +4,8 @@
 \alias{consensus}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus(b, n, w, return = "breakpoints", store = FALSE,
-  test = FALSE)
+consensus(b, n, w, e, return = "breakpoints", store = FALSE,
+  test = FALSE, verb = 1)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations}
@@ -14,11 +14,18 @@ consensus(b, n, w, return = "breakpoints", store = FALSE,
 
 \item{w}{weights vector, must sum up to 1 or will be normalized}
 
+\item{e}{potential function either a \code{XPtr} pointer to a
+pre-compiled function or a string providing \code{Rcpp} code for
+this function, eg. \code{"long double my_aeh(int L){return (exp(L/2)-1);}"}.
+of the evaluated interval}
+
 \item{return}{return class of}
 
 \item{store}{for debugging: store and return all internal vectors}
 
 \item{test}{for debugging}
+
+\item{verb}{verbosity level, 0 is silent}
 }
 \description{
 Calculate consensus segments from a list of segmentation breakpoints
