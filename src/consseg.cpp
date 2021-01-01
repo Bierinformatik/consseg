@@ -1,11 +1,8 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+#include "consseg.h"
 
-// signature of potential functions
-// TODO: rcpp export causes compilation error in sourcCpp,
-// but missing causes missing typedef error in R CMD INSTALL!
-typedef long double (*funcPtr)(int);
 
 //' default potential function, \code{L^2/2}
 //' @param L interval length
@@ -14,6 +11,7 @@ long double aeh(int L) {
   long double e =  (L*L)/2.0;
   return(e);
 }
+
 
 // TODO: use string to switch between internal functions?
 //' get internal potential function
