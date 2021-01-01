@@ -31,13 +31,9 @@ w <- rep(1/M,M)
 cons <- consensus_r(b, n=n, w=w, aeh=aeh, store=TRUE, test=FALSE)
 
 bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-conc <- consensus_c(bl, n=n, w=w)
+e <- e_ptr() # default, aeh function in cpp file
+conc <- consensus_c(bl, n=n, w=w,e=e)
 
-## to reproduce above results, we need
-## add 1 to ends
-nsegs <- segs
-nsegs$end <- nsegs$end+1
-test <- consensus(nsegs,n=50,w=2*w)
 
 ## plot segments, leave room for consensus arrows
 png("consseg_c.png", units="in", width=3.5, height=7, res=200)
@@ -70,3 +66,19 @@ dev.off()
 
 ## print breakpoints
 cons$breakpoints
+
+
+### TEST MAIN WRAPPER
+## to reproduce above results, we need
+## add 1 to ends
+nsegs <- segs
+nsegs$end <- nsegs$end+1
+
+
+## test compiling potential function
+e <- "long double my_aeh(int L) { return (exp(L/2.0)-1.0); }"
+e <- "long double my_aeh(int L) { return L*L*L/3.0; }"
+consensus(nsegs,n=50,w=w,e=e)
+
+## test pre-compiled potential function
+consensus(nsegs,n=50,w=w,e=RcppXPtrUtils::cppXPtr(e))
