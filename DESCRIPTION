@@ -1,17 +1,19 @@
 Package: ConsSeg
-Title: WEIGHTED RECONCILIATIONS OF SEGMENTATIONS
+Title: Weighted Reconciliation of Segmentations
 Version: 0.1
 Authors@R: 
-    person(given = "Jörg",
-           family = "Fallmann",
-           role = c("aut", "cre"),
-           email = "fall@bioinf.uni-leipzig.de",
-           comment = c(ORCID = "0000-0002-4573-9939"))
-    person(given = "Rainer",
-           family = "Machne",
-           role = c("aut", "cre"),
-           email = "raim@tbi.univie.ac.at")       
-Description: ConsSeg finds consensus segmentation from cluster based segementation input: In particular in the context of transcript identification it is of interest to reconcile segmentations obtained from different experiments or from the same experiment(s) with different segmentation algorithms or parameter settings. While boundaries may not be clearly visible in individual data tracks,aggregation of multiple experiments can lead to a much clearer picture. Still, any particular choice of parameters tends to produce both false positive and false negative segment boundaries. A natural way to reduce this noise is to compute a consensus.
+    c(person(given = "Jörg",
+             family = "Fallmann",
+             role = c("aut", "cre"),
+             email = "fall@bioinf.uni-leipzig.de",
+             comment = c(ORCID = "0000-0002-4573-9939")),
+      person(given = "Rainer",
+             family = "Machne",
+             role = c("aut"),
+             email = "raim@tbi.univie.ac.at",
+	     comment = c(ORCID = "0000-0002-1274-5099")),
+      person("Peter F.", "Stadler", role = c("aut")))  
+Description: Calculates a consensus segmentation from multiple segmentations. In particular in the context of transcript identification it is of interest to reconcile segmentations obtained from different experiments or from the same experiment(s) with different segmentation algorithms or parameter settings. While boundaries may not be clearly visible in individual data tracks,aggregation of multiple experiments can lead to a much clearer picture. Still, any particular choice of parameters tends to produce both false positive and false negative segment boundaries. A natural way to reduce this noise is to compute a consensus.
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -23,7 +25,6 @@ biocViews:
 Imports:
   Rcpp (>= 0.12.18),
   RcppXPtrUtils (>= 0.1.1),
-  segmenTier (>= 0.1.2),
   IRanges (>= 2.16.0),
   S4Vectors,
   methods

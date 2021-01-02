@@ -4,23 +4,20 @@
 \name{consseg}
 \alias{consseg}
 \alias{consseg-package}
-\title{consseg: consensus segment for segmenTier cluster-based segmentation
-from a sequential clustering}
+\title{consseg: consensus segmentation from multiple input segmentations}
 \description{
 Calculates consensus segmentation from cluster based segmentation
 }
 \section{Dependencies}{
  The package strictly depends on
-\code{segmenTier} and thus on \code{Rcpp}.
+on \code{Rcpp} and \code{RcppXPtrUtils}.
 All other dependencies are usually present in a
 basic installation (\code{stats}, \code{graphics}, \code{grDevices})).
 }
 
 \references{
 Saker, Machne, Fallmann, Shahin & Stadler (2021) <>,
-Machne, Murray & Stadler (2017) \url{doi:10.1038/s41598-017-12401-8},
-Machne & Murray (2012) \url{doi:10.1371/journal.pone.0037906}, and
-Lehmann et al. (2013) \url{doi:10.1186/1471-2105-14-133}
+Machne, Murray & Stadler (2017) \doi{10.1038/s41598-017-12401-8},
 }
 \author{
 Halima Saker, Rainer Machne \email{raim@tbi.univie.ac.at}, Jörg Fallmann \email{fall@bioinf.uni-leipzig.de},

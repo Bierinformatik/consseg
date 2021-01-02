@@ -69,6 +69,8 @@ consensus <- function(b, n, w, e,
     else if ( length(w)!=M )
         stop("Weight vector must be of the same length as number of",
              " input segmentations")
+    else if ( any(w<0) )
+        stop("Weights can not be negative")
     else if ( sum(w)!=1 ) {
         warning("Weight vector does not sum up to 1, normalizing\n")
         w <- w/sum(w) 
