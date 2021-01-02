@@ -4,7 +4,7 @@
 \alias{plot_breaklist}
 \title{simple plot function for a list of segmentation tables}
 \usage{
-plot_breaklist(blst, n, add = FALSE, length = 0.1, angle = 45,
+plot_breaklist(blst, n, add = FALSE, length = 0.05, angle = 45,
   code = 3, col = 1, lwd = 2, axis1 = TRUE, axis2 = TRUE, ...)
 }
 \arguments{

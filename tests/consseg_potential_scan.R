@@ -8,29 +8,20 @@ debug <- FALSE
 if ( debug ) {
     setwd("~/programs/ConsSeq/tests")
     source("../R/consseg_r.R")
+    library(Rcpp)
+    sourceCpp("../src/consseg.cpp")
 } else {
     library(ConsSeg)
 }
-library(IRanges)
 
 
 ## GENERATE RANDOM SEGMENTS
 n <- 50 # SEQUENCE LENGTH
 M <- 10 # number segmentations (breakpoint lists)
-avg.sg <- n/10 # average number of segments
-
+l <- 4 # average number of segments
 set.seed(1) # for constant results
-segs <- simulate_ranges_r(n,M,avg.sg,FALSE, df=TRUE)
+b <- random_breakpoints(m=M,n=n,lambda=l)
 
-## shorter names for plot
-segs$type <- sub("segmentation","",segs$type)
-
-### CONVERT SEGMENTS TO LIST OF BREAKPOINTS
-## split into different types
-blst <- split(segs, f=segs$type)
-blst <- blst[order(as.numeric(names(blst)))] # order segmentation numbers
-## each starting with 1 and ending with n+1 (for convenience)
-b <- lapply(blst, function(x) unique(x$start))
 
 ## potential
 aeh <- function(L) {L^2/2}
@@ -53,19 +44,16 @@ exprs <- list(negentropy=expression(italic(z/n)*log(italic(z/n))),
 
 bps <- rep(0,length(aehs))
 
-## for clearer plots increase segment ends by +1
-blst <- lapply(blst, function(x) {
-    x$end[x$end<n]=x$end[x$end<n]+1;return(x)})
 
-png("consseg_potential_scan.png", width=2*3.5, height=2.5,
+png("consseg_potential_scan_r.png", width=2*3.5, height=2.5,
     units="in",res=200)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aehs) ) {
     cons <- consensus_r(b, n=n, w=w, e=aehs[[i]])
 
-    plot_breaklist(blst,axis1=FALSE, axis2=FALSE, col=NA)
+    plot_breaklist(b,axis1=FALSE, axis2=FALSE, col=NA)
     abline(v=cons$breakpoints, col="#0000FFCC", lwd=2)
-    plot_breaklist(blst,add=TRUE, col=1, lwd=1, length=.05,
+    plot_breaklist(b,add=TRUE, col=1, lwd=1, length=.05,
                    axis1=FALSE, axis2=FALSE)
     axis(1)
     mtext(exprs[[names(aehs)[i]]],1,1.25*par("mgp")[1], cex=.9)
@@ -95,9 +83,9 @@ for ( i in 1:length(aehs) ) {
     fnc <- paste("long double my_aeh(int L, int n) {return ",aehs[[i]],";}")
     cons <- consensus(b, n=n, w=w, e=fnc)
 
-    plot_breaklist(blst,axis1=FALSE, axis2=FALSE, col=NA)
+    plot_breaklist(b,axis1=FALSE, axis2=FALSE, col=NA)
     abline(v=cons, col="#0000FFCC", lwd=2)
-    plot_breaklist(blst,add=TRUE, col=1, lwd=1, length=.05,
+    plot_breaklist(b,add=TRUE, col=1, lwd=1, length=.05,
                    axis1=FALSE, axis2=FALSE)
     axis(1)
     mtext(exprs[[names(aehs)[i]]],1,1.25*par("mgp")[1], cex=.9)

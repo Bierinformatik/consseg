@@ -13,25 +13,14 @@ if ( debug ) {
 } else {
     library(ConsSeg)
 }
-library(IRanges)
 
 
 ## GENERATE RANDOM SEGMENTS
 n <- 50 # SEQUENCE LENGTH
 M <- 10 # number segmentations (breakpoint lists)
-avg.sg <- n/10 # average number of segments
-
+l <- 4 # average number of segments
 set.seed(1) # for constant results
-segs <- simulate_ranges_r(n,M,avg.sg,FALSE, df=TRUE)
-
-
-### CONVERT TO LIST OF BREAKPOINTS
-## fill up -1 ends (only required for plots), since simulate_range
-## simulates breakpoints but subtracts 1 from ends
-##segs$end <- segs$end+1
-## each starting with 1 and ending with n+1 (for convenience)
-blst <- split(segs, f=segs$type)
-b <- lapply(blst, function(x) unique(x$start))
+b <- random_breakpoints(m=M,n=n,lambda=l)
 
 ## potential
 aeh <- function(L,n) {L^2/2}
@@ -52,10 +41,10 @@ if ( debug ) {
     png("consseg_c.png", units="in", width=3.5, height=7, res=200)
     par(mfcol=c(6,1),mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
     par(mai=c(.1,.5,.1,.1))
-    plot_breaklist(blst,lwd=1)
+    plot_breaklist(b,lwd=1)
     abline(v=cons$breakpoints, col="#0000FF55", lwd=2)
     abline(v=conc$breakpoints, col="#FF000077",lwd=2)
-    plot_breaklist(blst,add=TRUE, col=1, lwd=1)
+    plot_breaklist(b,add=TRUE, col=1, lwd=1)
     plot(cons$F,  type="p",xlab="sequence position k", ylab="F(k)")
     lines(conc$F, col=2)
     plot(cons$Dk, type="p",xlab="sequence position k",
@@ -84,18 +73,13 @@ if ( debug ) {
 
 
 ### TEST MAIN WRAPPER
-## to reproduce above results, we need
-## add 1 to ends
-nsegs <- segs
-nsegs$end <- nsegs$end+1
-
-consensus(nsegs,n=50,w=w)
+consensus(b,n=50,w=w)
 
 
 ## test compiling potential function
 e <- "long double my_aeh(int L, int n) { return (exp(L/2.0)-1.0); }"
 e <- "long double my_aeh(int L, int n) { return L*L*L/3.0; }"
-consensus(nsegs,n=50,w=w,e=e)
+consensus(b,n=50,w=w,e=e)
 
 ## test pre-compiled potential function
-consensus(nsegs,n=50,w=w,e=RcppXPtrUtils::cppXPtr(e))
+consensus(b,n=50,w=w,e=RcppXPtrUtils::cppXPtr(e))

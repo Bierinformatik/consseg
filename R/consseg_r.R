@@ -1,3 +1,35 @@
+#' consseg: consensus segmentation from multiple input segmentations
+#'@author Halima Saker, Rainer Machne \email{raim@tbi.univie.ac.at}, Jörg Fallmann \email{fall@bioinf.uni-leipzig.de},
+#' Ahmad M. Shahin, Peter F. Stadler \email{studla@bioinf.uni-leipzig.de}
+#'@docType package
+#'@name consseg
+#'@description Calculates consensus segmentation from cluster based segmentation
+#'@section Dependencies: The package strictly depends on
+#' on \code{Rcpp} and \code{RcppXPtrUtils}.
+#' All other dependencies are usually present in a
+#' basic installation (\code{stats}, \code{graphics}, \code{grDevices})).
+#' @references
+#' Saker, Machne, Fallmann, Shahin & Stadler (2021) <>,
+#' Machne, Murray & Stadler (2017) \doi{10.1038/s41598-017-12401-8},
+#' @useDynLib ConsSeg
+NULL # this just ends the global package documentation
+
+### DYNAMIC PROGRAMMING BASED CONSENSUS SEGMENTATION OF A CLUSTERING
+### implemented by Jörg Fallmann & Rainer Machne
+
+### FUNCTIONS
+
+### MESSAGE UTILS
+## nicer time-stamp
+time <- function() format(Sys.time(), "%Y%m%d %H:%M:%S")
+## messages
+msg <- function(x) cat(x, file=stdout()) # until piping is implemented
+## stored "warnings" (actually detailed messages)
+warn <- function(w, warnings,verb=FALSE) {
+    if (verb) cat(w)
+    c(warnings,w)
+}
+
 #' Calculate consensus segments from a list of segmentation breakpoints
 #' @param b list of breakpoints of different segmentations
 #' @param n total sequence length (\code{max(b)} if not provided)
@@ -44,12 +76,13 @@ consensus <- function(b, n, w, e,
         n <- b$N
         blst <- split(b$segments, f=b$segments$type)
         b <- lapply(blst, function(x) c(x$start,x$end))
-    } else if ( "IRanges"%in%class(b) ) {
-        b <- unique(c(start(b), end(b)))
     } else if ( "data.frame"%in%class(b) ) { # start, end and type columns!
         blst <- split(b, f=b$type)
         b <- lapply(blst, function(x) c(x$start,x$end))
     }
+    ## TODO:add iranges to non-executed example code
+    ##} else if ( "IRanges"%in%class(b) ) {
+    ##    b <- unique(c(IRanges::start(b), IRanges::end(b)))
 
     if ( missing(n) ) {
         n <- max(unlist(b))
@@ -246,6 +279,7 @@ consensus_r <- function(b, n, w, e=function(L) L^2/2,
 #' backtrace function for consseg
 #' @param ptr pointer of segment ends
 #' @return breakpoints
+#' @importFrom utils tail
 #' @export
 backtrace_r <- function(ptr) {
     
@@ -282,61 +316,25 @@ bp2seg <- function(bp, start, end) {
     df
 }
 
-#' Simulate IRanges of segments
-#' @param l length of sequence
-#' @param n average number of segments per segmentation
-#' @param s upper bound for number of segmentations per sequence
-#' @param r repeat first segmentation n times
-#' @param df return dataframe
-#' @importFrom IRanges disjoin
-#' @return An IRanges object of simulated segments
+
+#### SOME UTILS
+#' random segmentations
+#' @param m number of segmentations
+#' @param n total length of sequence
+#' @param lambda mean of poisson distribution to select number of segments
+#' @importFrom stats rpois rnorm
 #' @export
-simulate_ranges_r <- function(l, n, s, r, df=FALSE){
+random_breakpoints <- function(m=10,n=50,lambda=5) {
 
-    total <- IRanges::IRanges(start=1,end=l)
-    ranges <- NULL
-
-    if (r){
-        nr_of_segments <- sample(s, size = 1)
-        if (nr_of_segments %% 2){ #need start/end pairs so %2 == 0
-            nr_of_segments = nr_of_segments + 1
-        }
-        print(paste0("Simulating ", n,
-                     " sequences of length ", l, " with ", nr_of_segments,
-                     " segments"))
-        segmentations <- sort(sample(l, size = nr_of_segments, replace = FALSE))
-        starts <- segmentations[c(TRUE, FALSE)]
-        ends <- segmentations[c(FALSE, TRUE)]
-        subr <- c(IRanges::IRanges(start=starts, end=ends), total)
-        ranges <- IRanges::disjoin(subr)
-        ranges <- rep(ranges,each=n)
-    }
-    else{
-        print(paste0("Simulating ", n, " sequences of length ", l))
-        for (i in 1:n){
-            nr_of_segments <- sample(s, size = 1)
-            if (nr_of_segments %% 2){ #need start/end pairs so %2 == 0
-                nr_of_segments = nr_of_segments + 1
-            }
-            print(paste0("Sequence ", i, " with ", nr_of_segments, " segments"))
-            segmentations <- sort(sample(l, size = nr_of_segments,
-                                         replace = FALSE))
-            starts <- segmentations[c(TRUE, FALSE)]
-            ends <- segmentations[c(FALSE, TRUE)]
-            subr <- c(IRanges::IRanges(start=starts, end=ends), total)
-            ranges <- c(IRanges::disjoin(subr), ranges)
-        }
-    }
-
-    if(df){
-        ranges <- as.data.frame(ranges)
-        counter <- 0
-        ranges$type <- sapply(ranges$start, function(s) if(s == 1){paste0("segmentation",counter<<-counter+1)} else paste0("segmentation",counter))
-    }
-
-    return(ranges)
+    ## poisson distributed number of segments
+    sgnums <- rpois(n=m, lambda=lambda)
+    ## normally distributed segment lengths
+    blst <- lapply(sgnums, function(x) cumsum(abs(rnorm(x))))
+    names(blst) <- paste0("S",1:m)
+    ## scale to total length n, round and add 1
+    blst <- lapply(blst, function(x) unique(c(1,1+round((n-1)*x/max(x)))))
+    blst
 }
-
 
 ## TODO: allow breakpoint list (use bp2seg) and table
 #' simple plot function for a list of segmentation tables
@@ -355,9 +353,10 @@ simulate_ranges_r <- function(l, n, s, r, df=FALSE){
 #' @param axis1 draw x-axis
 #' @param axis2 draw y-axis
 #' @param ... further arguments to \code{\link{arrows}}
+#' @importFrom graphics arrows axis mtext par plot
 #' @export
 plot_breaklist <- function(blst, n, add=FALSE,
-                           length=.1, angle=45, code=3, col=1, lwd=2,
+                           length=.05, angle=45, code=3, col=1, lwd=2,
                            axis1=TRUE, axis2=TRUE, ...) {
 
     ## convert list of breakpoints to table

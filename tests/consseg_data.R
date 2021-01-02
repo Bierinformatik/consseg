@@ -13,7 +13,7 @@ if ( debug ) {
 } else {
     library(ConsSeg)
 }
-library(IRanges)
+
 data(primseg436_sset)
 
 ## CALCULATE CONSENSUS
