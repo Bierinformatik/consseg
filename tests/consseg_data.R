@@ -18,7 +18,8 @@ data(primseg436_sset)
 
 ## CALCULATE CONSENSUS
 ## NOTE: sset contains sequence length n, and is thus not required as argument
-csegs <- consensus(sset, return="breakpoints")
+e <- "long double my_aeh(int L, int n) { return (long double) (L*L*L)/3.0; }"
+csegs <- consensus(sset, e=e, return="breakpoints")
 
 
 

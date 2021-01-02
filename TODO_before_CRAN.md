@@ -1,3 +1,16 @@
+# Real BUGS?
+
+* clarify why L*L*L/3 has novel breakpoints in consensus
+of data example (`tests/consseg_data.R`)
+
+# Test/Debug Mode
+
+* return internal values only with option store
+
+# Optimize Rcpp
+
+* use long double instead of NumericVector, and only
+cast for debug return
 
 # Potential Functions
 
@@ -8,9 +21,5 @@
 * move plots from current test/ to roxygen docu and/or Vignette,
 * use the testhat package to write proper tests, based on
 the same code as vignette?
-
-# Test/Debug Mode
-
-* return internal values only with option store
 
 
