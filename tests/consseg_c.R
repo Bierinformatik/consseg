@@ -22,7 +22,8 @@ segs <- simulate_ranges_r(n,M,avg.sg,FALSE, df=TRUE)
 
 
 ### CONVERT TO LIST OF BREAKPOINTS
-## fill up -1 ends (only required for plots)
+## fill up -1 ends (only required for plots), since simulate_range
+## simulates breakpoints but subtracts 1 from ends
 ##segs$end <- segs$end+1
 ## each starting with 1 and ending with n+1 (for convenience)
 blst <- split(segs, f=segs$type)
@@ -36,6 +37,8 @@ w <- rep(1/M,M)
 cons <- consensus_r(b, n=n, w=w, e=aeh, store=TRUE, test=FALSE)
 
 if ( debug ) {
+    
+    ## e_ptr only available when sourceing cpp in debug mode
     bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
     e <- e_ptr() # default, aeh function in cpp file
     conc <- consensus_c(bl, n=n, w=w,e=e)
@@ -82,6 +85,11 @@ if ( debug ) {
 nsegs <- segs
 nsegs$end <- nsegs$end+1
 
+consensus(nsegs,n=50,w=w)
+
+## required for live compilation, perhaps a bug also known in testthat pkg
+## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
+Sys.setenv("R_TESTS" = "")
 
 ## test compiling potential function
 e <- "long double my_aeh(int L) { return (exp(L/2.0)-1.0); }"

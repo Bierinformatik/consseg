@@ -10,6 +10,9 @@
 #' @param store for debugging: store and return all internal vectors
 #' @param test for debugging
 #' @param verb verbosity level, 0 is silent
+## Rcpp bug requires importing it completely
+#' @import Rcpp 
+#' @importFrom RcppXPtrUtils cppXPtr checkXPtr
 #'@export
 consensus <- function(b, n, w, e,
                       return="breakpoints", store=FALSE, test=FALSE, verb=1) {
@@ -263,7 +266,10 @@ backtrace_r <- function(ptr) {
 #' convert a vector of breakpoints incl. 1 and n into a list of
 #' adjacent segments, starting at the breakpoints and
 #' ending 1 before the next start/breakpoint
-#' @param bp vector of breakpoints 
+#' @param bp vector of breakpoints
+#' @param start optional value to add to starts, eg. +1, if breakpoints
+#' are segment ends
+#' @param end optional value to add to ends, eg. -1
 #' @return a data.frame with start and end positions of each segment
 #' @export
 bp2seg <- function(bp, start, end) { 
@@ -331,6 +337,18 @@ simulate_ranges_r <- function(l, n, s, r, df=FALSE){
 
 
 #' simple plot function for a list of segmentation tables
+#' @param blst list of segmentations (as simple breakpoints)
+#' @param n total sequence length (\code{max(unlist(blst))} if not provided)
+#' @param add add to existing plot
+#' @param length length of the edges of the arrow head (in inches).
+#' @param angle angle from the shaft of the arrow to the edge of the arrow
+#' head.
+#' @param code integer code, determining _kind_ of arrows to be drawn.
+#' @param col arrow color
+#' @param lwd arrow line width
+#' @param axis1 draw x-axis
+#' @param axis2 draw y-axis
+#' @param ... further arguments to \code{\link{arrows}}
 #' @export
 plot_breaklist <- function(blst, n, add=FALSE,
                            length=.1, angle=45, code=3, col=1, lwd=2,

@@ -7,6 +7,30 @@
 plot_breaklist(blst, n, add = FALSE, length = 0.1, angle = 45,
   code = 3, col = 1, lwd = 2, axis1 = TRUE, axis2 = TRUE, ...)
 }
+\arguments{
+\item{blst}{list of segmentations (as simple breakpoints)}
+
+\item{n}{total sequence length (\code{max(unlist(blst))} if not provided)}
+
+\item{add}{add to existing plot}
+
+\item{length}{length of the edges of the arrow head (in inches).}
+
+\item{angle}{angle from the shaft of the arrow to the edge of the arrow
+head.}
+
+\item{code}{integer code, determining \emph{kind} of arrows to be drawn.}
+
+\item{col}{arrow color}
+
+\item{lwd}{arrow line width}
+
+\item{axis1}{draw x-axis}
+
+\item{axis2}{draw y-axis}
+
+\item{...}{further arguments to \code{\link{arrows}}}
+}
 \description{
 simple plot function for a list of segmentation tables
 }
