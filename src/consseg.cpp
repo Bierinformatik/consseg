@@ -1,8 +1,6 @@
+#include "ConsSeg_types.h"
 #include <Rcpp.h>
 using namespace Rcpp;
-
-#include "consseg.h"
-
 
 //' default potential function, \code{L^2/2}
 //' @param L interval length
