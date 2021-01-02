@@ -1,7 +1,14 @@
 
+debug <- FALSE
 
+if ( debug ) {
+    setwd("~/programs/ConsSeq/tests")
+    source("../R/consseg_r.R")
+} else {
+    library(ConsSeg)
+}
+library(IRanges)
 library(segmenTier) #ONLY FOR plotdev !!
-source("../R/consseg_r.R")
 
 fig.type <- "png"
 

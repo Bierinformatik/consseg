@@ -1,5 +1,12 @@
 
-source("../R/consseg_r.R")
+debug <- FALSE
+
+if ( debug ) {
+    setwd("~/programs/ConsSeq/tests")
+    source("../R/consseg_r.R")
+} else {
+    library(ConsSeg)
+}
 library(IRanges)
 
 

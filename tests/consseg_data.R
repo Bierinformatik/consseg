@@ -3,11 +3,20 @@
 ## generate ~ Figure 3 from Machne, Murray, Stadler 2017 (segmenTier)
 ## and calculate and add consensus segmentation
 
+debug <- FALSE
+
+if ( debug ) {
+    setwd("~/programs/ConsSeq/tests")
+    source("../R/consseg_r.R")
+    library(Rcpp)
+    sourceCpp("../src/consseg.cpp")
+} else {
+    library(ConsSeg)
+}
+library(IRanges)
 library(segmenTier)
 data(primseg436)
-source("../R/consseg_r.R")
-library(Rcpp)
-sourceCpp("../src/consseg.cpp")
+
 
 fig.type <- "png"
 
