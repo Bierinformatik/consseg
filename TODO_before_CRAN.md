@@ -6,6 +6,9 @@ of data example (`tests/consseg_data.R`)
        meticulously compare several potential functions in
        R, Rcpp via compile, and built-in (switch in e_ptr
        function).
+* check back-tracing, are 1,2 breaktpoints in `consseg_potential_scan.R?
+and artefact?
+* check and rework all datatypes in Rcpp.
 
 # Test/Debug Mode
 
