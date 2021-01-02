@@ -76,14 +76,3 @@ dev.off()
 csegs
 
 
-
-## convert from segment start/end table to breakpoint list
-## add +1 to ends, defining segment starts as breakpoints
-n <- sset$N
-blst <- split(sset$segments, f=sset$segments$type)
-b <- lapply(blst, function(x) c(x$start,x$end+1))
-M <- length(b)
-
-## CALCULATE CONSENSUS
-bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-cons <- consensus_c(bl, n=n)
