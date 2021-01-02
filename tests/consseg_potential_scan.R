@@ -34,7 +34,7 @@ aehs <- list(negentropy=function(L,n) (L/n)*log(L/n),
              quad=function(L,n) L^2,
              cub=function(L,n) L^3/3,
              quin=function(L,n) L^5/5,
-             expo=function(L,n) exp(L/2.0)-1.0) #skip /10
+             expo=function(L,n) exp(L/10)-1) #skip /10
 exprs <- list(negentropy=expression(italic(z/n)*log(italic(z/n))),
               subqu=expression(italic(z^(3/2))),
               quad=expression(italic(z^2)),
@@ -62,13 +62,15 @@ for ( i in 1:length(aehs) ) {
 dev.off()
 
 ## the same, using compiler
-
-aehs <- list(negentropy="(L/50.0)*log(L/50.0)",
-             subqu="pow(L,3.0/2.0)",
-             quad="L*L",
-             cub="L*L*L/3.0",
-             quin="pow(L,5.0)/5.0",
-             expo="exp(L/2.0)-1.0") 
+## TODO: this does not work properly, perhaps
+## the functions need proper casting?
+## TODO:  n ignored
+aehs <- list(negentropy="((double)L/(double)n)*log((double)L/(double)n)",
+             subqu="pow((double)L,3.0/2.0)",
+             quad="(double)L*(double)L",
+             cub="(double)L*(double)L*(double)L/3.0",
+             quin="(double)L*(double)L*(double)L*(double)L*(double)L/5.0",
+             expo="exp((double)L/10.0)-1.0") 
 exprs <- list(negentropy=expression(italic(z/n)*log(italic(z/n))),
               subqu=expression(italic(z^(3/2))),
               quad=expression(italic(z^2)),
@@ -80,7 +82,7 @@ png("consseg_potential_scan_c.png", width=2*3.5, height=2.5,
     units="in",res=200)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aehs) ) {
-    fnc <- paste("long double my_aeh(int L, int n) {return ",aehs[[i]],";}")
+    fnc <- paste("long double my_aeh(int L, int n) {return (long double)(",aehs[[i]],");}")
     cons <- consensus(b, n=n, w=w, e=fnc)
 
     plot_breaklist(b,axis1=FALSE, axis2=FALSE, col=NA)

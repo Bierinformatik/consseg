@@ -1,3 +1,7 @@
+## required for live compilation, perhaps a bug also known in testthat pkg
+## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
+##this should be done in the first line of a testthat.R script
+Sys.setenv("R_TESTS" = "")
 
 ## EXAMPLE DATASET FROM BUDDING YEAST
 ## from Machne, Murray, Stadler 2017 (segmenTier)
@@ -18,11 +22,11 @@ data(primseg436_sset)
 
 ## CALCULATE CONSENSUS
 ## NOTE: sset contains sequence length n, and is thus not required as argument
-e <- "long double my_aeh(int L, int n) { return (long double) (L*L*L)/3.0; }"
-csegs <- consensus(sset, e=e, return="breakpoints")
+e <- "long double my_aeh(int L, int n) { return (long double) ((L*L*L)/3.0); }"
+consensus(sset, e=e, return="breakpoints")
+consensus(sset, return="breakpoints")
 
-
-
+csegs <- consensus(sset, return="breakpoints")
 ## plot all
 png("consseg_data.png",width=7,height=3.5/2,res=300,units="in")
 layout(matrix(1:2,ncol=1), heights=c(.5,.2))
