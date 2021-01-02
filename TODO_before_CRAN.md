@@ -5,15 +5,9 @@
 
 # Examples and Vignette
 
-* Beispiel code in der roxygen dokumentation,
-* Die scripts in tests in proper tests umbauen,
-zB mit dem "testthat" paket (vorsicht, siehe kommentar
-unten in tests/consseg_c.R),
-* Vignette und/oder demo.
-
-man sollte in allen
-dreien dieselben Beispiele verwenden. 
-
+* move plots from current test/ to roxygen docu and/or Vignette,
+* use the testhat package to write proper tests, based on
+the same code as vignette?
 
 # Test/Debug Mode
 
