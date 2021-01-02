@@ -2,6 +2,10 @@
 
 * clarify why L*L*L/3 has novel breakpoints in consensus
 of data example (`tests/consseg_data.R`)
+     - similar to `tests/test_potential_scan.R` one should
+       meticulously compare several potential functions in
+       R, Rcpp via compile, and built-in (switch in e_ptr
+       function).
 
 # Test/Debug Mode
 

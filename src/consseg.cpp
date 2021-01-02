@@ -43,7 +43,8 @@ NumericVector backtrace_c(NumericVector imax) {
 }
 
 
-// TODO
+// TODO: don't return all internal values, and use more specific
+// types for them (long double, int)
 //' Calculate consensus segments from a list of segmentation breakpoints
 //' @param b list of breakpoints of different segmentations
 //' @param n total sequence length 
