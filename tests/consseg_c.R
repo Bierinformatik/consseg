@@ -33,7 +33,7 @@ aeh <- function(L) {L^2/2}
 ## weights
 w <- rep(1/M,M)
 
-cons <- consensus_r(b, n=n, w=w, aeh=aeh, store=TRUE, test=FALSE)
+cons <- consensus_r(b, n=n, w=w, e=aeh, store=TRUE, test=FALSE)
 
 if ( debug ) {
     bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))

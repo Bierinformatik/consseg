@@ -52,7 +52,7 @@ plotdev("consseg_potential_scan", width=2*3.5, height=2.5,
                     type=fig.type)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aehs) ) {
-    cons <- consensus_r(b, n=n, w=w, aeh=aehs[[i]])
+    cons <- consensus_r(b, n=n, w=w, e=aehs[[i]])
 
     plot.breaklist(blst,axis1=FALSE, axis2=FALSE, col=NA)
     abline(v=cons$breakpoints, col="#0000FFCC", lwd=2)

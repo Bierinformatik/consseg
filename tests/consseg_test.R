@@ -24,7 +24,7 @@ aeh <- function(L) {L^2/2}
 ## weights
 w <- rep(1/M, M)
 
-cons <- consensus_r(b, n=n, w=w, aeh=aeh, store=TRUE, test=FALSE)
+cons <- consensus_r(b, n=n, w=w, e=aeh, store=TRUE, test=FALSE)
 
 ## plot segments, leave room for consensus arrows
 png("consseg_test.png", units="in", width=3.5, height=7, res=200)

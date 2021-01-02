@@ -76,8 +76,5 @@ b <- lapply(blst, function(x) c(x$start,x$end+1))
 M <- length(b)
 
 ## CALCULATE CONSENSUS
-w <- function(m){return(1/M)}
-e <- function(L){ return(L^2/2)}
-##cons <- consensus_r(b, n=n, w=w, aeh=e, store.matrix=TRUE) 
 bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-cons <- consensus_c(bl, n=n)#, w=w, aeh=e, test.slow=FALSE) 
+cons <- consensus_c(bl, n=n)
