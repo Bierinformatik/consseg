@@ -7,6 +7,7 @@ of data example (`tests/consseg_data.R`)
        R, Rcpp via compile, and built-in (switch in e_ptr
        function).
 * check casting requirements in user-defined function,
+     - test user-defined functions and compilation: expected values? 
 * check back-tracking, are 1,2 breaktpoints in `consseg_potential_scan.R?
 and artefact?
 * check and rework all datatypes in Rcpp.
@@ -23,6 +24,8 @@ cast for debug return
 # Potential Functions
 
 * add more internal pre-defined potential functions,
+* allow user to parse only math, and generate Rcpp function with
+proper type casts and function signature.
 
 # Examples and Vignette
 
