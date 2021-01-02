@@ -27,7 +27,7 @@ blst <- split(segs, f=segs$type)
 b <- lapply(blst, function(x) unique(x$start))
 
 ## potential
-aeh <- function(L) {L^2/2}
+aeh <- function(L,n) {L^2/2}
 ## weights
 w <- rep(1/M, M)
 

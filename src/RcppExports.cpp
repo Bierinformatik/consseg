@@ -7,13 +7,14 @@
 using namespace Rcpp;
 
 // aeh
-long double aeh(int L);
-RcppExport SEXP _ConsSeg_aeh(SEXP LSEXP) {
+long double aeh(int L, int n);
+RcppExport SEXP _ConsSeg_aeh(SEXP LSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type L(LSEXP);
-    rcpp_result_gen = Rcpp::wrap(aeh(L));
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(aeh(L, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -55,7 +56,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ConsSeg_aeh", (DL_FUNC) &_ConsSeg_aeh, 1},
+    {"_ConsSeg_aeh", (DL_FUNC) &_ConsSeg_aeh, 2},
     {"_ConsSeg_e_ptr", (DL_FUNC) &_ConsSeg_e_ptr, 0},
     {"_ConsSeg_backtrace_c", (DL_FUNC) &_ConsSeg_backtrace_c, 1},
     {"_ConsSeg_consensus_c", (DL_FUNC) &_ConsSeg_consensus_c, 5},

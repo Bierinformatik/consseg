@@ -4,9 +4,9 @@
 #' @param w weights vector, must sum up to 1 or will be normalized
 #' @param e potential function either a \code{XPtr} pointer to a
 #' pre-compiled function or a string providing \code{Rcpp} code for
-#' this function, eg. \code{"long double my_aeh(int L){return (exp(L/2)-1);}"}.
-#' of the evaluated interval
-#' @param return return class of
+#' this function, eg. \code{"long double my_aeh(int L, int n){return (exp(L/2)-1);}"}. Note, that the function must have this signature, i.e., take two integers as arguments and return a long double.
+#' @param return return class, simple "breakpoints" or "segments", where
+#' breakpoints are considered the start, and ends are cut one before.
 #' @param store for debugging: store and return all internal vectors
 #' @param test for debugging
 #' @param verb verbosity level, 0 is silent
@@ -22,7 +22,7 @@ consensus <- function(b, n, w, e,
         e <- e_ptr() # default, aeh function in cpp file
     else if ( class(e)=="XPtr" ) { # test pre-compiled function
         tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
-                                            args=c("int")))
+                                            args=c("int","int")))
         if ( "try-error"%in%class(tmp) ) 
             stop("wrong potential function signature, should be: ",
                  "`long double my_aeh(int L)`")
@@ -31,8 +31,8 @@ consensus <- function(b, n, w, e,
         if ( verb>0 )
             cat(paste("Compiling user supplied potential function.\n"))
         e <- RcppXPtrUtils::cppXPtr(e)
-        tmp <- try(RcppXPtrUtils::checkXPtr(e,
-                                            type="long double", args=c("int")))
+        tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
+                                            args=c("int","int")))
         if ( "try-error"%in%class(tmp) ) 
             stop("wrong potential function signature, should be: ",
                  "`long double my_aeh(int L)`")
@@ -164,13 +164,13 @@ consensus_r <- function(b, n, w, e=function(L) L^2/2,
         
         for ( m in 1:M ) {             
             if ( Bup[k,m] == k ) # \delta_<(k), start and end left of k 
-                dsm[k] = dsm[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1)
+                dsm[k] = dsm[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1, n)
             if ( Blw[k,m] == k ) # \delta_le(j), start left of j, to subtract
-                dsq[k] = dsq[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1)
+                dsq[k] = dsq[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1, n)
             if ( Bup[k,m] > k ) # \delta^\cap_<(k), left end to k
-                dcd[k] = dcd[k] + w[m]*e(k-Blw[k,m]+1)
+                dcd[k] = dcd[k] + w[m]*e(k-Blw[k,m]+1, n)
             if ( Blw[k,m] < k ) # \delta^\cap_>(j+1), j+1 to right end
-                dcu[k] = dcu[k] + w[m]*e(Bup[k,m]-k+1) 
+                dcu[k] = dcu[k] + w[m]*e(Bup[k,m]-k+1, n) 
         }
         
         ## /* scan interval = [j+1,k] for minimum j */
@@ -179,15 +179,15 @@ consensus_r <- function(b, n, w, e=function(L) L^2/2,
             dstar = 0
             for ( m in (1:M) ) 
                 if ( ( Blw[k,m] < j+1 ) & ( Bup[k,m] > k ) ) {
-                    dtmp = e(Bup[k,m]-Blw[k,m]+1) + e(k-j) -
-                        e(k-Blw[k,m]+1) - e(Bup[k,m]-j)
+                    dtmp = e(Bup[k,m]-Blw[k,m]+1, n) + e(k-j, n) -
+                        e(k-Blw[k,m]+1, n) - e(Bup[k,m]-j, n)
                     dstar = dstar + w[m]*dtmp
                 }
         
             Dtmp = dsm[k] + dcd[k] + dcu[j+1] + dstar
             if ( j>0 ) Dtmp = Dtmp - dsq[j] 
         
-            D = e(k-j) - 2*Dtmp
+            D = e(k-j, n) - 2*Dtmp
 
             ## straightforward slow implementation for debugging
             ## this should deliver the correct D
@@ -338,8 +338,12 @@ simulate_ranges_r <- function(l, n, s, r, df=FALSE){
 }
 
 
+## TODO: allow breakpoint list (use bp2seg) and table
 #' simple plot function for a list of segmentation tables
-#' @param blst list of segmentations (as simple breakpoints)
+#' @param blst a vector of breakpoints (output from \code{\link{consensus}}),
+#' a named list of breakpoint vectors, a named list of \code{data.frame}s
+#' with start and end columns, or a segmenTier results object
+#' (\code{class(blst)=="segments"}).
 #' @param n total sequence length (\code{max(unlist(blst))} if not provided)
 #' @param add add to existing plot
 #' @param length length of the edges of the arrow head (in inches).
@@ -356,19 +360,35 @@ plot_breaklist <- function(blst, n, add=FALSE,
                            length=.1, angle=45, code=3, col=1, lwd=2,
                            axis1=TRUE, axis2=TRUE, ...) {
 
+    ## convert list of breakpoints to table
+    if ( class(blst)=="numeric" ) { # breakpoint vector
+        blst <- list(segments=bp2seg(blst))
+    } else if ( "segments"%in%class(blst) )  { # segmenTier class segments
+        n <- blst$N
+        blst <- split(blst$segments, f=blst$segments$type)
+    } else { # list of breakpoint vectors
+        if ( class(blst[[1]])!="data.frame" )
+            blst <- lapply(blst, bp2seg)
+    }
+    if ( class(blst)!="list" )
+        stop("blst should be a vector of breakpoints, ",
+             "a list of breakpoint vectors, ",
+             "a segmenTier results object (class=='segments'), ",
+             "or a list of segment tables with start, end and type columns")
+    
     M <- length(blst)
     if ( missing(n) )
         n <- max(unlist(lapply(blst, function(x) max(c(x$start,x$end)))))
     
     if ( !add ) {
-        plot(1:n,col=NA,ylim=c(1,M),ylab=NA,xlab=NA,
+        plot(1:n,col=NA,ylim=c(.5,M+.5),ylab=NA,xlab=NA,
              axes=FALSE)
-        if ( axis1 ) 
+        if ( axis1 ) {
             axis(1)
-        if ( axis2 ) {
-            axis(2, at=1:M, labels=rev(names(blst)), las=2)
             mtext("sequence position",1,par("mgp")[1])
         }
+        if ( axis2 )
+            axis(2, at=1:M, labels=rev(names(blst)), las=2)
     }
     for ( i in seq_len(M) ) {
         arrows(x0=blst[[i]]$start, x1=blst[[i]]$end, y0=M-i+1,

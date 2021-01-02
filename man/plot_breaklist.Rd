@@ -8,7 +8,10 @@ plot_breaklist(blst, n, add = FALSE, length = 0.1, angle = 45,
   code = 3, col = 1, lwd = 2, axis1 = TRUE, axis2 = TRUE, ...)
 }
 \arguments{
-\item{blst}{list of segmentations (as simple breakpoints)}
+\item{blst}{a vector of breakpoints (output from \code{\link{consensus}}),
+a named list of breakpoint vectors, a named list of \code{data.frame}s
+with start and end columns, or a segmenTier results object
+(\code{class(blst)=="segments"}).}
 
 \item{n}{total sequence length (\code{max(unlist(blst))} if not provided)}
 

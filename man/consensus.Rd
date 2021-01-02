@@ -16,10 +16,10 @@ consensus(b, n, w, e, return = "breakpoints", store = FALSE,
 
 \item{e}{potential function either a \code{XPtr} pointer to a
 pre-compiled function or a string providing \code{Rcpp} code for
-this function, eg. \code{"long double my_aeh(int L){return (exp(L/2)-1);}"}.
-of the evaluated interval}
+this function, eg. \code{"long double my_aeh(int L, int n){return (exp(L/2)-1);}"}. Note, that the function must have this signature, i.e., take two integers as arguments and return a long double.}
 
-\item{return}{return class of}
+\item{return}{return class, simple "breakpoints" or "segments", where
+breakpoints are considered the start, and ends are cut one before.}
 
 \item{store}{for debugging: store and return all internal vectors}
 

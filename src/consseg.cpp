@@ -4,8 +4,10 @@ using namespace Rcpp;
 
 //' default potential function, \code{L^2/2}
 //' @param L interval length
+//' @param n total sequence length, required for function signature,
+//' but not used in this example
 // [[Rcpp::export]]
-long double aeh(int L) {
+long double aeh(int L, int n) {
   long double e =  (L*L)/2.0;
   return(e);
 }
@@ -51,7 +53,7 @@ NumericVector backtrace_c(NumericVector imax) {
 //' @param store for debugging: store and return all internal vectors
 //'@export
 // [[Rcpp::export]]
-List consensus_c(List b, int n, NumericVector w, SEXP e,//std::string aeh,
+List consensus_c(List b, int n, NumericVector w, SEXP e,
 		 bool store=0) {
 
   // get potential function
@@ -123,13 +125,13 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,//std::string aeh,
         
     for ( int m=0; m<M; m++ ) {
       if ( Bup(k-1,m) == k ) // \delta_<(k), start and end left of k 
-	dsm[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
+	dsm[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1, n);
       if ( Blw(k-1,m) == k ) // \delta_le(j), start left of j, to subtract
-	dsq[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1);
+	dsq[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1, n);
       if ( Bup(k-1,m) > k ) // \delta^\cap_<(k), left end to k
-	dcd[k] += w[m]*aeh(k-Blw(k-1,m)+1);
+	dcd[k] += w[m]*aeh(k-Blw(k-1,m)+1, n);
       if ( Blw(k-1,m) < k ) // \delta^\cap_>(j+1), j+1 to right end
-	dcu[k] += w[m]*aeh(Bup(k-1,m)-k+1);
+	dcu[k] += w[m]*aeh(Bup(k-1,m)-k+1, n);
     }
 
     /* scan interval = [j+1,k] for minimum j */
@@ -138,15 +140,15 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,//std::string aeh,
       dstar = 0.0;
       for ( int m=0; m<M; m++ ) {
 	if ( ( Blw(k-1,m) < j+1 ) && ( Bup(k-1,m) > k ) ) {
-	  dtmp = aeh(Bup(k-1,m)-Blw(k-1,m)+1) + aeh(k-j) -
-	    aeh(k-Blw(k-1,m)+1) - aeh(Bup(k-1,m)-j);
+	  dtmp = aeh(Bup(k-1,m)-Blw(k-1,m)+1, n) + aeh(k-j, n) -
+	    aeh(k-Blw(k-1,m)+1, n) - aeh(Bup(k-1,m)-j, n);
 	  dstar += w[m]*dtmp;
 	}
       }
 
       // calculate \Delta(j+1,k)
       Dtmp = dsm[k] - dsq[j] + dcd[k] + dcu[j+1] + dstar;
-      D = aeh(k-j) - 2*Dtmp;
+      D = aeh(k-j, n) - 2*Dtmp;
 
       // find F[k] = min \Delta(j+1,k) + F(j)
       // and store the j that delivered it

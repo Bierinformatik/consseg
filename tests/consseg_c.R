@@ -1,3 +1,7 @@
+## required for live compilation, perhaps a bug also known in testthat pkg
+## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
+##this should be done in the first line of a testthat.R script
+Sys.setenv("R_TESTS" = "")
 
 debug <- FALSE
 
@@ -30,7 +34,7 @@ blst <- split(segs, f=segs$type)
 b <- lapply(blst, function(x) unique(x$start))
 
 ## potential
-aeh <- function(L) {L^2/2}
+aeh <- function(L,n) {L^2/2}
 ## weights
 w <- rep(1/M,M)
 
@@ -87,13 +91,10 @@ nsegs$end <- nsegs$end+1
 
 consensus(nsegs,n=50,w=w)
 
-## required for live compilation, perhaps a bug also known in testthat pkg
-## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
-Sys.setenv("R_TESTS" = "")
 
 ## test compiling potential function
-e <- "long double my_aeh(int L) { return (exp(L/2.0)-1.0); }"
-e <- "long double my_aeh(int L) { return L*L*L/3.0; }"
+e <- "long double my_aeh(int L, int n) { return (exp(L/2.0)-1.0); }"
+e <- "long double my_aeh(int L, int n) { return L*L*L/3.0; }"
 consensus(nsegs,n=50,w=w,e=e)
 
 ## test pre-compiled potential function

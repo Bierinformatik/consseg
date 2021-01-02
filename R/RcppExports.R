@@ -3,8 +3,10 @@
 
 #' default potential function, \code{L^2/2}
 #' @param L interval length
-aeh <- function(L) {
-    .Call('_ConsSeg_aeh', PACKAGE = 'ConsSeg', L)
+#' @param n total sequence length, required for function signature,
+#' but not used in this example
+aeh <- function(L, n) {
+    .Call('_ConsSeg_aeh', PACKAGE = 'ConsSeg', L, n)
 }
 
 #' get internal potential function
