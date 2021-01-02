@@ -94,7 +94,7 @@ consensus <- function(b, n, w, e,
 #' @param test for debugging: compare the incrementally calculated
 #' Delta with the very slow direct calculation 
 #'@export
-consensus_r <- function(b, n, w, aeh=function(L) L^2/2,
+consensus_r <- function(b, n, w, e=function(L) L^2/2,
                         store=FALSE, test=FALSE) {
 
     if ( missing(n) ) {
@@ -159,13 +159,13 @@ consensus_r <- function(b, n, w, aeh=function(L) L^2/2,
         
         for ( m in 1:M ) {             
             if ( Bup[k,m] == k ) # \delta_<(k), start and end left of k 
-                dsm[k] = dsm[k] + w[m]*aeh(Bup[k,m]-Blw[k,m]+1)
+                dsm[k] = dsm[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1)
             if ( Blw[k,m] == k ) # \delta_le(j), start left of j, to subtract
-                dsq[k] = dsq[k] + w[m]*aeh(Bup[k,m]-Blw[k,m]+1)
+                dsq[k] = dsq[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1)
             if ( Bup[k,m] > k ) # \delta^\cap_<(k), left end to k
-                dcd[k] = dcd[k] + w[m]*aeh(k-Blw[k,m]+1)
+                dcd[k] = dcd[k] + w[m]*e(k-Blw[k,m]+1)
             if ( Blw[k,m] < k ) # \delta^\cap_>(j+1), j+1 to right end
-                dcu[k] = dcu[k] + w[m]*aeh(Bup[k,m]-k+1) 
+                dcu[k] = dcu[k] + w[m]*e(Bup[k,m]-k+1) 
         }
         
         ## /* scan interval = [j+1,k] for minimum j */
@@ -174,30 +174,30 @@ consensus_r <- function(b, n, w, aeh=function(L) L^2/2,
             dstar = 0
             for ( m in (1:M) ) 
                 if ( ( Blw[k,m] < j+1 ) & ( Bup[k,m] > k ) ) {
-                    dtmp = aeh(Bup[k,m]-Blw[k,m]+1) + aeh(k-j) -
-                        aeh(k-Blw[k,m]+1) - aeh(Bup[k,m]-j)
+                    dtmp = e(Bup[k,m]-Blw[k,m]+1) + e(k-j) -
+                        e(k-Blw[k,m]+1) - e(Bup[k,m]-j)
                     dstar = dstar + w[m]*dtmp
                 }
         
             Dtmp = dsm[k] + dcd[k] + dcu[j+1] + dstar
             if ( j>0 ) Dtmp = Dtmp - dsq[j] 
         
-            D = aeh(k-j) - 2*Dtmp
+            D = e(k-j) - 2*Dtmp
 
             ## straightforward slow implementation for debugging
             ## this should deliver the correct D
             if ( test ) {
-                Dslow = aeh(k-j)    #/* e(A) */
+                Dslow = e(k-j)    #/* e(A) */
                 for( m  in 1:M ) {  #/* loop ueber die input segmenierungen */
                     summe = 0
                     lw = j+1 
                     up = Bup[lw,m]
                     while (up < k) { 
-                        summe = summe + aeh(up-lw+1)
+                        summe = summe + e(up-lw+1)
                         lw = up+1 
                         up = Bup[lw,m]
                     } 
-                    summe = summe + aeh(k-lw+1)
+                    summe = summe + e(k-lw+1)
                     Dslow = Dslow - 2*w[m]*summe 
                 }
                 if ( abs(D-Dslow)>0.000000000001 ) # TODO: relative error
@@ -265,6 +265,7 @@ backtrace_r <- function(ptr) {
 #' ending 1 before the next start/breakpoint
 #' @param bp vector of breakpoints 
 #' @return a data.frame with start and end positions of each segment
+#' @export
 bp2seg <- function(bp, start, end) { 
     df <- data.frame(start=bp[2:length(bp)-1],
                      end=bp[2:length(bp)], type="consensus")
@@ -330,7 +331,8 @@ simulate_ranges_r <- function(l, n, s, r, df=FALSE){
 
 
 #' simple plot function for a list of segmentation tables
-plot.breaklist <- function(blst, n, add=FALSE,
+#' @export
+plot_breaklist <- function(blst, n, add=FALSE,
                            length=.1, angle=45, code=3, col=1, lwd=2,
                            axis1=TRUE, axis2=TRUE, ...) {
 

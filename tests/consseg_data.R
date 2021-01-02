@@ -65,7 +65,7 @@ axis(1,at=pretty(c(0,10000)),labels=NA)
 axis(1,at=pretty(c(0,10000)),labels=NA,tcl=-par("tcl"))
 ## ADD CONSENSUS BREAKPOINTS
 par(mai=c(0.1,2,0.05,0.1),tcl=0)
-plot.breaklist(list(consensus=bp2seg(csegs)), n=sset$N, axis1=FALSE)
+plot_breaklist(list(consensus=bp2seg(csegs)), n=sset$N, axis1=FALSE)
 abline(v=csegs)
 par(tcl=-.25)
 axis(1,at=pretty(c(0,10000)),labels=NA,tcl=-par("tcl"))

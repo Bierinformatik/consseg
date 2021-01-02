@@ -61,9 +61,9 @@ par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aehs) ) {
     cons <- consensus_r(b, n=n, w=w, e=aehs[[i]])
 
-    plot.breaklist(blst,axis1=FALSE, axis2=FALSE, col=NA)
+    plot_breaklist(blst,axis1=FALSE, axis2=FALSE, col=NA)
     abline(v=cons$breakpoints, col="#0000FFCC", lwd=2)
-    plot.breaklist(blst,add=TRUE, col=1, lwd=1, length=.05,
+    plot_breaklist(blst,add=TRUE, col=1, lwd=1, length=.05,
                    axis1=FALSE, axis2=FALSE)
     axis(1)
     mtext(exprs[[names(aehs)[i]]],1,1.25*par("mgp")[1], cex=.9)

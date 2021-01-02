@@ -45,10 +45,10 @@ if ( debug ) {
     png("consseg_c.png", units="in", width=3.5, height=7, res=200)
     par(mfcol=c(6,1),mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
     par(mai=c(.1,.5,.1,.1))
-    plot.breaklist(blst,lwd=1)
+    plot_breaklist(blst,lwd=1)
     abline(v=cons$breakpoints, col="#0000FF55", lwd=2)
     abline(v=conc$breakpoints, col="#FF000077",lwd=2)
-    plot.breaklist(blst,add=TRUE, col=1, lwd=1)
+    plot_breaklist(blst,add=TRUE, col=1, lwd=1)
     plot(cons$F,  type="p",xlab="sequence position k", ylab="F(k)")
     lines(conc$F, col=2)
     plot(cons$Dk, type="p",xlab="sequence position k",
