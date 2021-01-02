@@ -14,6 +14,9 @@
 #' Machne, Murray & Stadler (2017) <doi:10.1038/s41598-017-12401-8>,
 #' Machne & Murray (2012) <doi:10.1371/journal.pone.0037906>, and
 #' Lehmann et al. (2013) <doi:10.1186/1471-2105-14-133>
+#'@useDynLib ConsSeg
+## @importFrom Rcpp sourceCpp
+NULL
 ##'@import segmenTier
 ##'@import IRanges
 NULL # this just ends the global package documentation

@@ -1,11 +1,16 @@
 
-setwd("~/programs/ConsSeq/tests")
+debug <- FALSE
 
-source("../R/consseg_r.R")
+if ( debug ) {
+    setwd("~/programs/ConsSeq/tests")
+    source("../R/consseg_r.R")
+    library(Rcpp)
+    sourceCpp("../src/consseg.cpp")
+} else {
+    library(ConsSeg)
+}
 library(IRanges)
 
-library(Rcpp)
-sourceCpp("../src/consseg.cpp")
 
 ## GENERATE RANDOM SEGMENTS
 n <- 50 # SEQUENCE LENGTH
@@ -30,42 +35,45 @@ w <- rep(1/M,M)
 
 cons <- consensus_r(b, n=n, w=w, aeh=aeh, store=TRUE, test=FALSE)
 
-bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-e <- e_ptr() # default, aeh function in cpp file
-conc <- consensus_c(bl, n=n, w=w,e=e)
-
-
-## plot segments, leave room for consensus arrows
-png("consseg_c.png", units="in", width=3.5, height=7, res=200)
-par(mfcol=c(6,1),mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
-par(mai=c(.1,.5,.1,.1))
-plot.breaklist(blst,lwd=1)
-abline(v=cons$breakpoints, col="#0000FF55", lwd=2)
-abline(v=conc$breakpoints, col="#FF000077",lwd=2)
-plot.breaklist(blst,add=TRUE, col=1, lwd=1)
-plot(cons$F,  type="p",xlab="sequence position k", ylab="F(k)")
-lines(conc$F, col=2)
-plot(cons$Dk, type="p",xlab="sequence position k",
-     ylab=expression(min[j]~Delta(k)))
-plot(cons$dstar, ylab=expression(delta*"*"))
-plot(cons$dcd, ylab=expression(delta^intersect()),
+if ( debug ) {
+    bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
+    e <- e_ptr() # default, aeh function in cpp file
+    conc <- consensus_c(bl, n=n, w=w,e=e)
+    
+    
+    ## plot segments, leave room for consensus arrows
+    png("consseg_c.png", units="in", width=3.5, height=7, res=200)
+    par(mfcol=c(6,1),mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
+    par(mai=c(.1,.5,.1,.1))
+    plot.breaklist(blst,lwd=1)
+    abline(v=cons$breakpoints, col="#0000FF55", lwd=2)
+    abline(v=conc$breakpoints, col="#FF000077",lwd=2)
+    plot.breaklist(blst,add=TRUE, col=1, lwd=1)
+    plot(cons$F,  type="p",xlab="sequence position k", ylab="F(k)")
+    lines(conc$F, col=2)
+    plot(cons$Dk, type="p",xlab="sequence position k",
+         ylab=expression(min[j]~Delta(k)))
+    plot(cons$dstar, ylab=expression(delta*"*"))
+    plot(cons$dcd, ylab=expression(delta^intersect()),
      ylim=range(c(cons$dcd,cons$dcu),na.rm=TRUE))
-points(cons$dcu, col=4)
-lines(conc$dcd, col=2)
-lines(conc$dcu, col=2)
-legend("bottom",c(expression(delta["<"]^intersect()*(k)),
-                  expression(delta[">"]^intersect()*(j+1))),
-       bty="n",col=1:2,pch=1)
-plot(cons$dsq, ylab=expression(delta),ylim=c(0,max(c(cons$dsq,cons$dsm))))
-points(cons$dsm, col=2)
-lines(conc$dsm, col=2)
-lines(conc$dsq, col=2)
-legend("bottomright",c(expression(delta[""<=""](j)),
-                       expression(delta[""<""](k))),bty="n",col=1:2,pch=1)
-dev.off()
-
-## print breakpoints
-cons$breakpoints
+    points(cons$dcu, col=4)
+    lines(conc$dcd, col=2)
+    lines(conc$dcu, col=2)
+    legend("bottom",c(expression(delta["<"]^intersect()*(k)),
+                      expression(delta[">"]^intersect()*(j+1))),
+           bty="n",col=1:2,pch=1)
+    plot(cons$dsq, ylab=expression(delta),ylim=c(0,max(c(cons$dsq,cons$dsm))))
+    points(cons$dsm, col=2)
+    lines(conc$dsm, col=2)
+    lines(conc$dsq, col=2)
+    legend("bottomright",c(expression(delta[""<=""](j)),
+                           expression(delta[""<""](k))),bty="n",col=1:2,pch=1)
+    dev.off()
+    
+    ## print breakpoints
+    cons$breakpoints
+    
+}
 
 
 ### TEST MAIN WRAPPER
