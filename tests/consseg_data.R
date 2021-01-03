@@ -21,13 +21,11 @@ if ( debug ) {
 }
 
 
+
 ## CALCULATE CONSENSUS
 ## NOTE: sset contains sequence length n, and is thus not required as argument
-e <- "long double my_aeh(int L, int n) { long double e = 1.0*L; return ((e*e*e)/3.0); }"
-consensus(sset, e=e, return="breakpoints")
-consensus(sset, return="breakpoints")
-
 csegs <- consensus(sset, return="breakpoints")
+
 ## plot all
 png("consseg_data.png",width=7,height=3.5/2,res=300,units="in")
 layout(matrix(1:2,ncol=1), heights=c(.5,.2))
@@ -45,7 +43,10 @@ axis(1,at=pretty(c(0,10000)),labels=NA,tcl=-par("tcl"))
 dev.off()
 
 
-## dump breakpoints
-csegs
+## NOTE: type cast problem
+e <- "long double my_aeh(int L, int n) { return L*L*L/3; }"
+consensus(sset, e=e, return="breakpoints") ## WRONG
+e <- "long double my_aeh(int L, int n) { return 1.0*L*L*L/3; }"
+consensus(sset, return="breakpoints") ## CORRECT
 
 
