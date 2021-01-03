@@ -1,7 +1,7 @@
 # Real BUGS?
 
-* check back-tracking, are 1,2 breaktpoints in `test_potentials.R?
-a numerical artefact of L^5 or a bug? 
+* check back-tracking, are 1,2 breaktpoints in `test_potentials.R`?
+a numerical artefact of `L^5` or a bug? 
     - Note that this so far only appears in a minimal example 
     (n=50, m=10, l=4) with Set.seed(1).
 
