@@ -43,25 +43,27 @@ compileEquation <- function(e="L*L/2") {
     tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
                                         args=c("double","double")))
     if ( "try-error"%in%class(tmp) ) 
-        stop("potential function can not be compile")
+        stop("potential function can not be compile.")
     e
 }
 
 #' Calculate consensus segments from a list of segmentation breakpoints
-#' @param b list of breakpoints of different segmentations
-#' @param n total sequence length (\code{max(b)} if not provided)
-#' @param w weights vector, must sum up to 1 or will be normalized
+#' @param b list of breakpoints of different segmentations or a
+#' \code{data.frame} of segments with "start", "end" and "type columns",
+#' or a \code{segmenTier} results object of class "segments".
+#' @param n total sequence length (\code{max(b)} if not provided).
+#' @param w weights vector, must sum up to 1 or will be normalized.
 #' @param e potential function either a \code{XPtr} pointer to a
 #' function pre-compiled with \code{\link{compileEquation}} or a string of
 #' a (C++-compatible) mathematical equation using \code{L} for the
 #' interval length and \code{n} for the total sequence length to
 #' calculate potentials during the \code{consseg} recursion,
-#' eg. "(L/n)*log(L/n)" to use the negentropy
+#' eg. "(L/n)*log(L/n)" to use the negentropy.
 #' @param return return class, simple "breakpoints" or "segments", where
 #' breakpoints are considered the start, and ends are cut one before.
-#' @param store for debugging: store and return all internal vectors
-#' @param test for debugging
-#' @param verb verbosity level, 0 is silent
+#' @param store for debugging: store and return all internal vectors.
+#' @param test for debugging.
+#' @param verb verbosity level, 0 is silent.
 ## Rcpp bug requires importing it completely
 #' @import Rcpp 
 #' @importFrom RcppXPtrUtils cppXPtr checkXPtr
@@ -77,7 +79,7 @@ consensus <- function(b, n, w, e,
                                             args=c("double","double")))
         if ( "try-error"%in%class(tmp) ) 
             stop("wrong potential function signature, should be: ",
-                 "`long double my_aeh(int L)`")
+                 "`long double my_aeh(int L)`.")
     } else if ( class(e)=="character" ) { # compile from string
         if ( verb>0 )
             cat(paste("Compiling user supplied potential function.\n"))
@@ -101,7 +103,7 @@ consensus <- function(b, n, w, e,
     if ( missing(n) ) {
         n <- max(unlist(b))
         warning("total sequence length `n` is missing, ",
-                "using the maximal breakpoint at ", n)
+                "using the maximal breakpoint at ", n, ".")
     }
     
     ## prepare breakpoints such that they:
@@ -115,11 +117,11 @@ consensus <- function(b, n, w, e,
     if ( missing(w) ) w <- rep(1/M, M)
     else if ( length(w)!=M )
         stop("Weight vector must be of the same length as number of",
-             " input segmentations")
+             " input segmentations.")
     else if ( any(w<0) )
-        stop("Weights can not be negative")
+        stop("Weights can not be negative.")
     else if ( sum(w)!=1 ) {
-        warning("Weight vector does not sum up to 1, normalizing\n")
+        warning("Weight vector does not sum up to 1, normalizing.")
         w <- w/sum(w) 
     }
     
@@ -137,13 +139,13 @@ consensus <- function(b, n, w, e,
 
 
 #' Calculate consensus segments from a list of segmentation breakpoints
-#' @param b list of breakpoints of different segmentations
-#' @param n total sequence length (\code{max(b)} if not provided)
-#' @param w weights vector, must sum up to 1 or will be normalized
+#' @param b list of breakpoints of different segmentations.
+#' @param n total sequence length (\code{max(b)} if not provided).
+#' @param w weights vector, must sum up to 1 or will be normalized.
 #' @param e potential function, taking two arguments: the length \code{L}
-#' of the evaluated interval and the total sequence length \code{n}
-#' @param store for debugging: store and return all internal vectors
-#' @param test for debugging: compare the incrementally calculated
+#' of the evaluated interval and the total sequence length \code{n}.
+#' @param store for debugging: store and return all internal vectors.
+#' @param test for debugging: compare the incrementally calculated.
 #' Delta with the very slow direct calculation 
 #'@export
 consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
@@ -152,7 +154,7 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
     if ( missing(n) ) {
         n <- max(unlist(b))
         warning("total sequence length missing, ",
-                "taking the maximal breakpoint at ", n)
+                "taking the maximal breakpoint at ", n, ".")
     }
 
     M <- length(b) # number of input segmentations
@@ -167,7 +169,7 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
     ## generate or normalize weight vector
     if ( missing(w) ) w <- rep(1/M, M)
     else if ( sum(w)!=1 ) {
-        warning("Weight vector does not sum up to 1, normalizing\n")
+        warning("Weight vector does not sum up to 1, normalizing.")
         w <- w/sum(w) 
     }
 
@@ -291,7 +293,7 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
 
 
 #' backtrace function for consseg
-#' @param ptr pointer of segment ends
+#' @param ptr pointer of segment ends.
 #' @return breakpoints
 #' @importFrom utils tail
 #' @export
@@ -312,14 +314,18 @@ backtrace_r <- function(ptr) {
     return(ends)
 }
 
+
+
+#### SOME UTILS
+
 ## TODO: do this for a list of breakpoints, as the input for consensus
 #' convert a vector of breakpoints incl. 1 and n into a list of
 #' adjacent segments, starting at the breakpoints and
 #' ending 1 before the next start/breakpoint
-#' @param bp vector of breakpoints
+#' @param bp vector of breakpoints.
 #' @param start optional value to add to starts, eg. +1, if breakpoints
-#' are segment ends
-#' @param end optional value to add to ends, eg. -1
+#' are segment ends.
+#' @param end optional value to add to ends, eg. -1.
 #' @return a data.frame with start and end positions of each segment
 #' @export
 bp2seg <- function(bp, start, end) { 
@@ -330,12 +336,10 @@ bp2seg <- function(bp, start, end) {
     df
 }
 
-
-#### SOME UTILS
 #' random segmentations
-#' @param m number of segmentations
-#' @param n total length of sequence
-#' @param lambda mean of poisson distribution to select number of segments
+#' @param m number of segmentations.
+#' @param n total length of sequence.
+#' @param lambda mean of poisson distribution to select number of segments.
 #' @importFrom stats rpois rnorm
 #' @export
 random_breakpoints <- function(m=10,n=50,lambda=5) {
@@ -356,17 +360,17 @@ random_breakpoints <- function(m=10,n=50,lambda=5) {
 #' a named list of breakpoint vectors, a named list of \code{data.frame}s
 #' with start and end columns, or a segmenTier results object
 #' (\code{class(blst)=="segments"}).
-#' @param n total sequence length (\code{max(unlist(blst))} if not provided)
-#' @param add add to existing plot
+#' @param n total sequence length (\code{max(unlist(blst))} if not provided).
+#' @param add add to existing plot.
 #' @param length length of the edges of the arrow head (in inches).
 #' @param angle angle from the shaft of the arrow to the edge of the arrow
 #' head.
 #' @param code integer code, determining _kind_ of arrows to be drawn.
-#' @param col arrow color
-#' @param lwd arrow line width
-#' @param axis1 draw x-axis
-#' @param axis2 draw y-axis
-#' @param ... further arguments to \code{\link{arrows}}
+#' @param col arrow color.
+#' @param lwd arrow line width.
+#' @param axis1 draw x-axis.
+#' @param axis2 draw y-axis.
+#' @param ... further arguments to \code{\link{arrows}}.
 #' @importFrom graphics arrows axis mtext par plot
 #' @export
 plot_breaklist <- function(blst, n, add=FALSE,
@@ -387,7 +391,7 @@ plot_breaklist <- function(blst, n, add=FALSE,
         stop("blst should be a vector of breakpoints, ",
              "a list of breakpoint vectors, ",
              "a segmenTier results object (class=='segments'), ",
-             "or a list of segment tables with start, end and type columns")
+             "or a list of segment tables with start, end and type columns.")
     
     M <- length(blst)
     if ( missing(n) )

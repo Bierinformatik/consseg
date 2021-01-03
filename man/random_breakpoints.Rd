@@ -7,11 +7,11 @@
 random_breakpoints(m = 10, n = 50, lambda = 5)
 }
 \arguments{
-\item{m}{number of segmentations}
+\item{m}{number of segmentations.}
 
-\item{n}{total length of sequence}
+\item{n}{total length of sequence.}
 
-\item{lambda}{mean of poisson distribution to select number of segments}
+\item{lambda}{mean of poisson distribution to select number of segments.}
 }
 \description{
 random segmentations

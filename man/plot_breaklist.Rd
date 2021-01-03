@@ -13,9 +13,9 @@ a named list of breakpoint vectors, a named list of \code{data.frame}s
 with start and end columns, or a segmenTier results object
 (\code{class(blst)=="segments"}).}
 
-\item{n}{total sequence length (\code{max(unlist(blst))} if not provided)}
+\item{n}{total sequence length (\code{max(unlist(blst))} if not provided).}
 
-\item{add}{add to existing plot}
+\item{add}{add to existing plot.}
 
 \item{length}{length of the edges of the arrow head (in inches).}
 
@@ -24,15 +24,15 @@ head.}
 
 \item{code}{integer code, determining \emph{kind} of arrows to be drawn.}
 
-\item{col}{arrow color}
+\item{col}{arrow color.}
 
-\item{lwd}{arrow line width}
+\item{lwd}{arrow line width.}
 
-\item{axis1}{draw x-axis}
+\item{axis1}{draw x-axis.}
 
-\item{axis2}{draw y-axis}
+\item{axis2}{draw y-axis.}
 
-\item{...}{further arguments to \code{\link{arrows}}}
+\item{...}{further arguments to \code{\link{arrows}}.}
 }
 \description{
 simple plot function for a list of segmentation tables

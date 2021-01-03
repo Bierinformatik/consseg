@@ -3,9 +3,9 @@
 using namespace Rcpp;
 
 //' default potential function, \code{L^2/2}
-//' @param L interval length
+//' @param L interval length.
 //' @param n total sequence length, required for function signature,
-//' but not used in this example
+//' but not used in this example.
 // [[Rcpp::export]]
 long double aeh(double L, double n) {
   //long double e =  L*1.0; // implicit cast, required if using int
@@ -23,7 +23,7 @@ XPtr<funcPtr> e_ptr() {
 
 // TODO: vectorize!
 //' evaluate pre-compiled potential functions
-//' @param e a \code{XPtr} pointer provided by \code{\link{compileEquation}}
+//' @param e a \code{XPtr} pointer provided by \code{\link{compileEquation}}.
 //' @param L numeric, interval length \code{L} when used as a potential
 //' function in the \code{consseg} recursion.
 //' @param n numeric, total sequence length \code{n} when used as a
@@ -64,12 +64,12 @@ NumericVector backtrace_c(NumericVector imax) {
 // TODO: don't return all internal values, and use more specific
 // types for them (long double, int)
 //' Calculate consensus segments from a list of segmentation breakpoints
-//' @param b list of breakpoints of different segmentations
-//' @param n total sequence length 
-//' @param w weights vector, must sum up to 1
+//' @param b list of breakpoints of different segmentations.
+//' @param n total sequence length.
+//' @param w weights vector, must sum up to 1.
 //' @param e potential function, taking one argument: the length \code{L}
-//' of the evaluated interval
-//' @param store for debugging: store and return all internal vectors
+//' of the evaluated interval.
+//' @param store for debugging: store and return all internal vectors.
 //'@export
 // [[Rcpp::export]]
 List consensus_c(List b, int n, NumericVector w, SEXP e,

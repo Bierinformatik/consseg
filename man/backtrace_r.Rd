@@ -7,7 +7,7 @@
 backtrace_r(ptr)
 }
 \arguments{
-\item{ptr}{pointer of segment ends}
+\item{ptr}{pointer of segment ends.}
 }
 \value{
 breakpoints

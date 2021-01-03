@@ -8,27 +8,29 @@ consensus(b, n, w, e, return = "breakpoints", store = FALSE,
   test = FALSE, verb = 1)
 }
 \arguments{
-\item{b}{list of breakpoints of different segmentations}
+\item{b}{list of breakpoints of different segmentations or a
+\code{data.frame} of segments with "start", "end" and "type columns",
+or a \code{segmenTier} results object of class "segments".}
 
-\item{n}{total sequence length (\code{max(b)} if not provided)}
+\item{n}{total sequence length (\code{max(b)} if not provided).}
 
-\item{w}{weights vector, must sum up to 1 or will be normalized}
+\item{w}{weights vector, must sum up to 1 or will be normalized.}
 
 \item{e}{potential function either a \code{XPtr} pointer to a
 function pre-compiled with \code{\link{compileEquation}} or a string of
 a (C++-compatible) mathematical equation using \code{L} for the
 interval length and \code{n} for the total sequence length to
 calculate potentials during the \code{consseg} recursion,
-eg. "(L/n)*log(L/n)" to use the negentropy}
+eg. "(L/n)*log(L/n)" to use the negentropy.}
 
 \item{return}{return class, simple "breakpoints" or "segments", where
 breakpoints are considered the start, and ends are cut one before.}
 
-\item{store}{for debugging: store and return all internal vectors}
+\item{store}{for debugging: store and return all internal vectors.}
 
-\item{test}{for debugging}
+\item{test}{for debugging.}
 
-\item{verb}{verbosity level, 0 is silent}
+\item{verb}{verbosity level, 0 is silent.}
 }
 \description{
 Calculate consensus segments from a list of segmentation breakpoints

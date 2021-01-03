@@ -8,18 +8,18 @@ consensus_r(b, n, w, e = function(L, n) L^2/2, store = FALSE,
   test = FALSE)
 }
 \arguments{
-\item{b}{list of breakpoints of different segmentations}
+\item{b}{list of breakpoints of different segmentations.}
 
-\item{n}{total sequence length (\code{max(b)} if not provided)}
+\item{n}{total sequence length (\code{max(b)} if not provided).}
 
-\item{w}{weights vector, must sum up to 1 or will be normalized}
+\item{w}{weights vector, must sum up to 1 or will be normalized.}
 
 \item{e}{potential function, taking two arguments: the length \code{L}
-of the evaluated interval and the total sequence length \code{n}}
+of the evaluated interval and the total sequence length \code{n}.}
 
-\item{store}{for debugging: store and return all internal vectors}
+\item{store}{for debugging: store and return all internal vectors.}
 
-\item{test}{for debugging: compare the incrementally calculated
+\item{test}{for debugging: compare the incrementally calculated.
 Delta with the very slow direct calculation}
 }
 \description{

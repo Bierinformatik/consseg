@@ -9,12 +9,12 @@ ending 1 before the next start/breakpoint}
 bp2seg(bp, start, end)
 }
 \arguments{
-\item{bp}{vector of breakpoints}
+\item{bp}{vector of breakpoints.}
 
 \item{start}{optional value to add to starts, eg. +1, if breakpoints
-are segment ends}
+are segment ends.}
 
-\item{end}{optional value to add to ends, eg. -1}
+\item{end}{optional value to add to ends, eg. -1.}
 }
 \value{
 a data.frame with start and end positions of each segment
