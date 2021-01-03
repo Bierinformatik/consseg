@@ -17,6 +17,8 @@ for the user (consensus_r/c, potential functions for comparison)
 
 # Optimize Rcpp
 
+* benchmark R/slow (consensus_r(...,test=TRUE) vs. R/fast vs. Rcpp,
+and built-in vs. supplied potential functions,
 * use int and long double instead of NumericVector to optimize
 memory usage, cast properly in potential function and for debug return
 
