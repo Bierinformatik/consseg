@@ -26,8 +26,10 @@ for the user (consensus_r/c, potential functions for comparison)
 
 * use the testhat package to write proper tests, based on
 the current code in `tests/`,
-* `test_internals.R`: 
-   - test all three implementations: R/slow, R/incremental, and Rcpp,
+* `test_internals.R` and `tests/test_compilation.R`: 
+   - fuse to systematically test all three implementations:
+   R/slow, R/incremental, and Rcpp,
+* `test_potentials.R`:
    - compare built-in vs. R vs. Rcpp user-supplied
      potential functions.
 * allow to use R version from consensus wrapper for testing and
