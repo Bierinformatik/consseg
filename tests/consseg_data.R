@@ -22,9 +22,11 @@ if ( debug ) {
 
 
 
-## CALCULATE CONSENSUS
+## CALCULATE CONSENSUS with custom potential function and weights
+## to favor breakpoint before AIM9
 ## NOTE: sset contains sequence length n, and is thus not required as argument
-csegs <- consensus(sset, w=c(1,1.1,1,1), return="breakpoints")
+e <- compileEquation("(L/n)*log(L/n)")
+csegs <- consensus(sset, w=c(1,1.01,1,1), e=e, return="breakpoints")
 
 ## plot all
 png("consseg_data.png",width=7,height=3.5/2,res=300,units="in")
@@ -43,10 +45,6 @@ axis(1,at=pretty(c(0,10000)),labels=NA,tcl=-par("tcl"))
 dev.off()
 
 
-## NOTE: type cast problem
-e <- "long double my_aeh(int L, int n) { return L*L*L/3; }"
-consensus(sset, e=e, return="breakpoints") ## WRONG
-e <- "long double my_aeh(int L, int n) { return 1.0*L*L*L/3; }"
-consensus(sset, e=e, return="breakpoints") ## CORRECT
+
 
 

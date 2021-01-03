@@ -30,13 +30,33 @@ warn <- function(w, warnings,verb=FALSE) {
     c(warnings,w)
 }
 
+#' pre-compile an potential function equation
+#' @param e equation string using the interval length \code{L} and the total
+#' sequence length \code{n} to calculate potentials during the \code{consseg}
+#' recursion, eg. "(L/n)*log(L/n)" to use the negentropy.
+# TODO: example using evaluateEquation to evaluate over L and n
+#' @export
+compileEquation <- function(e="L*L/2") {
+    sign <- "long double my_aeh(double L, double n) { return("
+    e <- paste(sign, e, ");}")
+    e <- RcppXPtrUtils::cppXPtr(e)
+    tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
+                                        args=c("double","double")))
+    if ( "try-error"%in%class(tmp) ) 
+        stop("potential function can not be compile")
+    e
+}
+
 #' Calculate consensus segments from a list of segmentation breakpoints
 #' @param b list of breakpoints of different segmentations
 #' @param n total sequence length (\code{max(b)} if not provided)
 #' @param w weights vector, must sum up to 1 or will be normalized
 #' @param e potential function either a \code{XPtr} pointer to a
-#' pre-compiled function or a string providing \code{Rcpp} code for
-#' this function, eg. \code{"long double my_aeh(int L, int n){return (exp(L/2)-1);}"}. Note, that the function must have this signature, i.e., take two integers as arguments and return a long double.
+#' function pre-compiled with \code{\link{compileEquation}} or a string of
+#' a (C++-compatible) mathematical equation using \code{L} for the
+#' interval length and \code{n} for the total sequence length to
+#' calculate potentials during the \code{consseg} recursion,
+#' eg. "(L/n)*log(L/n)" to use the negentropy
 #' @param return return class, simple "breakpoints" or "segments", where
 #' breakpoints are considered the start, and ends are cut one before.
 #' @param store for debugging: store and return all internal vectors
@@ -54,20 +74,14 @@ consensus <- function(b, n, w, e,
         e <- e_ptr() # default, aeh function in cpp file
     else if ( class(e)=="XPtr" ) { # test pre-compiled function
         tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
-                                            args=c("int","int")))
+                                            args=c("double","double")))
         if ( "try-error"%in%class(tmp) ) 
             stop("wrong potential function signature, should be: ",
                  "`long double my_aeh(int L)`")
     } else if ( class(e)=="character" ) { # compile from string
-        ##eg: "long double my_aeh(int L) { return (exp(L/2)-1); }"
         if ( verb>0 )
             cat(paste("Compiling user supplied potential function.\n"))
-        e <- RcppXPtrUtils::cppXPtr(e)
-        tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
-                                            args=c("int","int")))
-        if ( "try-error"%in%class(tmp) ) 
-            stop("wrong potential function signature, should be: ",
-                 "`long double my_aeh(int L)`")
+        e <- compileEquation(e)
     }
     
     
@@ -112,7 +126,7 @@ consensus <- function(b, n, w, e,
     ## call recursion in C
     if ( verb>0 )
         cat(paste("Running Recursion.\n"))
-    cons <- consensus_c(b, n=n, w=w, e=e, store=store)#aeh=e, test=FALSE) 
+    cons <- consensus_c(b, n=n, w=w, e=e, store=store)
 
     if ( return=="breakpoints" ) res <- cons$breakpoints
     else if ( return=="segments" ) res <- bp2seg(cons$breakpoints, end=-1)
@@ -126,13 +140,13 @@ consensus <- function(b, n, w, e,
 #' @param b list of breakpoints of different segmentations
 #' @param n total sequence length (\code{max(b)} if not provided)
 #' @param w weights vector, must sum up to 1 or will be normalized
-#' @param e potential function, taking one argument: the length \code{L}
-#' of the evaluated interval
+#' @param e potential function, taking two arguments: the length \code{L}
+#' of the evaluated interval and the total sequence length \code{n}
 #' @param store for debugging: store and return all internal vectors
 #' @param test for debugging: compare the incrementally calculated
 #' Delta with the very slow direct calculation 
 #'@export
-consensus_r <- function(b, n, w, e=function(L) L^2/2,
+consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
                         store=FALSE, test=FALSE) {
 
     if ( missing(n) ) {

@@ -7,9 +7,9 @@ using namespace Rcpp;
 //' @param n total sequence length, required for function signature,
 //' but not used in this example
 // [[Rcpp::export]]
-long double aeh(int L, int n) {
-  long double e =  L*1.0; // implicit cast
-  return(e*e/2);
+long double aeh(double L, double n) {
+  //long double e =  L*1.0; // implicit cast, required if using int
+  return(L*L*L/3);
 }
 
 
@@ -20,6 +20,24 @@ XPtr<funcPtr> e_ptr() {
   return(XPtr<funcPtr>(new funcPtr(&aeh)));
 }
 
+
+// TODO: vectorize!
+//' evaluate pre-compiled potential functions
+//' @param e a \code{XPtr} pointer provided by \code{\link{compileEquation}}
+//' @param L numeric, interval length \code{L} when used as a potential
+//' function in the \code{consseg} recursion.
+//' @param n numeric, total sequence length \code{n} when used as a
+//' potential function in the \code{consseg} recursion.
+//'@export
+// [[Rcpp::export]]
+NumericVector evaluateEquation(SEXP e, double L, double n) {
+  // get potential function
+  XPtr<funcPtr> xpfun(e);
+  funcPtr aeh = *xpfun;
+  NumericVector res(1);
+  res[0] = aeh(L,n);
+  return(res);
+}
 
 // backtrace function
 // [[Rcpp::export]]

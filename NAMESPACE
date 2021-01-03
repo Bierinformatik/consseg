@@ -2,9 +2,11 @@
 
 export(backtrace_r)
 export(bp2seg)
+export(compileEquation)
 export(consensus)
 export(consensus_c)
 export(consensus_r)
+export(evaluateEquation)
 export(plot_breaklist)
 export(random_breakpoints)
 import(Rcpp)

@@ -7,13 +7,13 @@
 using namespace Rcpp;
 
 // aeh
-long double aeh(int L, int n);
+long double aeh(double L, double n);
 RcppExport SEXP _ConsSeg_aeh(SEXP LSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type L(LSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type L(LSEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
     rcpp_result_gen = Rcpp::wrap(aeh(L, n));
     return rcpp_result_gen;
 END_RCPP
@@ -25,6 +25,19 @@ BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     rcpp_result_gen = Rcpp::wrap(e_ptr());
+    return rcpp_result_gen;
+END_RCPP
+}
+// evaluateEquation
+NumericVector evaluateEquation(SEXP e, double L, double n);
+RcppExport SEXP _ConsSeg_evaluateEquation(SEXP eSEXP, SEXP LSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type e(eSEXP);
+    Rcpp::traits::input_parameter< double >::type L(LSEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(evaluateEquation(e, L, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -58,6 +71,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_ConsSeg_aeh", (DL_FUNC) &_ConsSeg_aeh, 2},
     {"_ConsSeg_e_ptr", (DL_FUNC) &_ConsSeg_e_ptr, 0},
+    {"_ConsSeg_evaluateEquation", (DL_FUNC) &_ConsSeg_evaluateEquation, 3},
     {"_ConsSeg_backtrace_c", (DL_FUNC) &_ConsSeg_backtrace_c, 1},
     {"_ConsSeg_consensus_c", (DL_FUNC) &_ConsSeg_consensus_c, 5},
     {NULL, NULL, 0}

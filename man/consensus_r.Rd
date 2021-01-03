@@ -4,7 +4,7 @@
 \alias{consensus_r}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus_r(b, n, w, e = function(L) L^2/2, store = FALSE,
+consensus_r(b, n, w, e = function(L, n) L^2/2, store = FALSE,
   test = FALSE)
 }
 \arguments{
@@ -14,8 +14,8 @@ consensus_r(b, n, w, e = function(L) L^2/2, store = FALSE,
 
 \item{w}{weights vector, must sum up to 1 or will be normalized}
 
-\item{e}{potential function, taking one argument: the length \code{L}
-of the evaluated interval}
+\item{e}{potential function, taking two arguments: the length \code{L}
+of the evaluated interval and the total sequence length \code{n}}
 
 \item{store}{for debugging: store and return all internal vectors}
 

@@ -77,9 +77,10 @@ consensus(b,n=50,w=w)
 
 
 ## test compiling potential function
-e <- "long double my_aeh(int L, int n) { return (exp(1.0*L/2)-1); }"
-e <- "long double my_aeh(int L, int n) { return 1.0*L*L*L/3; }"
+e <- "exp(L/2)-1)"
+e <- "L*L*L/3"
 consensus(b,n=50,w=w,e=e)
 
 ## test pre-compiled potential function
-consensus(b,n=50,w=w,e=RcppXPtrUtils::cppXPtr(e))
+ec <- compileEquation(e)
+consensus(b,n=50,w=w,e=ec)

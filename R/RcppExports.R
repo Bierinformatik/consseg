@@ -14,6 +14,17 @@ e_ptr <- function() {
     .Call('_ConsSeg_e_ptr', PACKAGE = 'ConsSeg')
 }
 
+#' evaluate pre-compiled potential functions
+#' @param e a \code{XPtr} pointer provided by \code{\link{compileEquation}}
+#' @param L numeric, interval length \code{L} when used as a potential
+#' function in the \code{consseg} recursion.
+#' @param n numeric, total sequence length \code{n} when used as a
+#' potential function in the \code{consseg} recursion.
+#'@export
+evaluateEquation <- function(e, L, n) {
+    .Call('_ConsSeg_evaluateEquation', PACKAGE = 'ConsSeg', e, L, n)
+}
+
 backtrace_c <- function(imax) {
     .Call('_ConsSeg_backtrace_c', PACKAGE = 'ConsSeg', imax)
 }

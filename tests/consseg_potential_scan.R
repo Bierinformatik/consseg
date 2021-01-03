@@ -72,14 +72,13 @@ dev.off()
 ## the functions need proper casting?
 ## TODO:  n ignored
 
-fnct <- "long double my_aeh(int l, int n) { long double L=1.0*l;long double N=1.0*n; return("
 
 png("consseg_potential_scan_c.png", width=2*3.5, height=2.5,
     units="in",res=200)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aehc) ) {
-    fnc <- paste(fnct,aehc[[i]],");}")
-    cons <- consensus(b, n=n, w=w, e=fnc, verb=0)
+    
+    cons <- consensus(b, n=n, w=w, e=aehc[[i]], verb=0)
 
     plot_breaklist(b,axis1=FALSE, axis2=FALSE, col=NA)
     abline(v=cons, col="#0000FFCC", lwd=2)
@@ -93,4 +92,21 @@ for ( i in 1:length(aehc) ) {
     cat(paste("C:",paste(cons, collapse=", "), "\n"))
     cat(paste("R:",paste(conr$breakpoints, collapse=", "), "\n"))
 }
+dev.off()
+
+
+## pre-compile to allow re-use
+library(ConsSeg)
+e <- "(L/n)*log(L/n)" # "L*L*L/3" #
+ec <- compileEquation(e)
+consensus(b, n=n, w=w, e=e, verb=0)
+consensus(b, n=n, w=w, e=ec, verb=0)
+
+res <- rep(NA, 50)
+for ( L in 1:length(res) )
+    res[L] <- evaluateEquation(e=ec, L=L, n=500)
+png("consseg_potential_evaluation.png", width=3.5, height=3.5,
+    units="in",res=200)
+par(mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
+plot(1:length(res),res, xlab="L", ylab=e)
 dev.off()

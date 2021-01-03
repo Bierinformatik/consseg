@@ -15,8 +15,11 @@ consensus(b, n, w, e, return = "breakpoints", store = FALSE,
 \item{w}{weights vector, must sum up to 1 or will be normalized}
 
 \item{e}{potential function either a \code{XPtr} pointer to a
-pre-compiled function or a string providing \code{Rcpp} code for
-this function, eg. \code{"long double my_aeh(int L, int n){return (exp(L/2)-1);}"}. Note, that the function must have this signature, i.e., take two integers as arguments and return a long double.}
+function pre-compiled with \code{\link{compileEquation}} or a string of
+a (C++-compatible) mathematical equation using \code{L} for the
+interval length and \code{n} for the total sequence length to
+calculate potentials during the \code{consseg} recursion,
+eg. "(L/n)*log(L/n)" to use the negentropy}
 
 \item{return}{return class, simple "breakpoints" or "segments", where
 breakpoints are considered the start, and ends are cut one before.}
