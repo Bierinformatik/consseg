@@ -34,14 +34,12 @@ aeh <- function(L,n) {L^2/2}
 cons_r <- consensus_r(bl, n=n, w=w, e=aeh, store=TRUE, test=TRUE)
 
 ## Rcpp IMPLEMENTATIOON
-## e_ptr only available when sourceing cpp in debug mode
 aeh <- compileEquation("L*L/2")
-## e <- e_ptr() # default, aeh function in cpp file
 cons_c <- consensus_c(bl, n=n, w=w,e=aeh, store=TRUE)
     
     
-## plot segments, leave room for consensus arrows
-png("consseg_c.png", units="in", width=3.5, height=7, res=200)
+## plot results
+png("test_compilation.png", units="in", width=3.5, height=7, res=200)
 par(mfcol=c(6,1),mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
 par(mai=c(.1,.5,.1,.1))
 plot_breaklist(b,lwd=1)

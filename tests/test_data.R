@@ -29,7 +29,7 @@ e <- compileEquation("(L/n)*log(L/n)")
 csegs <- consensus(sset, w=c(1,1.01,1,1), e=e, return="breakpoints")
 
 ## plot all
-png("consseg_data.png",width=7,height=3.5/2,res=300,units="in")
+png("test_data.png",width=7,height=3.5/2,res=300,units="in")
 layout(matrix(1:2,ncol=1), heights=c(.5,.2))
 par(mai=c(0.2,2,0.05,0.1),mgp=c(1.3,.4,0),tcl=-.25, xaxs="i",yaxs="r")
 plot_breaklist(sset, n=n, axis1=FALSE)

@@ -71,7 +71,7 @@ for ( i in 1:length(aeh_c) ) {
 
     
 ## SCAN OF POTENTIAL FUNCTIONS IN Rcpp
-png("consseg_potential_scan_c.png", width=2*3.5, height=2.5,
+png("test_potentials_c.png", width=2*3.5, height=2.5,
     units="in",res=200)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aeh_c) ) {
@@ -89,7 +89,7 @@ dev.off()
 
 
 ## SCAN OF POTENTIAL FUNCTIONS IN R
-png("consseg_potential_scan_r.png", width=2*3.5, height=2.5,
+png("test_potentials_r.png", width=2*3.5, height=2.5,
     units="in",res=200)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aeh_r) ) {
@@ -115,7 +115,7 @@ consensus(b, n=n, w=w, e=ec, verb=0)
 res <- rep(NA, 500)
 for ( L in 1:length(res) )
     res[L] <- evaluateEquation(e=ec, L=L, n=500)
-png("consseg_potential_evaluation.png", width=3.5, height=3.5,
+png("test_potentials_evaluate.png", width=3.5, height=3.5,
     units="in",res=200)
 par(mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
 plot(1:length(res),res, xlab="L", ylab=e)
