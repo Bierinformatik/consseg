@@ -5,8 +5,10 @@ a numerical artefact of L^5 or a bug?
     - Note that this so far only appears in a minimal example 
     (n=50, m=10, l=4) with Set.seed(1).
 
-# Documentation: Roxygen and Vignette
+# Documentation: README.md, Roxygen and Vignette
 
+* add README.md with github and cran install instructions,
+and minimal text + example,
 * move plots from current test/ to roxygen doc and/or Vignette.
 * sanity- and spell-check of existing roxygen doc.
 * reconsider which functions in R and cpp should be public
