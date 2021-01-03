@@ -1,36 +1,58 @@
 # Real BUGS?
 
-* check back-tracking, are 1,2 breaktpoints in `consseg_potential_scan.R?
-a numerical artefact of L^5 or a bug?
+* check back-tracking, are 1,2 breaktpoints in `test_potentials.R?
+a numerical artefact of L^5 or a bug? 
+    - Note that this so far only appears in a minimal example 
+    (n=50, m=10, l=4) with Set.seed(1).
 
-# Test/Debug Mode
+# Documentation: Roxygen and Vignette
 
-* return internal values only with option store or remove altogether
-* allow to use R version from consensus wrapper for testing and
-debugging, in wrapper, allow to use both and R version with test=TRUE,
-to compare all to the slow direct implementation
-
-# Reconsider public functions
-
+* move plots from current test/ to roxygen doc and/or Vignette.
+* sanity- and spell-check of existing roxygen doc.
 * reconsider which functions in R and cpp should be public
 for the user (consensus_r/c, potential functions for comparison)
-
-# Optimize Rcpp
-
-* benchmark R/slow (consensus_r(...,test=TRUE) vs. R/fast vs. Rcpp,
-and built-in vs. supplied potential functions,
-* use int and long double instead of NumericVector to optimize
-memory usage, cast properly in potential function and for debug return
 
 # Potential Functions
 
 * add more internal pre-defined potential functions,
-* vectorize evaluteEquation and generate matrix over L and n
+* vectorize evaluteEquation and generate matrix over L and n.
 
-# Examples and Vignette
+# Test/Debug Mode
 
-* move plots from current test/ to roxygen docu and/or Vignette,
+* option store: return internal values only with option store,
+problem: can't have alternative returns in Rcpp,
 * use the testhat package to write proper tests, based on
-the same code as vignette?
+the current code in `tests/`,
+* allow to use R version from consensus wrapper for testing and
+debugging, in wrapper, 
+     - use both and R version with test=TRUE, to compare all to the 
+     slow direct implementation,
+     - specifically compare built-in vs. R vs. Rcpp user-supplied
+     potential functions.
 
+# Optimize Rcpp
+
+* benchmark for R/slow (consensus_r(...,test=TRUE) vs. R/fast vs. Rcpp,
+and built-in vs. supplied potential functions,
+* use int and long double instead of NumericVector to optimize
+memory usage, cast properly in potential function and for debug return
+
+
+# ADD FUNCTIONALITY
+
+## Alternative Algorithms
+
+* implement symmetrized boundary movers distance,
+* implement breakpoint only code, using the conjecture
+that each consensus breakpoint is also a breakpoint in
+1+ of the input segmentations,
+
+## Utilities
+
+* convert to and from IRanges/GRanges,
+* `plot_breaklist`: allow colors, eg.
+    - color gradient for weights,
+    - colors of input segment classes (segmenTier cluster association),
+* `plot_breaklist`: dedicated segmentations vs. consensus plot,
+    - indicate origin breakpoints in segmentation.
 
