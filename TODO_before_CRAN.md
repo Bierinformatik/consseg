@@ -24,16 +24,14 @@ for the user (consensus_r/c, potential functions for comparison)
 
 # Test/Debug Mode
 
-* option store: return internal values only with option store,
-problem: can't have alternative returns in Rcpp,
 * use the testhat package to write proper tests, based on
 the current code in `tests/`,
-* allow to use R version from consensus wrapper for testing and
-debugging, in wrapper, 
-     - use both and R version with test=TRUE, to compare all to the 
-     slow direct implementation,
-     - specifically compare built-in vs. R vs. Rcpp user-supplied
+* `test_internals.R`: 
+   - test all three implementations: R/slow, R/incremental, and Rcpp,
+   - compare built-in vs. R vs. Rcpp user-supplied
      potential functions.
+* allow to use R version from consensus wrapper for testing and
+debugging, in wrapper.
 
 # Optimize Rcpp
 

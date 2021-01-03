@@ -132,6 +132,9 @@ consensus <- function(b, n, w, e,
 
     if ( return=="breakpoints" ) res <- cons$breakpoints
     else if ( return=="segments" ) res <- bp2seg(cons$breakpoints, end=-1)
+
+    ## debug option: return all values
+    if ( store ) return(cons)
     return(res)
 }
 
@@ -247,11 +250,11 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
                     lw = j+1 
                     up = Bup[lw,m]
                     while (up < k) { 
-                        summe = summe + e(up-lw+1)
+                        summe = summe + e(up-lw+1,n)
                         lw = up+1 
                         up = Bup[lw,m]
                     } 
-                    summe = summe + e(k-lw+1)
+                    summe = summe + e(k-lw+1,n)
                     Dslow = Dslow - 2*w[m]*summe 
                 }
                 if ( abs(D-Dslow)>0.000000000001 ) # TODO: relative error
@@ -284,9 +287,12 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
     results <- list(breakpoints=bp)
     if ( store )
         results <- append(results,
-                          list(F=F, ptr=ptr, Dk=Dk, dstar=Ds,
-                               dsm=dsm, dsq=dsq, dcd=dcd, dcu=dcu,
-                               Bup=Bup, Blw=Blw))
+                          list(values=list(ptr=ptr, F=F, 
+                                           dsm=dsm, dsq=dsq,
+                                           dcu=dcu, dcd=dcd, 
+                                           dstar=Ds,
+                                           Bup=Bup, Blw=Blw,
+                                           Dk=Dk)))
     return(results)
                                         
 }

@@ -7,10 +7,10 @@
 aeh(L, n)
 }
 \arguments{
-\item{L}{interval length}
+\item{L}{interval length.}
 
 \item{n}{total sequence length, required for function signature,
-but not used in this example}
+but not used in this example.}
 }
 \description{
 default potential function, \code{L^2/2}

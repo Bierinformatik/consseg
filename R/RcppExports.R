@@ -2,9 +2,9 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' default potential function, \code{L^2/2}
-#' @param L interval length
+#' @param L interval length.
 #' @param n total sequence length, required for function signature,
-#' but not used in this example
+#' but not used in this example.
 aeh <- function(L, n) {
     .Call('_ConsSeg_aeh', PACKAGE = 'ConsSeg', L, n)
 }
@@ -15,7 +15,7 @@ e_ptr <- function() {
 }
 
 #' evaluate pre-compiled potential functions
-#' @param e a \code{XPtr} pointer provided by \code{\link{compileEquation}}
+#' @param e a \code{XPtr} pointer provided by \code{\link{compileEquation}}.
 #' @param L numeric, interval length \code{L} when used as a potential
 #' function in the \code{consseg} recursion.
 #' @param n numeric, total sequence length \code{n} when used as a
@@ -30,12 +30,12 @@ backtrace_c <- function(imax) {
 }
 
 #' Calculate consensus segments from a list of segmentation breakpoints
-#' @param b list of breakpoints of different segmentations
-#' @param n total sequence length 
-#' @param w weights vector, must sum up to 1
+#' @param b list of breakpoints of different segmentations.
+#' @param n total sequence length.
+#' @param w weights vector, must sum up to 1.
 #' @param e potential function, taking one argument: the length \code{L}
-#' of the evaluated interval
-#' @param store for debugging: store and return all internal vectors
+#' of the evaluated interval.
+#' @param store for debugging: store and return all internal vectors.
 #'@export
 consensus_c <- function(b, n, w, e, store = 0L) {
     .Call('_ConsSeg_consensus_c', PACKAGE = 'ConsSeg', b, n, w, e, store)

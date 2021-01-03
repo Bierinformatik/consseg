@@ -7,7 +7,7 @@
 evaluateEquation(e, L, n)
 }
 \arguments{
-\item{e}{a \code{XPtr} pointer provided by \code{\link{compileEquation}}}
+\item{e}{a \code{XPtr} pointer provided by \code{\link{compileEquation}}.}
 
 \item{L}{numeric, interval length \code{L} when used as a potential
 function in the \code{consseg} recursion.}

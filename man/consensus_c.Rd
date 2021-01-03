@@ -7,16 +7,16 @@
 consensus_c(b, n, w, e, store = 0L)
 }
 \arguments{
-\item{b}{list of breakpoints of different segmentations}
+\item{b}{list of breakpoints of different segmentations.}
 
-\item{n}{total sequence length}
+\item{n}{total sequence length.}
 
-\item{w}{weights vector, must sum up to 1}
+\item{w}{weights vector, must sum up to 1.}
 
 \item{e}{potential function, taking one argument: the length \code{L}
-of the evaluated interval}
+of the evaluated interval.}
 
-\item{store}{for debugging: store and return all internal vectors}
+\item{store}{for debugging: store and return all internal vectors.}
 }
 \description{
 Calculate consensus segments from a list of segmentation breakpoints

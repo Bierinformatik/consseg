@@ -114,13 +114,18 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
   NumericVector dcd(n+1);
   NumericVector dcu(n+1);
   NumericVector ptr(n+1); // TODO: integer
-    
+
   // store \Delta and \delta^* for debugging
-  if ( store ) {
+  // TODO: MAKE THESE VECTORS OPTIONAL to save memory,
+  //       find out why `NumericVector Dk(0);` and optional alloc
+  //       causes abort, also see same problem in dpseg!
+  //NumericVector Dk(1);
+  //NumericVector Ds(1);
+  //if ( store ){
     NumericVector Dk(n+1);
     NumericVector Ds(n+1);
-  }
-
+    //}
+    
   // initialize vectors
   F[0] = dsm[0] = dsq[0] = dcd[0] = dsq[0] = 0.0;
   std::fill( ptr.begin(), ptr.end(), 0.0 );
@@ -176,27 +181,36 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
       } else if ( F[j]+D < F[k] ) {
 	F[k] = F[j]+D;
 	ptr[k] = j;
-	//if ( store ) { // store for debugging or plots
-	//  Dk[k] = D;
-	//  Ds[k] = dstar;
-	//}
+	// TODO: why does this cause abort if NumericVector(0), see above TODO
+	if ( store ) { // store for debugging or plots
+	  Dk[k] = D;
+	  Ds[k] = dstar;
+	}
       }
     }
   }
+
     
   // BACKTRACE
   NumericVector bp;
   bp = backtrace_c(ptr+1);
   bp = bp[Rcpp::Range(0, bp.length()-2)];
-  // TODO: only add  matrices with option
+
+  // TODO: return full range and account for f[0] in tests
+  List values;
+  if ( store ) 
+    values = List::create(Named("ptr") = ptr,
+			  Named("F") = F[Rcpp::Range(1,n)],
+			  Named("dsm") = dsm[Rcpp::Range(1,n)],
+			  Named("dsq") = dsq[Rcpp::Range(1,n)],
+			  Named("dcu") = dcu[Rcpp::Range(1,n)],
+			  Named("dcd") = dcd[Rcpp::Range(1,n)],
+			  Named("dstar") = Ds[Rcpp::Range(1,n)],
+			  Named("Bup") = Bup,
+			  Named("Blw") = Blw,
+			  Named("Dk") = Dk[Rcpp::Range(1,n)]);
+  
   return List::create(Named("breakpoints") = bp,
-		      Named("ptr") = ptr,
-		      Named("F") = F[Rcpp::Range(1,n)],
-		      Named("dsm") = dsm[Rcpp::Range(1,n)],
-		      Named("dsq") = dsq[Rcpp::Range(1,n)],
-		      Named("dcu") = dcu[Rcpp::Range(1,n)],
-		      Named("dcd") = dcd[Rcpp::Range(1,n)],
-		      Named("Bup") = Bup,
-		      Named("Blw") = Blw);  
+		      Named("values") = values);  
 }
 
