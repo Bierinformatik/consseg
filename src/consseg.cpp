@@ -66,7 +66,7 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
   
   //  FILL UP INTERVAL BORDER LOOKUP TABLES
 
-  NumericMatrix Blw(n, M); // todo: int matrix
+  NumericMatrix Blw(n, M); // todo: unsigned int matrix
   NumericMatrix Bup(n, M);
   NumericVector bq;
   int up;
