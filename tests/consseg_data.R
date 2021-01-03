@@ -7,7 +7,7 @@ Sys.setenv("R_TESTS" = "")
 ## from Machne, Murray, Stadler 2017 (segmenTier)
 ## and calculate and add consensus segmentation
 
-debug <- TRUE
+debug <- FALSE
 
 if ( debug ) {
     setwd("~/programs/ConsSeq/tests")

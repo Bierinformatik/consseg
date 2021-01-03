@@ -90,7 +90,7 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
   //  RECURSION
     
   // initialize recursion vectors
-  NumericVector F(n+1);   // TODO: C++ long double
+  NumericVector F(n+1);   // TODO: long double
   NumericVector dsm(n+1);
   NumericVector dsq(n+1);
   NumericVector dcd(n+1);
