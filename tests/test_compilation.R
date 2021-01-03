@@ -48,6 +48,7 @@ abline(v=cons_c$breakpoints, col="#FF000077",lwd=2)
 plot_breaklist(b,add=TRUE, col=1, lwd=1)
 plot(cons_r$values$F,  type="p",xlab="sequence position k", ylab="F(k)")
 lines(cons_c$values$F, col=2)
+legend("topright",c("R/fast","Rcpp"),lty=c(NA,1),pch=c(1,NA))
 plot(cons_r$values$Dk, type="p",xlab="sequence position k",
      ylab=expression(min[j]~Delta(k)))
 lines(cons_c$values$Dk, col=2)

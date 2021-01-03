@@ -35,7 +35,7 @@ aeh_c <- compileEquation("L*L/2")
 cons_c <- consensus_c(bl, w=w, e=aeh_c, n=n,store=TRUE)
 
 ## plot results
-png("test_compilation.png", units="in", width=3.5, height=7, res=200)
+png("test_internals.png", units="in", width=3.5, height=7, res=200)
 par(mfcol=c(6,1),mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
 par(mai=c(.1,.5,.1,.1))
 plot_breaklist(b,lwd=1)
@@ -44,6 +44,7 @@ abline(v=cons_c$breakpoints, col="#FF000077",lwd=2)
 plot_breaklist(b,add=TRUE, col=1, lwd=1)
 plot(cons_r$values$F,  type="p",xlab="sequence position k", ylab="F(k)")
 lines(cons_c$values$F, col=2)
+legend("topright",c("R/slow","Rcpp"),lty=c(NA,1),pch=c(1,NA))
 plot(cons_r$values$Dk, type="p",xlab="sequence position k",
      ylab=expression(min[j]~Delta(k)))
 lines(cons_c$values$Dk, col=2)

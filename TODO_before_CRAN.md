@@ -4,9 +4,9 @@
 a numerical artefact of `L^5` or a bug? 
     - Note that this so far only appears in a minimal example 
     (n=50, m=10, l=4) with Set.seed(1).
-* check initialization of vectors, is it ok that $min_j \Delta[k]$,
+* check initialization of vectors in R, is it ok that $min_j \Delta[k]$,
 and $\delta^*$ are NA until AFTER the first border? See figure
-`consseg_test.png` produced by `tests/test_internals.png`.
+`test_internals.[R|png]`.
 
 # Documentation: README.md, Roxygen and Vignette
 
