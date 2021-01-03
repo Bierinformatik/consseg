@@ -24,7 +24,7 @@ if ( debug ) {
 
 ## CALCULATE CONSENSUS
 ## NOTE: sset contains sequence length n, and is thus not required as argument
-csegs <- consensus(sset, return="breakpoints")
+csegs <- consensus(sset, w=c(1,1.1,1,1), return="breakpoints")
 
 ## plot all
 png("consseg_data.png",width=7,height=3.5/2,res=300,units="in")
@@ -47,6 +47,6 @@ dev.off()
 e <- "long double my_aeh(int L, int n) { return L*L*L/3; }"
 consensus(sset, e=e, return="breakpoints") ## WRONG
 e <- "long double my_aeh(int L, int n) { return 1.0*L*L*L/3; }"
-consensus(sset, return="breakpoints") ## CORRECT
+consensus(sset, e=e, return="breakpoints") ## CORRECT
 
 
