@@ -7,22 +7,23 @@ Sys.setenv("R_TESTS" = "")
 ## from Machne, Murray, Stadler 2017 (segmenTier)
 ## and calculate and add consensus segmentation
 
-debug <- FALSE
+debug <- TRUE
 
 if ( debug ) {
     setwd("~/programs/ConsSeq/tests")
     source("../R/consseg_r.R")
     library(Rcpp)
     sourceCpp("../src/consseg.cpp")
+    load("../data/primseg436_sset.rda")
 } else {
     library(ConsSeg)
+    data(primseg436_sset)
 }
 
-data(primseg436_sset)
 
 ## CALCULATE CONSENSUS
 ## NOTE: sset contains sequence length n, and is thus not required as argument
-e <- "long double my_aeh(int L, int n) { return (long double) ((L*L*L)/3.0); }"
+e <- "long double my_aeh(int L, int n) { long double e = 1.0*L; return ((e*e*e)/3.0); }"
 consensus(sset, e=e, return="breakpoints")
 consensus(sset, return="breakpoints")
 

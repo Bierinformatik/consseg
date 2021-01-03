@@ -8,7 +8,8 @@ using namespace Rcpp;
 //' but not used in this example
 // [[Rcpp::export]]
 long double aeh(int L, int n) {
-  long double e =  ((L*L)/2.0);
+  long double e =  L*1.0;
+  e = ((e*e*e)/3.0);
   return(e);
 }
 

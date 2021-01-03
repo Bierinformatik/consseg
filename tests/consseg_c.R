@@ -77,8 +77,8 @@ consensus(b,n=50,w=w)
 
 
 ## test compiling potential function
-e <- "long double my_aeh(int L, int n) { return (exp(L/2.0)-1.0); }"
-e <- "long double my_aeh(int L, int n) { return L*L*L/3.0; }"
+e <- "long double my_aeh(int l, int n) { long double L=l*1.0;long double N=n*1.0;return (exp(L/2.0)-1.0); }"
+e <- "long double my_aeh(int l, int n) { long double L=l*1.0;long double N=n*1.0;return L*L*L/3.0; }"
 consensus(b,n=50,w=w,e=e)
 
 ## test pre-compiled potential function

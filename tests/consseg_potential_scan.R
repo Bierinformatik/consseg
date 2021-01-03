@@ -65,12 +65,12 @@ dev.off()
 ## TODO: this does not work properly, perhaps
 ## the functions need proper casting?
 ## TODO:  n ignored
-aehs <- list(negentropy="((double)L/(double)n)*log((double)L/(double)n)",
-             subqu="pow((double)L,3.0/2.0)",
-             quad="(double)L*(double)L",
-             cub="(double)L*(double)L*(double)L/3.0",
-             quin="(double)L*(double)L*(double)L*(double)L*(double)L/5.0",
-             expo="exp((double)L/10.0)-1.0") 
+aehs <- list(negentropy="(L/n)*log(L/n)",
+             subqu="pow(L,3.0/2.0)",
+             quad="L*L",
+             cub="L*L*L/3.0",
+             quin="L*L*L*L*L/5.0",
+             expo="exp(L/10.0)-1.0") 
 exprs <- list(negentropy=expression(italic(z/n)*log(italic(z/n))),
               subqu=expression(italic(z^(3/2))),
               quad=expression(italic(z^2)),
@@ -78,11 +78,14 @@ exprs <- list(negentropy=expression(italic(z/n)*log(italic(z/n))),
               quin=expression(italic(z^5/5)),
               expo=expression(exp(italic(z/2))-1))
 
+
+fnct <- "long double my_aeh(int l, int n) { long double L=1.0*l;long double N=1.0*n; return("
+
 png("consseg_potential_scan_c.png", width=2*3.5, height=2.5,
     units="in",res=200)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aehs) ) {
-    fnc <- paste("long double my_aeh(int L, int n) {return (long double)(",aehs[[i]],");}")
+    fnc <- paste(fnct,aehs[[i]],");}")
     cons <- consensus(b, n=n, w=w, e=fnc)
 
     plot_breaklist(b,axis1=FALSE, axis2=FALSE, col=NA)
