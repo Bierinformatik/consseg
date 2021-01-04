@@ -26,4 +26,7 @@ Imports:
   RcppXPtrUtils (>= 0.1.1),
 LinkingTo: Rcpp
 VignetteBuilder: knitr
-
+Suggests:
+    markdown,
+    knitr,
+    htmltools

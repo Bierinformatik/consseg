@@ -20,6 +20,9 @@ for the user (consensus_r/c, potential functions for comparison)
 
 # Test/Debug Mode
 
+* convert the Dslow/test mode in consensus_r to a separate
+function, perhaps in Rcpp, and use this for testing against
+result lists,
 * use the testhat package to write proper tests, based on
 the current code in `tests/`,
 * `test_internals.R` and `tests/test_compilation.R`: 
