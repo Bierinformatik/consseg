@@ -5,7 +5,7 @@
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
 consensus_r(b, n, w, e = function(L, n) L^2/2, store = FALSE,
-  test = FALSE)
+  test = FALSE, rel.tol = 1e-08)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations.}
@@ -20,8 +20,17 @@ of the evaluated interval and the total sequence length \code{n}.}
 \item{store}{for debugging: store and return all internal vectors.}
 
 \item{test}{for debugging: compare the incrementally calculated.
-Delta with the very slow direct calculation}
+Delta with the very slow direct calculation.}
+
+\item{rel.tol}{relative error tolerance to report and count differences
+in Delta during test mode (\code{test==TRUE}).}
 }
 \description{
-Calculate consensus segments from a list of segmentation breakpoints
+This R implementation is maintained for debugging and testing
+Rcpp code against expected results. If \code{test==TRUE} the
+Delta of the recursion is additionally calculated directly
+(very inefficiently) to compare results with an explicitly correct
+calculation. This can also be useful when testing
+potential functions that can yield large numbers and thereby cause
+rounding errors.
 }

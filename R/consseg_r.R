@@ -142,6 +142,14 @@ consensus <- function(b, n, w, e,
 
 
 #' Calculate consensus segments from a list of segmentation breakpoints
+#'
+#' This R implementation is maintained for debugging and testing
+#' Rcpp code against expected results. If \code{test==TRUE} the
+#' Delta of the recursion is additionally calculated directly
+#' (very inefficiently) to compare results with an explicitly correct
+#' calculation. This can also be useful when testing 
+#' potential functions that can yield large numbers and thereby cause
+#' rounding errors.
 #' @param b list of breakpoints of different segmentations.
 #' @param n total sequence length (\code{max(b)} if not provided).
 #' @param w weights vector, must sum up to 1 or will be normalized.
@@ -149,10 +157,12 @@ consensus <- function(b, n, w, e,
 #' of the evaluated interval and the total sequence length \code{n}.
 #' @param store for debugging: store and return all internal vectors.
 #' @param test for debugging: compare the incrementally calculated.
-#' Delta with the very slow direct calculation 
+#' Delta with the very slow direct calculation.
+#' @param rel.tol relative error tolerance to report and count differences
+#' in Delta during test mode (\code{test==TRUE}).
 #'@export
 consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
-                        store=FALSE, test=FALSE) {
+                        store=FALSE, test=FALSE, rel.tol=1e-8) {
 
     if ( missing(n) ) {
         n <- max(unlist(b))
@@ -257,8 +267,9 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
                     summe = summe + e(k-lw+1,n)
                     Dslow = Dslow - 2*w[m]*summe 
                 }
-                if ( abs(D-Dslow)>0.000000000001 ) # TODO: relative error
-                    cat(paste("DIFFERENCE", k, j, D, Dslow, "\n"))
+                if ( abs(1-D/Dslow) > rel.tol ) # test for relative error
+                    cat(paste("DIFFERENCE Delta_tested/Delta_correct",
+                              k, j, signif(abs(1-D/Dslow),4), "\n"))
                 D <- Dslow
             }
             
@@ -308,7 +319,7 @@ backtrace_r <- function(ptr) {
     ends <- numeric()
     ends <- c(ends, length(ptr))
     k <- tail(ptr, n=1)
-    while(!is.na(k) & k>1){
+    while(!is.na(k) & k>0){
         ends <- c(ends, k)
         k <- ptr[k]
     }

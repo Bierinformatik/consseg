@@ -48,7 +48,7 @@ NumericVector backtrace_c(NumericVector imax) {
   ends[0] = end;
   int cnt = 1; 
   while ( end>1 ) {
-    end = imax[end-1];
+    end = imax[end-1]; // TODO: is -1 correct here? imax index is k!
     ends[cnt] = end;
     cnt++;
   }
@@ -193,8 +193,8 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
     
   // BACKTRACE
   NumericVector bp;
-  bp = backtrace_c(ptr+1);
-  bp = bp[Rcpp::Range(0, bp.length()-2)];
+  bp = backtrace_c(ptr+1); // j -> j+1
+  bp = bp[Rcpp::Range(0, bp.length()-2)]; // remove helper n+1
 
   // TODO: return full range and account for f[0] in tests
   List values;
