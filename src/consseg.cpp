@@ -199,7 +199,7 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
   // TODO: return full range and account for f[0] in tests
   List values;
   if ( store ) 
-    values = List::create(Named("ptr") = ptr,
+    values = List::create(Named("ptr") = ptr[Rcpp::Range(1,n)],
 			  Named("F") = F[Rcpp::Range(1,n)],
 			  Named("dsm") = dsm[Rcpp::Range(1,n)],
 			  Named("dsq") = dsq[Rcpp::Range(1,n)],
