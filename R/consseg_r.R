@@ -156,8 +156,11 @@ consensus <- function(b, n, w, e,
 #' @param e potential function, taking two arguments: the length \code{L}
 #' of the evaluated interval and the total sequence length \code{n}.
 #' @param store for debugging: store and return all internal vectors.
-#' @param test for debugging: compare the incrementally calculated.
-#' Delta with the very slow direct calculation.
+#' @param test for debugging: calculate Delta directly without using
+#' delta helpers. This is very slow but straightforward to implement,
+#' the resulting Delta is tested against the Delta of the fast
+#' implementation, and results can be used to test other implementations
+#' (eg. in Rcpp).
 #' @param rel.tol relative error tolerance to report and count differences
 #' in Delta during test mode (\code{test==TRUE}).
 #'@export

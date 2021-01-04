@@ -19,8 +19,11 @@ of the evaluated interval and the total sequence length \code{n}.}
 
 \item{store}{for debugging: store and return all internal vectors.}
 
-\item{test}{for debugging: compare the incrementally calculated.
-Delta with the very slow direct calculation.}
+\item{test}{for debugging: calculate Delta directly without using
+delta helpers. This is very slow but straightforward to implement,
+the resulting Delta is tested against the Delta of the fast
+implementation, and results can be used to test other implementations
+(eg. in Rcpp).}
 
 \item{rel.tol}{relative error tolerance to report and count differences
 in Delta during test mode (\code{test==TRUE}).}
