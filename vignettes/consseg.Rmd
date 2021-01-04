@@ -1,0 +1,115 @@
+---
+title: "Weighted Consensus Segmentation in R"
+author: "Halima Saker, Rainer Machne, J{\"o}rg Fallmann, Ahmad M.\ Shahin, Peter F. Stadler"
+date: "`r format(Sys.time(), '%d %m %Y')`"
+output:
+    bookdown::html_document2:
+        base_format: rmarkdown::html_vignette
+        toc: true
+        toc_depth: 2
+        fig_caption: true
+bibliography: consseg.bib
+vignette: >
+  %\VignetteIndexEntry{Weighted Consensus Segmentation in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, global.par=TRUE,
+                      fig.path = ".", fig.pos = 'h',
+                      fig.height = 2.7, fig.width = 4, fig.align = "center")
+knitr::opts_knit$set(global.par = TRUE)
+
+## redo benchmarking or use existing figure?
+REDOLONG <- FALSE
+times <- 100
+```
+
+```{r, include=FALSE}
+par(mai=c(.5,.5,.3,.5),mgp=c(1.2,.3,0),tcl=-.25, cex.main=.75)
+```
+
+
+The R package `consseg` performs
+
+`compileEquation` and `evaluateEquation`,
+
+`plot_breakpoints`, 
+
+R implementation for testing and development ...
+
+# Theory {#theory}
+
+## Recursion
+
+## Potential Functions
+
+## Backtracing 
+
+## Segment Length Restrictions
+
+
+# Usage
+
+## Basic
+
+
+```{r conssegdemo, fig.cap=".\\label{fig:consseg}"}
+library(ConsSeg)
+
+n <- 50# 5000 #SEQUENCE LENGTH
+M <- 10 # number segmentations (breakpoint lists)
+l <- 4# # average number of segments
+
+set.seed(1) # for constant results
+b <- random_breakpoints(m=M,n=n,lambda=l)
+
+w <- rep(1/M, M)
+
+e <- "(L/n)*log(L/n)"
+cons <- consensus(b, n=n, w=w, e=e, verb=1)
+
+plot_breaklist(b)
+abline(v=cons, col="#0000FFCC", lwd=2)
+
+```
+
+
+## Custom Potential Functions {#generic}
+
+```{r potential, fig.cap=".\\label{fig:consseg}"}
+
+## compile a novel potential function
+e <- "(L/n)*log(L/n)"
+ec <- compileEquation(e)
+
+## scan over L
+res <- rep(NA, 500)
+for ( L in 1:length(res) )
+    res[L] <- evaluateEquation(e=ec, L=L, n=500)
+
+plot(1:length(res),res, xlab="L", ylab=e)
+```
+
+## Real Data Use Case
+
+calculate consensus from segmenTier data
+
+
+# Dynamic Programming in base R {#appi}
+
+
+
+```{r, eval=TRUE, echo=TRUE}
+## RECURSION
+
+## POTENTIAL FUNCTION
+
+## backtracing
+```
+
+# Benchmarking
+
+
+# References

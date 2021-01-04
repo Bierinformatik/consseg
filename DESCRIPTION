@@ -21,8 +21,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Depends:
   R (>= 2.10)
-biocViews:
 Imports:
   Rcpp (>= 0.12.18),
   RcppXPtrUtils (>= 0.1.1),
 LinkingTo: Rcpp
+VignetteBuilder: knitr
+
