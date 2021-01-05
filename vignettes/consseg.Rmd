@@ -13,6 +13,7 @@ vignette: >
   %\VignetteIndexEntry{Weighted Consensus Segmentation in R}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
+  \usepackage{mathtools}
 ---
 
 ```{r setup, include=FALSE}
@@ -30,6 +31,10 @@ times <- 100
 par(mai=c(.5,.5,.3,.5),mgp=c(1.2,.3,0),tcl=-.25, cex.main=.75)
 ```
 
+$$
+\newcommand{\e}{\mathfrak{e}}
+\newcommand{\coloneqq}{:=} %TODO: make mathtools work
+$$
 
 The R package `consseg` performs
 
@@ -46,7 +51,7 @@ R implementation for testing and development ...
 $$
 \begin{equation}
 \Delta(A)
-(\#eq:Delta)
+(\#eq:DeltaA)
 \end{equation}
 $$
 
@@ -61,7 +66,7 @@ $$
 
 ## Potential Functions
 
-## Backtracing 
+## Backtracking 
 
 ## Segment Length Restrictions
 
@@ -112,10 +117,12 @@ plot(1:length(res),res, xlab="L", ylab=e)
 
 calculate consensus from segmenTier data
 
+# Benchmarking
+
 
 # Dynamic Programming in base R {#appi}
 
-
+## Direct Implementation in Base R
 
 ```{r, eval=TRUE, echo=TRUE}
 ## RECURSION
@@ -125,7 +132,47 @@ calculate consensus from segmenTier data
 ## backtracing
 ```
 
-# Benchmarking
+## Incremental Calculation
+
+$$
+\begin{equation} 
+  \delta_{<}(i) \coloneqq \sum_{q=1}^m
+  w_q \sum_{B\in \mathbf{S}_q \atop \max B \le i} \e(B)
+  \qquad\text{and}\qquad
+  \delta_{\le}(i) \coloneqq \sum_{q=1}^m
+  w_q \sum_{B\in \mathbf{S}_q \atop \min B\le i} \e(B)
+\end{equation}
+$$
+
+TODO: make the following work, perhaps its atop?
+
+$$
+\begin{equation} 
+  \delta^{\cap}_{<}(i) := \sum_{q=1}^m w_q 
+  \sum_{B\in \mathbf{S}_q \atop i\in B, i\ne\max B}
+
+  \e(B_{\le i})
+  \qquad\text{and}\qquad
+  \delta^{\cap}_{>}(i) := \sum_{q=1}^m w_q 
+  \sum_{B\in \mathbf{S}_q \atop i\in B, i\ne\min B}
+
+  \e(B_{\ge i})
+(\#eq:deltacup)
+\end{equation}
+$$
+
+
+
+$$
+\begin{equation}
+  \Delta([j+1,k]) = \e([j+1,k])
+  -2 \big(
+    \delta_{<}(k) - \delta_{\le}(j) +
+    \delta^{\cap}_{<}(k)+ \delta^{\cap}_{>}(j+1) + \delta^*(j+1,k)
+  \big)
+(\#eq:Delta)
+\end{equation}
+$$
 
 
 # References
