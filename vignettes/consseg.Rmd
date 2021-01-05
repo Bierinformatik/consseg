@@ -43,6 +43,22 @@ R implementation for testing and development ...
 
 ## Recursion
 
+$$
+\begin{equation}
+\Delta(A)
+(\#eq:Delta)
+\end{equation}
+$$
+
+$$
+\begin{equation}
+F_k = \min_{j<k} \left(\Delta([j+1,k]) + F_j \right)
+(\#eq:recursion)
+\end{equation}
+$$
+
+
+
 ## Potential Functions
 
 ## Backtracing 
