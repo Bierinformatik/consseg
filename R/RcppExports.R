@@ -6,12 +6,12 @@
 #' @param n total sequence length, required for function signature,
 #' but not used in this example.
 aeh <- function(L, n) {
-    .Call('_ConsSeg_aeh', PACKAGE = 'ConsSeg', L, n)
+    .Call('_consseg_aeh', PACKAGE = 'consseg', L, n)
 }
 
 #' get internal potential function
 e_ptr <- function() {
-    .Call('_ConsSeg_e_ptr', PACKAGE = 'ConsSeg')
+    .Call('_consseg_e_ptr', PACKAGE = 'consseg')
 }
 
 #' evaluate pre-compiled potential functions
@@ -22,11 +22,11 @@ e_ptr <- function() {
 #' potential function in the \code{consseg} recursion.
 #'@export
 evaluateEquation <- function(e, L, n) {
-    .Call('_ConsSeg_evaluateEquation', PACKAGE = 'ConsSeg', e, L, n)
+    .Call('_consseg_evaluateEquation', PACKAGE = 'consseg', e, L, n)
 }
 
 backtrace_c <- function(imax) {
-    .Call('_ConsSeg_backtrace_c', PACKAGE = 'ConsSeg', imax)
+    .Call('_consseg_backtrace_c', PACKAGE = 'consseg', imax)
 }
 
 #' Calculate consensus segments from a list of segmentation breakpoints
@@ -38,6 +38,6 @@ backtrace_c <- function(imax) {
 #' @param store for debugging: store and return all internal vectors.
 #'@export
 consensus_c <- function(b, n, w, e, store = 0L) {
-    .Call('_ConsSeg_consensus_c', PACKAGE = 'ConsSeg', b, n, w, e, store)
+    .Call('_consseg_consensus_c', PACKAGE = 'consseg', b, n, w, e, store)
 }
 

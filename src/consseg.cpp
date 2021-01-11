@@ -1,4 +1,4 @@
-#include "ConsSeg_types.h"
+#include "consseg_types.h"
 #include <Rcpp.h>
 using namespace Rcpp;
 
@@ -46,7 +46,7 @@ NumericVector backtrace_c(NumericVector imax) {
   int end = imax.size();
   NumericVector ends (end);
   ends[0] = end;
-  int cnt = 1; 
+  int cnt = 1;
   while ( end>1 ) {
     end = imax[end-1]; // TODO: is -1 correct here? imax index is k!
     ends[cnt] = end;
@@ -54,7 +54,7 @@ NumericVector backtrace_c(NumericVector imax) {
   }
   // cut and reverse
   NumericVector res (cnt);
-  for ( int i=0; i<cnt; i++ ) 
+  for ( int i=0; i<cnt; i++ )
     res[cnt-i-1] = ends[i];
   return res;
 
@@ -81,7 +81,7 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
 
   int M = b.length(); // number of input segmentations
 
-  
+
   //  FILL UP INTERVAL BORDER LOOKUP TABLES
 
   NumericMatrix Blw(n, M); // todo: unsigned int matrix
@@ -96,17 +96,17 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
       lw = bq[i];
       up = bq[i+1]-1;
       if ( up>n ) up = n ;
-      for ( int k=lw-1; k<up; k++) { // k in lw:up ) { 
+      for ( int k=lw-1; k<up; k++) { // k in lw:up ) {
 	Blw(k,q) = lw;
 	Bup(k,q) = up;
       }
-      i++; 
-    } 
+      i++;
+    }
   }
 
-    
+
   //  RECURSION
-    
+
   // initialize recursion vectors
   NumericVector F(n+1);   // TODO: long double
   NumericVector dsm(n+1);
@@ -125,13 +125,13 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
     NumericVector Dk(n+1);
     NumericVector Ds(n+1);
     //}
-    
+
   // initialize vectors
   F[0] = dsm[0] = dsq[0] = dcd[0] = dsq[0] = 0.0;
   std::fill( ptr.begin(), ptr.end(), 0.0 );
 
   // helper variables and Delta
-  long double D = 0.0; 
+  long double D = 0.0;
   long double Dtmp = 0.0;
   long double dtmp = 0.0;
   long double dstar = 0.0;
@@ -140,15 +140,15 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
   // NOTE: using n+1/F(0) et al. for convenience
   // and comparability with R:
   // counter = position index = vector index
-  for ( int k=1; k<=n; k++ ) { // in 1:n ) { 
-    
+  for ( int k=1; k<=n; k++ ) { // in 1:n ) {
+
     dsm[k] = dsm[k-1];
     dsq[k] = dsq[k-1];
     dcd[k] = 0;
-    dcu[k] = 0; 
-        
+    dcu[k] = 0;
+
     for ( int m=0; m<M; m++ ) {
-      if ( Bup(k-1,m) == k ) // \delta_<(k), start and end left of k 
+      if ( Bup(k-1,m) == k ) // \delta_<(k), start and end left of k
 	dsm[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1, n);
       if ( Blw(k-1,m) == k ) // \delta_le(j), start left of j, to subtract
 	dsq[k] += w[m]*aeh(Bup(k-1,m)-Blw(k-1,m)+1, n);
@@ -159,7 +159,7 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
     }
 
     /* scan interval = [j+1,k] for minimum j */
-    for ( int j=0; j<k; j++ ) { //in 0:(k-1) ) { 
+    for ( int j=0; j<k; j++ ) { //in 0:(k-1) ) {
       // \delta^*: correct for segments that span [j+1,k]
       dstar = 0.0;
       for ( int m=0; m<M; m++ ) {
@@ -190,7 +190,7 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
     }
   }
 
-    
+
   // BACKTRACE
   NumericVector bp;
   bp = backtrace_c(ptr+1); // j -> j+1
@@ -198,7 +198,7 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
 
   // TODO: return full range and account for f[0] in tests
   List values;
-  if ( store ) 
+  if ( store )
     values = List::create(Named("ptr") = ptr[Rcpp::Range(1,n)],
 			  Named("F") = F[Rcpp::Range(1,n)],
 			  Named("dsm") = dsm[Rcpp::Range(1,n)],
@@ -209,8 +209,8 @@ List consensus_c(List b, int n, NumericVector w, SEXP e,
 			  Named("Bup") = Bup,
 			  Named("Blw") = Blw,
 			  Named("Dk") = Dk[Rcpp::Range(1,n)]);
-  
+
   return List::create(Named("breakpoints") = bp,
-		      Named("values") = values);  
+		      Named("values") = values);
 }
 

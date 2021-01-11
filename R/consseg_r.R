@@ -1,21 +1,20 @@
 #' consseg: consensus segmentation from multiple input segmentations
-#'@author Halima Saker, Rainer Machne \email{raim@tbi.univie.ac.at}, Jörg Fallmann \email{fall@bioinf.uni-leipzig.de},
-#' Ahmad M. Shahin, Peter F. Stadler \email{studla@bioinf.uni-leipzig.de}
+#'@author Halima Saker, Rainer Machne \email{raim@tbi.univie.ac.at}, Jörg Fallmann \email{fall@bioinf.uni-leipzig.de}, Ahmad M. Shahin, Peter F. Stadler \email{studla@bioinf.uni-leipzig.de}
 #'@docType package
 #'@name consseg
 #'@description Calculates consensus segmentation from cluster based segmentation
 #'@section Dependencies: The package strictly depends on
-#' on \code{Rcpp} and \code{RcppXPtrUtils}.
+#' \code{Rcpp} and \code{RcppXPtrUtils}.
 #' All other dependencies are usually present in a
 #' basic installation (\code{stats}, \code{graphics}, \code{grDevices})).
 #' @references
 #' Saker, Machne, Fallmann, Shahin & Stadler (2021) <>,
 #' Machne, Murray & Stadler (2017) \doi{10.1038/s41598-017-12401-8},
-#' @useDynLib ConsSeg
+#' @useDynLib consseg
 NULL # this just ends the global package documentation
 
 ### DYNAMIC PROGRAMMING BASED CONSENSUS SEGMENTATION OF A CLUSTERING
-### implemented by Jörg Fallmann & Rainer Machne
+### implemented by Rainer Machne & Jörg Fallmann
 
 ### FUNCTIONS
 
@@ -42,7 +41,7 @@ compileEquation <- function(e="L*L/2") {
     e <- RcppXPtrUtils::cppXPtr(e)
     tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
                                         args=c("double","double")))
-    if ( "try-error"%in%class(tmp) ) 
+    if ( "try-error"%in%class(tmp) )
         stop("potential function can not be compile.")
     e
 }
@@ -65,7 +64,7 @@ compileEquation <- function(e="L*L/2") {
 #' @param test for debugging.
 #' @param verb verbosity level, 0 is silent.
 ## Rcpp bug requires importing it completely
-#' @import Rcpp 
+#' @import Rcpp
 #' @importFrom RcppXPtrUtils cppXPtr checkXPtr
 #'@export
 consensus <- function(b, n, w, e,
@@ -77,7 +76,7 @@ consensus <- function(b, n, w, e,
     else if ( class(e)=="XPtr" ) { # test pre-compiled function
         tmp <- try(RcppXPtrUtils::checkXPtr(e, type="long double",
                                             args=c("double","double")))
-        if ( "try-error"%in%class(tmp) ) 
+        if ( "try-error"%in%class(tmp) )
             stop("wrong potential function signature, should be: ",
                  "`long double my_aeh(int L)`.")
     } else if ( class(e)=="character" ) { # compile from string
@@ -85,8 +84,8 @@ consensus <- function(b, n, w, e,
             cat(paste("Compiling user supplied potential function.\n"))
         e <- compileEquation(e)
     }
-    
-    
+
+
     ## get class of breakpoints
     if ( "segments"%in%class(b) ) {
         n <- b$N
@@ -105,10 +104,10 @@ consensus <- function(b, n, w, e,
         warning("total sequence length `n` is missing, ",
                 "using the maximal breakpoint at ", n, ".")
     }
-    
+
     ## prepare breakpoints such that they:
     ## * are sorted and unique,
-    ## * start with 1 and end with n, 
+    ## * start with 1 and end with n,
     ## and adding n+1 to for convenience in look-up table.
     b <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
     M <- length(b)
@@ -122,9 +121,9 @@ consensus <- function(b, n, w, e,
         stop("Weights can not be negative.")
     else if ( sum(w)!=1 ) {
         warning("Weight vector does not sum up to 1, normalizing.")
-        w <- w/sum(w) 
+        w <- w/sum(w)
     }
-    
+
     ## call recursion in C
     if ( verb>0 )
         cat(paste("Running Recursion.\n"))
@@ -147,7 +146,7 @@ consensus <- function(b, n, w, e,
 #' Rcpp code against expected results. If \code{test==TRUE} the
 #' Delta of the recursion is additionally calculated directly
 #' (very inefficiently) to compare results with an explicitly correct
-#' calculation. This can also be useful when testing 
+#' calculation. This can also be useful when testing
 #' potential functions that can yield large numbers and thereby cause
 #' rounding errors.
 #' @param b list of breakpoints of different segmentations.
@@ -178,80 +177,80 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
 
     ## prepare breakpoints such that they:
     ## * are sorted and unique,
-    ## * start with 1 and end with n, 
+    ## * start with 1 and end with n,
     ## and adding n+1 to for convenience in look-up table.
     b <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-    
+
     ## generate or normalize weight vector
     if ( missing(w) ) w <- rep(1/M, M)
     else if ( sum(w)!=1 ) {
         warning("Weight vector does not sum up to 1, normalizing.")
-        w <- w/sum(w) 
+        w <- w/sum(w)
     }
 
     ##  FILL UP INTERVAL BORDER LOOKUP TABLES
     Blw <- Bup <- matrix(NA, nrow=n, ncol=M)
     for ( q in 1:M ) {
-        i <- 1 
+        i <- 1
         while ( b[[q]][i] <= n ) {
             lw = b[[q]][i]
             up = b[[q]][i+1]-1
-            if ( up>n ) up = n 
-            for ( k in lw:up ) { 
+            if ( up>n ) up = n
+            for ( k in lw:up ) {
                 Blw[k,q] = lw
                 Bup[k,q] = up
             }
             i <- i+1
-        } 
+        }
     }
-    
+
     ##  RECURSION
-    
+
     ## initialize recursion vectors
     F <- rep(0, n)
     dsm <- dsq <-rep(0, n)
     dcd <- dcu <-rep(0, n)
     ptr <- rep(0, n)
-    
+
     ## store \Delta and \delta^* for debugging
     if ( store )
-        Dk <- Ds <- rep(NA,n) 
-    
+        Dk <- Ds <- rep(NA,n)
+
     ## the recursion
-    for ( k in 1:n ) { 
-        
-        if ( k>1 ) { 
-            dsm[k] = dsm[k-1] 
-            dsq[k] = dsq[k-1] 
+    for ( k in 1:n ) {
+
+        if ( k>1 ) {
+            dsm[k] = dsm[k-1]
+            dsq[k] = dsq[k-1]
         }
-        dcd[k] = 0 
-        dcu[k] = 0 
-        
-        for ( m in 1:M ) {             
-            if ( Bup[k,m] == k ) # \delta_<(k), start and end left of k 
+        dcd[k] = 0
+        dcu[k] = 0
+
+        for ( m in 1:M ) {
+            if ( Bup[k,m] == k ) # \delta_<(k), start and end left of k
                 dsm[k] = dsm[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1, n)
             if ( Blw[k,m] == k ) # \delta_le(j), start left of j, to subtract
                 dsq[k] = dsq[k] + w[m]*e(Bup[k,m]-Blw[k,m]+1, n)
             if ( Bup[k,m] > k ) # \delta^\cap_<(k), left end to k
                 dcd[k] = dcd[k] + w[m]*e(k-Blw[k,m]+1, n)
             if ( Blw[k,m] < k ) # \delta^\cap_>(j+1), j+1 to right end
-                dcu[k] = dcu[k] + w[m]*e(Bup[k,m]-k+1, n) 
+                dcu[k] = dcu[k] + w[m]*e(Bup[k,m]-k+1, n)
         }
-        
+
         ## /* scan interval = [j+1,k] for minimum j */
-        for ( j in 0:(k-1) ) { 
+        for ( j in 0:(k-1) ) {
             ## \delta^*: correct for segments that span [j+1,k]
             dstar = 0
-            for ( m in (1:M) ) 
+            for ( m in (1:M) )
                 if ( ( Blw[k,m] < j+1 ) & ( Bup[k,m] > k ) ) {
                     dtmp = e(Bup[k,m]-Blw[k,m]+1, n) + e(k-j, n) -
                         e(k-Blw[k,m]+1, n) - e(Bup[k,m]-j, n)
                     dstar = dstar + w[m]*dtmp
                 }
-        
+
             Dtmp = dsm[k] + dcd[k] + dcu[j+1] + dstar
-            if ( j>0 ) Dtmp = Dtmp - dsq[j] 
-        
+            if ( j>0 ) Dtmp = Dtmp - dsq[j]
+
             D = e(k-j, n) - 2*Dtmp
 
             ## straightforward slow implementation for debugging
@@ -260,23 +259,23 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
                 Dslow = e(k-j)    #/* e(A) */
                 for( m  in 1:M ) {  #/* loop ueber die input segmenierungen */
                     summe = 0
-                    lw = j+1 
+                    lw = j+1
                     up = Bup[lw,m]
-                    while (up < k) { 
+                    while (up < k) {
                         summe = summe + e(up-lw+1,n)
-                        lw = up+1 
+                        lw = up+1
                         up = Bup[lw,m]
-                    } 
+                    }
                     summe = summe + e(k-lw+1,n)
-                    Dslow = Dslow - 2*w[m]*summe 
+                    Dslow = Dslow - 2*w[m]*summe
                 }
                 if ( abs(1-D/Dslow) > rel.tol ) # test for relative error
                     cat(paste("DIFFERENCE Delta_tested/Delta_correct",
                               k, j, signif(abs(1-D/Dslow),4), "\n"))
                 D <- Dslow
             }
-            
-            
+
+
             ## find F[k] = min Delta(j+1,k) + F(j)
             ## and store the j that delivered it
             if ( j==0 ) {
@@ -291,7 +290,7 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
             }
         }
     }
-    
+
     ## BACKTRACE
     bp <- backtrace_r(ptr)
     ## remove helper n+1, which should always be the last
@@ -301,14 +300,14 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
     results <- list(breakpoints=bp)
     if ( store )
         results <- append(results,
-                          list(values=list(ptr=ptr, F=F, 
+                          list(values=list(ptr=ptr, F=F,
                                            dsm=dsm, dsq=dsq,
-                                           dcu=dcu, dcd=dcd, 
+                                           dcu=dcu, dcd=dcd,
                                            dstar=Ds,
                                            Bup=Bup, Blw=Blw,
                                            Dk=Dk)))
     return(results)
-                                        
+
 }
 
 
@@ -318,7 +317,7 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
 #' @importFrom utils tail
 #' @export
 backtrace_r <- function(ptr) {
-    
+
     ends <- numeric()
     ends <- c(ends, length(ptr))
     k <- tail(ptr, n=1)
@@ -348,10 +347,10 @@ backtrace_r <- function(ptr) {
 #' @param end optional value to add to ends, eg. -1.
 #' @return a data.frame with start and end positions of each segment
 #' @export
-bp2seg <- function(bp, start, end) { 
+bp2seg <- function(bp, start, end) {
     df <- data.frame(start=bp[2:length(bp)-1],
                      end=bp[2:length(bp)], type="consensus")
-    if ( !missing(start) ) df$start <- df$start + start 
+    if ( !missing(start) ) df$start <- df$start + start
     if ( !missing(end) ) df$end <- df$end + end
     df
 }
@@ -412,11 +411,11 @@ plot_breaklist <- function(blst, n, add=FALSE,
              "a list of breakpoint vectors, ",
              "a segmenTier results object (class=='segments'), ",
              "or a list of segment tables with start, end and type columns.")
-    
+
     M <- length(blst)
     if ( missing(n) )
         n <- max(unlist(lapply(blst, function(x) max(c(x$start,x$end)))))
-    
+
     if ( !add ) {
         plot(1:n,col=NA,ylim=c(.5,M+.5),ylab=NA,xlab=NA,
              axes=FALSE)

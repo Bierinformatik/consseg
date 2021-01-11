@@ -4,8 +4,15 @@
 \alias{consensus_r}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus_r(b, n, w, e = function(L, n) L^2/2, store = FALSE,
-  test = FALSE, rel.tol = 1e-08)
+consensus_r(
+  b,
+  n,
+  w,
+  e = function(L, n) L^2/2,
+  store = FALSE,
+  test = FALSE,
+  rel.tol = 1e-08
+)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations.}

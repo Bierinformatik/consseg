@@ -1,6 +1,6 @@
 ---
 title: "Weighted Consensus Segmentation in R"
-author: "Halima Saker, Rainer Machne, J{\"o}rg Fallmann, Ahmad M.\ Shahin, Peter F. Stadler"
+author: "Halima Saker, Rainer Machne, Jörg Fallmann, Ahmad M.\ Shahin, Peter F. Stadler"
 date: "`r format(Sys.time(), '%d %m %Y')`"
 output:
     bookdown::html_document2:

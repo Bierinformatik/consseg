@@ -1,17 +1,14 @@
-## required for live compilation, perhaps a bug also known in testthat pkg
-## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
-##this should be done in the first line of a testthat.R script
 Sys.setenv("R_TESTS" = "")
 
 debug <- FALSE
 
 if ( debug ) {
-    setwd("~/programs/ConsSeq/tests")
+    setwd("~/programs/consseg/tests")
     source("../R/consseg_r.R")
     library(Rcpp)
     sourceCpp("../src/consseg.cpp")
 } else {
-    library(ConsSeg)
+    library(consseg)
 }
 
 
@@ -40,7 +37,7 @@ aeh_c <- list(negentropy="(L/n)*log(L/n)",
              quad="L*L",
              cub="L*L*L/3",
              quin="L*L*L*L*L/5",
-             expo="exp(L/10)-1.0") 
+             expo="exp(L/10)-1.0")
 exprs <- list(negentropy=expression(italic(z/n)*log(italic(z/n))),
               subqu=expression(italic(z^(3/2))),
               quad=expression(italic(z^2)),
@@ -69,13 +66,13 @@ for ( i in 1:length(aeh_c) ) {
     }
 }
 
-    
+
 ## SCAN OF POTENTIAL FUNCTIONS IN Rcpp
 png("test_potentials_c.png", width=2*3.5, height=2.5,
     units="in",res=200)
 par(mfrow=c(2,3),mai=c(.35,.05,.05,.05), mgp=c(1.4,.3,0), tcl=-.25)
 for ( i in 1:length(aeh_c) ) {
-    
+
     cons <- consensus(b, n=n, w=w, e=aeh_c[[i]], verb=0)
 
     plot_breaklist(b,axis1=FALSE, axis2=FALSE, col=NA)

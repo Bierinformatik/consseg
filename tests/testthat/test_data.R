@@ -1,6 +1,3 @@
-## required for live compilation, perhaps a bug also known in testthat pkg
-## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
-##this should be done in the first line of a testthat.R script
 Sys.setenv("R_TESTS" = "")
 
 ## EXAMPLE DATASET FROM BUDDING YEAST
@@ -10,16 +7,15 @@ Sys.setenv("R_TESTS" = "")
 debug <- FALSE
 
 if ( debug ) {
-    setwd("~/programs/ConsSeq/tests")
+    setwd("~/programs/consseg/tests")
     source("../R/consseg_r.R")
     library(Rcpp)
     sourceCpp("../src/consseg.cpp")
     load("../data/primseg436_sset.rda")
 } else {
-    library(ConsSeg)
+    library(consseg)
     data(primseg436_sset)
 }
-
 
 
 ## CALCULATE CONSENSUS with custom potential function and weights

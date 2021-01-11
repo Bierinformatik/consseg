@@ -1,10 +1,12 @@
-# Real BUGS?
+#NEED TO DO
+
+## Real BUGS?
 
 * check initialization of vectors in R, is it ok that $min_j \Delta[k]$,
 and $\delta^*$ are NA until AFTER the first border? See figure
 `test_internals.[R|png]`.
 
-# Documentation: README.md, Roxygen and Vignette
+## Documentation: README.md, Roxygen and Vignette
 
 * add README.md with github and cran install instructions,
 and minimal text + example,
@@ -12,13 +14,17 @@ and minimal text + example,
 * sanity- and spell-check of existing roxygen doc.
 * reconsider which functions in R and cpp should be public
 for the user (consensus_r/c, potential functions for comparison)
+* Add missing autors
 
-# Potential Functions
+
+#EXTRA
+
+## Potential Functions
 
 * add more internal pre-defined potential functions,
 * vectorize evaluteEquation and generate matrix over L and n.
 
-# Test/Debug Mode
+## Test/Debug Mode
 
 * implement the Dslow/test calculations in Rcpp, test against
 R implementation and use for testing/debugging,
@@ -33,7 +39,7 @@ the current code in `tests/`,
 * allow to use R version from consensus wrapper for testing and
 debugging, in wrapper.
 
-# Optimize Rcpp
+## Optimize Rcpp
 
 * benchmark for R/slow (consensus_r(...,test=TRUE) vs. R/fast vs. Rcpp,
 and built-in vs. supplied potential functions,
@@ -41,16 +47,16 @@ and built-in vs. supplied potential functions,
 memory usage, cast properly in potential function and for debug return
 
 
-# ADD FUNCTIONALITY
+## ADD FUNCTIONALITY
 
-## Alternative Algorithms
+### Alternative Algorithms
 
 * implement symmetrized boundary movers distance,
 * implement breakpoint only code, using the conjecture
 that each consensus breakpoint is also a breakpoint in
 1+ of the input segmentations,
 
-## Utilities
+### Utilities
 
 * convert to and from IRanges/GRanges,
 * `plot_breaklist`: allow colors, eg.

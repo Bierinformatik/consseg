@@ -3,14 +3,13 @@
 \docType{package}
 \name{consseg}
 \alias{consseg}
-\alias{consseg-package}
 \title{consseg: consensus segmentation from multiple input segmentations}
 \description{
 Calculates consensus segmentation from cluster based segmentation
 }
 \section{Dependencies}{
  The package strictly depends on
-on \code{Rcpp} and \code{RcppXPtrUtils}.
+\code{Rcpp} and \code{RcppXPtrUtils}.
 All other dependencies are usually present in a
 basic installation (\code{stats}, \code{graphics}, \code{grDevices})).
 }
@@ -20,6 +19,5 @@ Saker, Machne, Fallmann, Shahin & Stadler (2021) <>,
 Machne, Murray & Stadler (2017) \doi{10.1038/s41598-017-12401-8},
 }
 \author{
-Halima Saker, Rainer Machne \email{raim@tbi.univie.ac.at}, Jörg Fallmann \email{fall@bioinf.uni-leipzig.de},
-Ahmad M. Shahin, Peter F. Stadler \email{studla@bioinf.uni-leipzig.de}
+Halima Saker, Rainer Machne \email{raim@tbi.univie.ac.at}, Jörg Fallmann \email{fall@bioinf.uni-leipzig.de}, Ahmad M. Shahin, Peter F. Stadler \email{studla@bioinf.uni-leipzig.de}
 }

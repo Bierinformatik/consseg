@@ -1,17 +1,14 @@
-## required for live compilation, perhaps a bug also known in testthat pkg
-## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
-##this should be done in the first line of a testthat.R script
 Sys.setenv("R_TESTS" = "")
 
 debug <- FALSE
 
 if ( debug ) {
-    setwd("~/programs/ConsSeq/tests")
+    setwd("~/programs/consseg/tests")
     source("../R/consseg_r.R")
     library(Rcpp)
     sourceCpp("../src/consseg.cpp")
 } else {
-    library(ConsSeg)
+    library(consseg)
 }
 
 
@@ -36,8 +33,8 @@ cons_r <- consensus_r(bl, n=n, w=w, e=aeh, store=TRUE, test=TRUE)
 ## Rcpp IMPLEMENTATIOON
 aeh <- compileEquation("L*L/2")
 cons_c <- consensus_c(bl, n=n, w=w,e=aeh, store=TRUE)
-    
-    
+
+
 ## plot results
 png("test_compilation.png", units="in", width=3.5, height=7, res=200)
 par(mfcol=c(7,1),mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)

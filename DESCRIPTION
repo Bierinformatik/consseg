@@ -1,18 +1,22 @@
-Package: ConsSeg
+Package: consseg
 Title: Weighted Reconciliation of Segmentations
 Version: 0.1
 Authors@R: 
-    c(person(given = "Jörg",
+    c(person(given = "Rainer",
+             family = "Machne",
+             role = c("aut"),
+             email = "raim@tbi.univie.ac.at",
+	           comment = c(ORCID = "0000-0002-1274-5099")),
+      person(given = "Jörg",
              family = "Fallmann",
              role = c("aut", "cre"),
              email = "fall@bioinf.uni-leipzig.de",
              comment = c(ORCID = "0000-0002-4573-9939")),
-      person(given = "Rainer",
-             family = "Machne",
+      person(given = "Peter F.",
+             family = "Stadler",
              role = c("aut"),
-             email = "raim@tbi.univie.ac.at",
-	     comment = c(ORCID = "0000-0002-1274-5099")),
-      person("Peter F.", "Stadler", role = c("aut")))  
+             email = "studla@bioinf.uni-leipzig.de",
+	           comment = c(ORCID = "0000-0002-5016-5191")))
 Description: Calculates a consensus segmentation from multiple segmentations. In particular in the context of transcript identification it is of interest to reconcile segmentations obtained from different experiments or from the same experiment(s) with different segmentation algorithms or parameter settings. While boundaries may not be clearly visible in individual data tracks,aggregation of multiple experiments can lead to a much clearer picture. Still, any particular choice of parameters tends to produce both false positive and false negative segment boundaries. A natural way to reduce this noise is to compute a consensus.
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
@@ -29,4 +33,6 @@ VignetteBuilder: knitr
 Suggests:
     markdown,
     knitr,
-    htmltools
+    htmltools,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
