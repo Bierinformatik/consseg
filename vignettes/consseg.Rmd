@@ -31,10 +31,10 @@ times <- 100
 par(mai=c(.5,.5,.3,.5),mgp=c(1.2,.3,0),tcl=-.25, cex.main=.75)
 ```
 
-$$
+
 \newcommand{\e}{\mathfrak{e}}
-\newcommand{\coloneqq}{:=} %TODO: make mathtools work
-$$
+\newcommand{\coloneqq}{:=} 
+
 
 The R package `consseg` performs
 
@@ -46,27 +46,100 @@ R implementation for testing and development ...
 
 # Theory {#theory}
 
-## Recursion
+## Background
 
-$$
+A segmentation $\mathbf{S}$ of the interval $[1,n]$ is a partition of
+$[1,n]$ into intervals. A consensus segmentation $\mathbf{C}$ for a set
+$\{\mathbf{S}_q| 1\le q\le m\}$ of segmentations on $[1,n]$ is a
+segmentation that minimizes a weighted sum of distances 
 \begin{equation}
-\Delta(A)
+f(\mathbf{C}) \coloneqq \sum_{q=1}^m w_q D(\mathbf{C},\mathbf{S}_q)
+\end{equation}
+
+We write by $\mathbf{\hat S}$ the \emph{union segmentation}, i.e., the
+segmentation that contains of all intersections of the input segments and
+thus all input breakpoints. A large class of distances between
+segmentations (and partitions in general) can be expressed in the form 
+\begin{equation}
+  D(\mathbf{S'},\mathbf{S''}) =
+  E(\mathbf{S'})+E(\mathbf{S''})-2E(\mathbf{S'}\wedge\mathbf{S''})
+\end{equation}
+where $E(\mathbf{S})=\sum_{B\in\mathbf{S}} e(B)$ is the sum of so-called
+potentials $\e(B)$ that evaluate the segments $B$ that make up the
+segmentation $\mathbf{S}$. In practise, $e(B)$ is implemented as a function
+of the length $z\coloneqq|B|/n$ of the segment $B$ only. Typical choice for the
+potential are the \emph{negentropy} $\e(z)= z\ln z$ or power potentials
+of the form $z^{\alpha+1}$ with $\alpha>1$. 
+
+## Recursion and Backtracking
+
+For consensus segmentations of the form introduced above, the minimization
+problem for $f(\mathbf{C})$ can be solved by dynamic programming. Denote by
+$F_k$ the minimal value of $f(\mathbf{C})$ restricted to interval $[1,k]$.
+The additive structure of $D(\mathbf{S'},\mathbf{S''})$ in terms of the
+potential terms for the individual segments implies that $F_k$ satisfies 
+the recursion 
+\begin{equation}
+  F_k = \min_{j<k} F_j + \left(\Delta([j+1,k]) + F_j \right)
+  (\#eq:recursion)
+\end{equation}
+where the score contribution $\Delta(A)$ for the segment $A=[j+1,k]$ of the
+censensus segmentation can be written as 
+\begin{equation}
+\Delta(A) =
+  \e(A) - 2\sum_{q=1}^m w_q \sum_{\substack{B\in \mathbf{S}_q\\
+                                 B\cap A\ne\emptyset}}   \e(A\cap B) 
 (\#eq:DeltaA)
 \end{equation}
-$$
+Backtracking is performed by recording, for each $k$, the value
+$J(k)\coloneqq j$ for the minimum in (\#eq:recursion) is attained. Starting from
+$k=n$ one obtains the optimal segmentation as segments $[J(k)+1,k]$ and
+setting $k\leftarrow J(k)$ in each step.
 
-$$
-\begin{equation}
-F_k = \min_{j<k} \left(\Delta([j+1,k]) + F_j \right)
-(\#eq:recursion)
+## Efficient computation of $\Delta(A)$ 
+
+As defined in (\#eq:DeltaA), evaluation of $\Delta(A)$ requires $O(n^3 m)$
+time. This is reduced to $O(n^2m)$ computing the terms recursively in terms
+of four auxiliary one-dimensional arrays. In the following we write
+$\min B$ and $\max B$ for the mininum and maximum element of a segment $B$.
+\begin{equation} 
+  \delta_{<}(i) \coloneqq \sum_{q=1}^m
+  w_q \sum_{\substack{B\in \mathbf{S}_q \\ \max B \le i}} \e(B)
+  \qquad\text{and}\qquad
+  \delta_{\le}(i) \coloneqq \sum_{q=1}^m
+  w_q \sum_{\substack{B\in \mathbf{S}_q \\ \min B\le i}} \e(B)
 \end{equation}
-$$
+
+
+TODO: make the following work, perhaps its atop?
+
+
+\begin{equation} 
+  \delta^{\cap}_{<}(i) \coloneqq \sum_{q=1}^m w_q 
+  \sum_{\substack{B\in \mathbf{S}_q \\ i\in B, i\ne\max B}}
+  \e(B_{\le i})
+  \qquad\text{and}\qquad
+  \delta^{\cap}_{>}(i) \coloneqq \sum_{q=1}^m w_q 
+  \sum_{\substack{B\in \mathbf{S}_q \\ i\in B, i\ne\min B}}
+  \e(B_{\ge i})
+(\#eq:deltacup)
+\end{equation}
 
 
 
-## Potential Functions
 
-## Backtracking 
+
+\begin{equation}
+  \Delta([j+1,k]) = \e([j+1,k])
+  -2 \big(
+    \delta_{<}(k) - \delta_{\le}(j) +
+    \delta^{\cap}_{<}(k)+ \delta^{\cap}_{>}(j+1) + \delta^*(j+1,k)
+  \big)
+(\#eq:Delta)
+\end{equation}
+
+
+
 
 ## Segment Length Restrictions
 
@@ -134,45 +207,7 @@ calculate consensus from segmenTier data
 
 ## Incremental Calculation
 
-$$
-\begin{equation} 
-  \delta_{<}(i) \coloneqq \sum_{q=1}^m
-  w_q \sum_{B\in \mathbf{S}_q \atop \max B \le i} \e(B)
-  \qquad\text{and}\qquad
-  \delta_{\le}(i) \coloneqq \sum_{q=1}^m
-  w_q \sum_{B\in \mathbf{S}_q \atop \min B\le i} \e(B)
-\end{equation}
-$$
 
-TODO: make the following work, perhaps its atop?
-
-$$
-\begin{equation} 
-  \delta^{\cap}_{<}(i) := \sum_{q=1}^m w_q 
-  \sum_{B\in \mathbf{S}_q \atop i\in B, i\ne\max B}
-
-  \e(B_{\le i})
-  \qquad\text{and}\qquad
-  \delta^{\cap}_{>}(i) := \sum_{q=1}^m w_q 
-  \sum_{B\in \mathbf{S}_q \atop i\in B, i\ne\min B}
-
-  \e(B_{\ge i})
-(\#eq:deltacup)
-\end{equation}
-$$
-
-
-
-$$
-\begin{equation}
-  \Delta([j+1,k]) = \e([j+1,k])
-  -2 \big(
-    \delta_{<}(k) - \delta_{\le}(j) +
-    \delta^{\cap}_{<}(k)+ \delta^{\cap}_{>}(j+1) + \delta^*(j+1,k)
-  \big)
-(\#eq:Delta)
-\end{equation}
-$$
 
 
 # References
