@@ -64,9 +64,9 @@ segmentations (and partitions in general) can be expressed in the form
   D(\mathbf{S'},\mathbf{S''}) =
   E(\mathbf{S'})+E(\mathbf{S''})-2E(\mathbf{S'}\wedge\mathbf{S''})
 \end{equation}
-where $E(\mathbf{S})=\sum_{B\in\mathbf{S}} e(B)$ is the sum of so-called
+where $E(\mathbf{S})=\sum_{B\in\mathbf{S}} \e(B)$ is the sum of so-called
 potentials $\e(B)$ that evaluate the segments $B$ that make up the
-segmentation $\mathbf{S}$. In practise, $e(B)$ is implemented as a function
+segmentation $\mathbf{S}$. In practise, $\e(B)$ is implemented as a function
 of the length $z\coloneqq|B|/n$ of the segment $B$ only. Typical choice for the
 potential are the \emph{negentropy} $\e(z)= z\ln z$ or power potentials
 of the form $z^{\alpha+1}$ with $\alpha>1$. 
