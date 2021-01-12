@@ -3,24 +3,11 @@ Sys.setenv("R_TESTS" = "")
 ## EXAMPLE DATASET FROM BUDDING YEAST
 ## from Machne, Murray, Stadler 2017 (segmenTier)
 ## and calculate and add consensus segmentation
-
-debug <- FALSE
-
-if ( debug ) {
-    setwd("~/programs/consseg/tests")
-    source("../R/consseg_r.R")
-    library(Rcpp)
-    sourceCpp("../src/consseg.cpp")
-    load("../data/primseg436_sset.rda")
-} else {
-    library(consseg)
-    data(primseg436_sset)
-}
-
-
 ## CALCULATE CONSENSUS with custom potential function and weights
 ## to favor breakpoint before AIM9
 ## NOTE: sset contains sequence length n, and is thus not required as argument
+
+
 e <- compileEquation("(L/n)*log(L/n)")
 csegs <- consensus(sset, w=c(1,1.01,1,1), e=e, return="breakpoints")
 

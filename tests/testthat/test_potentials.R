@@ -1,25 +1,3 @@
-Sys.setenv("R_TESTS" = "")
-
-debug <- FALSE
-
-if ( debug ) {
-    setwd("~/programs/consseg/tests")
-    source("../R/consseg_r.R")
-    library(Rcpp)
-    sourceCpp("../src/consseg.cpp")
-} else {
-    library(consseg)
-}
-
-
-## GENERATE RANDOM SEGMENTS
-n <- 50# 5000 #SEQUENCE LENGTH
-M <- 10 # number segmentations (breakpoint lists)
-l <- 4# # average number of segments
-set.seed(1) # for constant results
-b <- random_breakpoints(m=M,n=n,lambda=l)
-
-
 ## potential
 aeh <- function(L) {L^2/2}
 ## weights
