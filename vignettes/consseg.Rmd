@@ -102,6 +102,9 @@ As defined in (\#eq:DeltaA), evaluation of $\Delta(A)$ requires $O(n^3 m)$
 time. This is reduced to $O(n^2m)$ computing the terms recursively in terms
 of four auxiliary one-dimensional arrays. In the following we write
 $\min B$ and $\max B$ for the mininum and maximum element of a segment $B$.
+The first two arrays contain the potential contributions of all segments
+that end no later than position $i$ and that begin not later than position
+$i$, respectively.
 \begin{equation} 
   \delta_{<}(i) \coloneqq \sum_{q=1}^m
   w_q \sum_{\substack{B\in \mathbf{S}_q \\ \max B \le i}} \e(B)
@@ -109,26 +112,40 @@ $\min B$ and $\max B$ for the mininum and maximum element of a segment $B$.
   \delta_{\le}(i) \coloneqq \sum_{q=1}^m
   w_q \sum_{\substack{B\in \mathbf{S}_q \\ \min B\le i}} \e(B)
 \end{equation}
-
-
-TODO: make the following work, perhaps its atop?
-
-
+Thus $\delta_{<}(k)-\delta_{\le}(j)$ contains the contribution of all
+segments that lie within $[j+1,k]$, with the exception of any segments that
+straddle the interval, i.e., that begin no later than $j$ and end only
+after $k$. These subtracted by $\delta_{\le}(j)$ and need to be corrected
+for. The second pair of auxiliary arrays handle the contribution of in
+segments $B$ that straddle position $i$, accounting for partial segments
+$B$ up to $i$ and from $i$ onwards, respectively:
 \begin{equation} 
   \delta^{\cap}_{<}(i) \coloneqq \sum_{q=1}^m w_q 
   \sum_{\substack{B\in \mathbf{S}_q \\ i\in B, i\ne\max B}}
-  \e(B_{\le i})
+  \e(B\cap[1,i])
   \qquad\text{and}\qquad
   \delta^{\cap}_{>}(i) \coloneqq \sum_{q=1}^m w_q 
   \sum_{\substack{B\in \mathbf{S}_q \\ i\in B, i\ne\min B}}
-  \e(B_{\ge i})
-(\#eq:deltacup)
+  \e(B\cap[i,n])
 \end{equation}
-
-
-
-
-
+Given an interval $[j+1,k]$, the sum $\delta_{<}(k)+\delta_{>}(j+1)$
+accounts for the intersection for contributions of segments $B$ with
+$B\cap A\ne\emptyset$ and $B\not\subseteq A$. Again intervals $B$
+containing $[j,k+1]$ contribute to these terms. These corrections are
+summarized in
+\begin{equation}
+  \delta^*(i',i'') \coloneqq \sum_{q=1}^m w_q
+  \sum_{\substack{B\in \mathbf{S}_q \\ i',i''\in B \\
+      \min B< i'\le i''<\max B}}
+      \big( \e(B) + \e([i',i'']) - \e(B\cap[1,i'']) - \e(B\cap[i',n])\big)\,,
+\end{equation}
+which can be computed in $O(m)$ time since there is at most one interval
+$B$ per input segmentation $\mathbf{S}_q$ that contains both $i'$ and
+$i''$. With the help of the auxiliary arrays. The auxiliary arrays
+$\delta_{<}$ and $\delta_{\le}$ themselves can be computed stepwisely,
+with incremental effort $O(m)$ for each position, while 
+$\delta^{\cap}_{<}(i)$, $\delta^{\cap}_{>}(i)$ are sums of at most
+$m$ terms, causing a total setup cost of $O(n m)$. We have 
 \begin{equation}
   \Delta([j+1,k]) = \e([j+1,k])
   -2 \big(
@@ -137,12 +154,20 @@ TODO: make the following work, perhaps its atop?
   \big)
 (\#eq:Delta)
 \end{equation}
-
-
-
+which can now be evaluated for given $j$ and $k$ in $O(m)$ time. Note that
+each combination of $j$ and $k$ appears only once in the course of the
+recursion for $F_k$. Thus there is no point in storing the quadratically
+many correction terms $\delta^*(j+1,k)$ or the final scores.
 
 ## Segment Length Restrictions
 
+For a large class of potential functions, including the power potentials
+$\e(z)=z^{1+\alpha}$ with $\alpha>1$, it can be shown that no segment in
+the consensus $\mathbf{C}$ can be longer than twice the length $L$ of
+longest input segment. This can be used to restrict the range of the
+recursion to $|k-j+1|\le 2L$. If such \emph{a priori} bounds on segment
+length are known, they can be used to speed up the computation, reducing
+the effort from $O(n^2 m)$ to $O(n m L)$. 
 
 # Usage
 
