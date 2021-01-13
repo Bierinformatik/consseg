@@ -175,7 +175,7 @@ the effort from $O(n^2 m)$ to $O(n m L)$.
 
 
 ```{r conssegdemo, fig.cap=".\\label{fig:consseg}"}
-library(ConsSeg)
+library(consseg)
 
 n <- 50# 5000 #SEQUENCE LENGTH
 M <- 10 # number segmentations (breakpoint lists)
