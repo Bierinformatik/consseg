@@ -1,13 +1,15 @@
 ## TODO: use testthat to test equality here
 ## test_that throws failures due to NA in d_k and d*
 
+context("consseg R-base implementation")
 
 # Test weight function
 test_that("Weight normalization",{
-    w <- (1,.01)
+    w <- c(1,.01)
+
 })
 
-# Test weight function
+# Test compileEquation
 # TODO: User evaluateEquation to evaluate compileEquation output
 #test_that("Compile equation",{
 #    expect_match(compileEquation("L*L/2"), "Weight vector does not sum up to 1, normalizing.")

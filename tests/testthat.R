@@ -3,6 +3,8 @@
 
 library(consseg)
 library(testthat)
+testthat::use_catch()
+
 
 ## GENERATE RANDOM SEGMENTS
 n <- 50 # SEQUENCE LENGTH
