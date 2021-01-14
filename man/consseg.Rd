@@ -3,6 +3,7 @@
 \docType{package}
 \name{consseg}
 \alias{consseg}
+\alias{consseg-package}
 \title{consseg: consensus segmentation from multiple input segmentations}
 \description{
 Calculates consensus segmentation from cluster based segmentation

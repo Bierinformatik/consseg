@@ -6,15 +6,15 @@
 adjacent segments, starting at the breakpoints and
 ending 1 before the next start/breakpoint}
 \usage{
-bp2seg(bp, start, end)
+bp2seg(bp, trim.ends = FALSE)
 }
 \arguments{
 \item{bp}{vector of breakpoints.}
 
-\item{start}{optional value to add to starts, eg. +1, if breakpoints
-are segment ends.}
-
-\item{end}{optional value to add to ends, eg. -1.}
+\item{trim.ends}{assume that breakpoints are starts of segments,
+and the ends are the \code{next breakpoint -1}, EXCEPT for
+the last breakpoint, which corresponds to the total sequence length
+and is a true end.}
 }
 \value{
 a data.frame with start and end positions of each segment

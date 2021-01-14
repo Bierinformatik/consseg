@@ -2,21 +2,12 @@
 % Please edit documentation in R/consseg_r.R
 \name{plot_breaklist}
 \alias{plot_breaklist}
-\title{simple plot function for a list of segmentation tables}
+\title{Simple plot function for a list of segmentation
+breakpoints or segment tables.}
 \usage{
-plot_breaklist(
-  blst,
-  n,
-  add = FALSE,
-  length = 0.05,
-  angle = 45,
-  code = 3,
-  col = 1,
-  lwd = 2,
-  axis1 = TRUE,
-  axis2 = TRUE,
-  ...
-)
+plot_breaklist(blst, n, add = FALSE, length = 0.05, angle = 45,
+  code = 3, col = 1, lwd = 2, xlab = "position", axis1 = TRUE,
+  axis2 = TRUE, ...)
 }
 \arguments{
 \item{blst}{a vector of breakpoints (output from \code{\link{consensus}}),
@@ -39,6 +30,8 @@ head.}
 
 \item{lwd}{arrow line width.}
 
+\item{xlab}{x-axis label.}
+
 \item{axis1}{draw x-axis.}
 
 \item{axis2}{draw y-axis.}
@@ -46,5 +39,6 @@ head.}
 \item{...}{further arguments to \code{\link{arrows}}.}
 }
 \description{
-simple plot function for a list of segmentation tables
+Simple plot function for a list of segmentation
+breakpoints or segment tables.
 }
