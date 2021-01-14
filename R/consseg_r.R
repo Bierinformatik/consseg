@@ -130,7 +130,7 @@ consensus <- function(b, n, w, e,
     cons <- consensus_c(b, n=n, w=w, e=e, store=store)
 
     if ( return=="breakpoints" ) res <- cons$breakpoints
-    else if ( return=="segments" ) res <- bp2seg(cons$breakpoints, end=-1)
+    else if ( return=="segments" ) res<-bp2seg(cons$breakpoints,trim.ends=TRUE)
 
     ## debug option: return all values
     if ( store ) return(cons)
@@ -342,16 +342,21 @@ backtrace_r <- function(ptr) {
 #' adjacent segments, starting at the breakpoints and
 #' ending 1 before the next start/breakpoint
 #' @param bp vector of breakpoints.
-#' @param start optional value to add to starts, eg. +1, if breakpoints
-#' are segment ends.
-#' @param end optional value to add to ends, eg. -1.
+## @param start optional value to add to starts, eg. +1, if breakpoints
+## are segment ends.
+## @param end optional value to add to ends, eg. -1.
+#' @param trim.ends assume that breakpoints are starts of segments,
+#' and the ends are the \code{next breakpoint -1}, EXCEPT for
+#' the last breakpoint, which corresponds to the total sequence length
+#' and is a true end.
 #' @return a data.frame with start and end positions of each segment
 #' @export
-bp2seg <- function(bp, start, end) {
+bp2seg <- function(bp, trim.ends=FALSE) {
     df <- data.frame(start=bp[2:length(bp)-1],
                      end=bp[2:length(bp)], type="consensus")
-    if ( !missing(start) ) df$start <- df$start + start
-    if ( !missing(end) ) df$end <- df$end + end
+    ## add end (-1), except for LAST
+    if ( trim.ends )
+        df$end[-length(df$end)] <- df$end[-length(df$end)] -1
     df
 }
 
@@ -374,7 +379,8 @@ random_breakpoints <- function(m=10,n=50,lambda=5) {
 }
 
 ## TODO: allow breakpoint list (use bp2seg) and table
-#' simple plot function for a list of segmentation tables
+#' Simple plot function for a list of segmentation
+#' breakpoints or segment tables.
 #' @param blst a vector of breakpoints (output from \code{\link{consensus}}),
 #' a named list of breakpoint vectors, a named list of \code{data.frame}s
 #' with start and end columns, or a segmenTier results object
@@ -389,11 +395,13 @@ random_breakpoints <- function(m=10,n=50,lambda=5) {
 #' @param lwd arrow line width.
 #' @param axis1 draw x-axis.
 #' @param axis2 draw y-axis.
+#' @param xlab x-axis label.
 #' @param ... further arguments to \code{\link{arrows}}.
 #' @importFrom graphics arrows axis mtext par plot
 #' @export
 plot_breaklist <- function(blst, n, add=FALSE,
                            length=.05, angle=45, code=3, col=1, lwd=2,
+                           xlab="position",
                            axis1=TRUE, axis2=TRUE, ...) {
 
     ## convert list of breakpoints to table
@@ -421,7 +429,7 @@ plot_breaklist <- function(blst, n, add=FALSE,
              axes=FALSE)
         if ( axis1 ) {
             axis(1)
-            mtext("sequence position",1,par("mgp")[1])
+            mtext(xlab,1,par("mgp")[1])
         }
         if ( axis2 )
             axis(2, at=1:M, labels=rev(names(blst)), las=2)
