@@ -42,6 +42,8 @@ NumericVector evaluateEquation(SEXP e, double L, double n) {
 }
 
 // backtrace function
+//' backtrace breakpoints
+//' @param imax a \code{NumericVector} containing backtrace vectors.
 //' @export
 // [[Rcpp::export]]
 NumericVector backtrace_c(NumericVector imax) {

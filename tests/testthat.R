@@ -1,9 +1,11 @@
-## required for live compilation, perhaps a bug also known in testthat pkg
-## https://stackoverflow.com/questions/12410694/rbundler-build-error-cannot-open-file-startup-rs-no-such-file-or-directory
-
 library(consseg)
+
+# Install package from CRAN only if not installed, needed for devtools:check()
+if (!require(testthat)) install.packages('testthat', repos = "http://cran.us.r-project.org")
+if (!require(magrittr)) install.packages('magrittr', repos = "http://cran.us.r-project.org")
+
 library(testthat)
+
 #testthat::use_catch() used for rcpp testing
 
-test("consseg")
 test_check("consseg")

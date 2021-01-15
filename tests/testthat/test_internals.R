@@ -1,7 +1,4 @@
-## TODO: use testthat to test equality here
-## test_that throws failures due to NA in d_k and d*
-
-## GENERATE RANDOM SEGMENTS
+## GENERATE SEGMENTS
 n <- 50 # SEQUENCE LENGTH
 M <- 3 # number segmentations (breakpoint lists)
 b <- list("S1" = c(1, 21, 32, 50), "S2" = c(1, 13, 19, 50), "S3" = c(1, 5, 12, 37, 50) ) # breakpoint list
@@ -9,10 +6,12 @@ bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1)))) # breakpoints for consen
 
 ## weights
 w <- rep(1/M, M)
+## potential function
 my_e <- "L*L/2"
 
 
 # Start Tests
+
 # Test compileEquation
 test_that("compile e",{
     my_e <- "L*L/2"

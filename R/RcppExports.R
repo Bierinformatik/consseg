@@ -27,6 +27,8 @@ evaluateEquation <- function(e, L, n) {
     .Call('_consseg_evaluateEquation', PACKAGE = 'consseg', e, L, n)
 }
 
+#' backtrace breakpoints
+#' @param imax a \code{NumericVector} containing backtrace vectors.
 #' @export
 backtrace_c <- function(imax) {
     .Call('_consseg_backtrace_c', PACKAGE = 'consseg', imax)

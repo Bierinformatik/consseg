@@ -27,12 +27,12 @@ Depends:
   R (>= 2.10)
 Imports:
   Rcpp (>= 0.12.18),
-  RcppXPtrUtils (>= 0.1.1),
+  RcppXPtrUtils (>= 0.1.1)
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Suggests:
-    markdown,
-    knitr,
     htmltools,
+    knitr,
+    magrittr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
