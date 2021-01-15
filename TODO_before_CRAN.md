@@ -1,6 +1,7 @@
 #NEED TO DO
 
 ## Real BUGS?
+* aeh function returns L^3/3, shouldn't that be L^2/2 per default?
 
 * check initialization of vectors in R, is it ok that $min_j \Delta[k]$,
 and $\delta^*$ are NA until AFTER the first border? See figure

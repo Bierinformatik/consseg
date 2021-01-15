@@ -28,12 +28,11 @@ Depends:
 Imports:
   Rcpp (>= 0.12.18),
   RcppXPtrUtils (>= 0.1.1),
-LinkingTo: Rcpp, testthat
+LinkingTo: Rcpp
 VignetteBuilder: knitr
 Suggests:
     markdown,
     knitr,
     htmltools,
-    testthat (>= 3.0.0),
-    xml2
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3

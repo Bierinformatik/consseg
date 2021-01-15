@@ -3,27 +3,7 @@
 
 library(consseg)
 library(testthat)
-testthat::use_catch()
-
-
-## GENERATE RANDOM SEGMENTS
-n <- 50 # SEQUENCE LENGTH
-M <- 10 # number segmentations (breakpoint lists)
-l <- 4 # average number of segments
-set.seed(1) # for constant results
-b <- random_breakpoints(m=M,n=n,lambda=l)
-bl <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
-
-## weights
-w <- rep(1/M, M)
-
-## R implementation
-aeh_r <- function(L,n) {L^5/5}
-cons_r <- consensus_r(bl, n=n, w=w, e=aeh_r, store=TRUE, test=TRUE)
-
-## Rcpp implementation
-aeh_c <- compileEquation("L*L*L*L*L/5")
-cons_c <- consensus_c(bl, w=w, e=aeh_c, n=n,store=TRUE)
+#testthat::use_catch() used for rcpp testing
 
 test("consseg")
 test_check("consseg")

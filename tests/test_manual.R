@@ -253,3 +253,32 @@ par(mai=c(.5,.5,.1,.1), mgp=c(1.4,.3,0), tcl=-.25)
 plot(1:length(res),res, xlab="L", ylab=e)
 dev.off()
 
+
+### Benchmarking, R vs Rcpp implementation
+### Currently not working
+# Compare breakpoints of Rcpp and base R implementation
+test_that("Breakpoints of consensus in Rcpp implementation are equal to base R implementation",{
+    my_e <- "L*L/2"
+    e <- compileEquation(my_e)
+
+    expect_equal(cons_c$breakpoints, cons_r$breakpoints)
+})
+
+
+# Compare backtracing pointers between implementations
+test_that("Backtracing pointer of consensus in Rcpp implementation are equal to base R implementation",{
+    expect_equal(cons_c$values$ptr, cons_r$values$ptr)
+})
+
+
+# Compare Deltas between implementation
+test_that("Delta_k of consensus in Rcpp implementation are equal to base R implementation",{
+    expect_equal(cons_c$values$Dk, cons_r$values$Dk)
+})
+
+
+# Compare Deltas between implementation
+test_that("Delta_star of consensus in Rcpp implementation are equal to base R implementation",{
+    expect_equal(cons_c$values$dstar, cons_r$values$dstar)
+})
+
