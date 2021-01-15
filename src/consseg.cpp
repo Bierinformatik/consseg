@@ -1,5 +1,5 @@
 #include "consseg_types.h"
-#include <Rcpp.h>
+#include "Rcpp.h"
 using namespace Rcpp;
 
 //' default potential function, \code{L^2/2}

@@ -3,7 +3,7 @@
 
 library(consseg)
 library(testthat)
-testthat::use_catch()
+#testthat::use_catch()
 
 
 ## GENERATE RANDOM SEGMENTS
