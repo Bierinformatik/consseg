@@ -68,15 +68,12 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP run_testthat_tests(SEXP);
-
 static const R_CallMethodDef CallEntries[] = {
     {"_consseg_aeh", (DL_FUNC) &_consseg_aeh, 2},
     {"_consseg_e_ptr", (DL_FUNC) &_consseg_e_ptr, 0},
     {"_consseg_evaluateEquation", (DL_FUNC) &_consseg_evaluateEquation, 3},
     {"_consseg_backtrace_c", (DL_FUNC) &_consseg_backtrace_c, 1},
     {"_consseg_consensus_c", (DL_FUNC) &_consseg_consensus_c, 5},
-    {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 1},
     {NULL, NULL, 0}
 };
 

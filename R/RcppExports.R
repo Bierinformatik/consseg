@@ -5,11 +5,13 @@
 #' @param L interval length.
 #' @param n total sequence length, required for function signature,
 #' but not used in this example.
+#' @export
 aeh <- function(L, n) {
     .Call('_consseg_aeh', PACKAGE = 'consseg', L, n)
 }
 
 #' get internal potential function
+#' @export
 e_ptr <- function() {
     .Call('_consseg_e_ptr', PACKAGE = 'consseg')
 }
@@ -25,6 +27,7 @@ evaluateEquation <- function(e, L, n) {
     .Call('_consseg_evaluateEquation', PACKAGE = 'consseg', e, L, n)
 }
 
+#' @export
 backtrace_c <- function(imax) {
     .Call('_consseg_backtrace_c', PACKAGE = 'consseg', imax)
 }

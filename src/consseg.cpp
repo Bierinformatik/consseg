@@ -6,6 +6,7 @@ using namespace Rcpp;
 //' @param L interval length.
 //' @param n total sequence length, required for function signature,
 //' but not used in this example.
+//' @export
 // [[Rcpp::export]]
 long double aeh(double L, double n) {
   //long double e =  L*1.0; // implicit cast, required if using int
@@ -15,6 +16,7 @@ long double aeh(double L, double n) {
 
 // TODO: use string to switch between internal functions?
 //' get internal potential function
+//' @export
 // [[Rcpp::export]]
 XPtr<funcPtr> e_ptr() {
   return(XPtr<funcPtr>(new funcPtr(&aeh)));
@@ -40,6 +42,7 @@ NumericVector evaluateEquation(SEXP e, double L, double n) {
 }
 
 // backtrace function
+//' @export
 // [[Rcpp::export]]
 NumericVector backtrace_c(NumericVector imax) {
 
