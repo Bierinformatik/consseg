@@ -5,20 +5,9 @@
 \title{Simple plot function for a list of segmentation
 breakpoints or segment tables.}
 \usage{
-plot_breaklist(
-  blst,
-  n,
-  add = FALSE,
-  length = 0.05,
-  angle = 45,
-  code = 3,
-  col = 1,
-  lwd = 2,
-  xlab = "position",
-  axis1 = TRUE,
-  axis2 = TRUE,
-  ...
-)
+plot_breaklist(blst, n, add = FALSE, length = 0.05, angle = 45,
+  code = 3, col = 1, lwd = 2, xlab = "position", axis1 = TRUE,
+  axis2 = TRUE, ...)
 }
 \arguments{
 \item{blst}{a vector of breakpoints (output from \code{\link{consensus}}),
@@ -37,7 +26,7 @@ head.}
 
 \item{code}{integer code, determining \emph{kind} of arrows to be drawn.}
 
-\item{col}{arrow color.}
+\item{col}{arrow colors, a single color or a vector for each segmentation.}
 
 \item{lwd}{arrow line width.}
 

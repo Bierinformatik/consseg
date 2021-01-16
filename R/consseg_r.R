@@ -394,7 +394,7 @@ random_breakpoints <- function(m=10,n=50,lambda=5) {
 #' @param angle angle from the shaft of the arrow to the edge of the arrow
 #' head.
 #' @param code integer code, determining _kind_ of arrows to be drawn.
-#' @param col arrow color.
+#' @param col arrow colors, a single color or a vector for each segmentation.
 #' @param lwd arrow line width.
 #' @param axis1 draw x-axis.
 #' @param axis2 draw y-axis.
@@ -437,9 +437,10 @@ plot_breaklist <- function(blst, n, add=FALSE,
         if ( axis2 )
             axis(2, at=1:M, labels=rev(names(blst)), las=2)
     }
+    if ( length(col)==1 ) col <- rep(col,length(M))
     for ( i in seq_len(M) ) {
         arrows(x0=blst[[i]]$start, x1=blst[[i]]$end, y0=M-i+1,
-               angle=angle,length=length, code=code, col=col, lwd=lwd, ...)
+               angle=angle,length=length, code=code, col=col[i], lwd=lwd, ...)
     }
 }
 

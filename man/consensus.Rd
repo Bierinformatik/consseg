@@ -4,16 +4,8 @@
 \alias{consensus}
 \title{Calculate consensus segments from a list of segmentation breakpoints}
 \usage{
-consensus(
-  b,
-  n,
-  w,
-  e,
-  return = "breakpoints",
-  store = FALSE,
-  test = FALSE,
-  verb = 1
-)
+consensus(b, n, w, e, return = "breakpoints", store = FALSE,
+  test = FALSE, verb = 1)
 }
 \arguments{
 \item{b}{list of breakpoints of different segmentations or a
