@@ -10,7 +10,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 long double aeh(double L, double n) {
   //long double e =  L*1.0; // implicit cast, required if using int
-  return(L*L*L/3);
+  return(L*L/2);
 }
 
 
