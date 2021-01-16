@@ -99,6 +99,9 @@ consensus <- function(b, n, w, e,
     ##} else if ( "IRanges"%in%class(b) ) {
     ##    b <- unique(c(IRanges::start(b), IRanges::end(b)))
 
+    if ( sum(unlist(lapply(b, function(x) any(x<1))))>0 )
+        stop("Breakpoints must be >0.")
+
     if ( missing(n) ) {
         n <- max(unlist(b))
         warning("total sequence length `n` is missing, ",
