@@ -181,7 +181,7 @@ consensus_r <- function(b, n, w, e=function(L,n) L^2/2,
     ## prepare breakpoints such that they:
     ## * are sorted and unique,
     ## * start with 1 and end with n,
-    ## and adding n+1 to for convenience in look-up table.
+    ## and adding n+1 for convenience in look-up table.
     b <- lapply(b, function(x) sort(unique(c(1,x,n,n+1))))
 
     ## generate or normalize weight vector
