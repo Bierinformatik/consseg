@@ -1,6 +1,7 @@
 ---
 title: "Weighted Consensus Segmentation in R"
-author: "Halima Saker, Rainer Machne, Jörg Fallmann, Ahmad M.\ Shahin, Peter F. Stadler"
+author: "Halima Saker, Rainer Machne, Jörg Fallmann, Dougie Murray,
+Ahmad M. Shahin, Peter F. Stadler"
 date: "`r format(Sys.time(), '%d %m %Y')`"
 output:
     bookdown::html_document2:
@@ -12,8 +13,6 @@ bibliography: consseg.bib
 vignette: >
   %\VignetteIndexEntry{Weighted Consensus Segmentation in R}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
-  \usepackage{mathtools}
 ---
 
 ```{r setup, include=FALSE}
@@ -31,20 +30,18 @@ times <- 100
 par(mai=c(.5,.5,.3,.5),mgp=c(1.2,.3,0),tcl=-.25, cex.main=.75)
 ```
 
-
-\newcommand{\e}{\mathfrak{e}}
-\newcommand{\coloneqq}{:=} 
-
-
 The R package `consseg` performs
 
 `compileEquation` and `evaluateEquation`,
 
 `plot_breakpoints`, 
 
-R implementation for testing and development ...
+R implementation of a dynamic programming algorithm to compute
+the consensus of alternative segmentations
 
 # Theory {#theory}
+\def\coloneqq{:=}
+
 
 ## Background
 
@@ -92,9 +89,9 @@ censensus segmentation can be written as
 (\#eq:DeltaA)
 \end{equation}
 Backtracking is performed by recording, for each $k$, the value
-$J(k)\coloneqq j$ for the minimum in (\#eq:recursion) is attained. Starting from
-$k=n$ one obtains the optimal segmentation as segments $[J(k)+1,k]$ and
-setting $k\leftarrow J(k)$ in each step.
+$J(k)\coloneqq j$ for the minimum in (\#eq:recursion) is attained.
+Starting from $k=n$, one obtains the optimal segmentation as segments
+$[J(k)+1,k]$ and setting $k\leftarrow J(k)$ in each step.
 
 ## Efficient computation of $\Delta(A)$ 
 
