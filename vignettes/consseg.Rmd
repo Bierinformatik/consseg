@@ -40,8 +40,6 @@ R implementation of a dynamic programming algorithm to compute
 the consensus of alternative segmentations
 
 # Theory {#theory}
-\def\coloneqq{:=}
-
 
 ## Background
 
@@ -50,7 +48,7 @@ $[1,n]$ into intervals. A consensus segmentation $\mathbf{C}$ for a set
 $\{\mathbf{S}_q| 1\le q\le m\}$ of segmentations on $[1,n]$ is a
 segmentation that minimizes a weighted sum of distances 
 \begin{equation}
-f(\mathbf{C}) \coloneqq \sum_{q=1}^m w_q D(\mathbf{C},\mathbf{S}_q)
+f(\mathbf{C}) \mathrel{:=} \sum_{q=1}^m w_q D(\mathbf{C},\mathbf{S}_q)
 \end{equation}
 
 We write by $\mathbf{\hat S}$ the \emph{union segmentation}, i.e., the
@@ -61,12 +59,13 @@ segmentations (and partitions in general) can be expressed in the form
   D(\mathbf{S'},\mathbf{S''}) =
   E(\mathbf{S'})+E(\mathbf{S''})-2E(\mathbf{S'}\wedge\mathbf{S''})
 \end{equation}
-where $E(\mathbf{S})=\sum_{B\in\mathbf{S}} \e(B)$ is the sum of so-called
-potentials $\e(B)$ that evaluate the segments $B$ that make up the
-segmentation $\mathbf{S}$. In practise, $\e(B)$ is implemented as a function
-of the length $z\coloneqq|B|/n$ of the segment $B$ only. Typical choice for the
-potential are the \emph{negentropy} $\e(z)= z\ln z$ or power potentials
-of the form $z^{\alpha+1}$ with $\alpha>1$. 
+where $E(\mathbf{S})=\sum_{B\in\mathbf{S}} \mathfrak{e}(B)$ is the sum of
+so-called potentials $\mathfrak{e}(B)$ that evaluate the segments $B$ that
+make up the segmentation $\mathbf{S}$. In practise, $\mathfrak{e}(B)$ is
+implemented as a function of the length $z\mathrel{:=}|B|/n$ of the segment
+$B$ only. Typical choice for the potential are the \emph{negentropy}
+$\mathfrak{e}(z)= z\ln z$ or power potentials of the form $z^{\alpha+1}$
+with $\alpha>1$.
 
 ## Recursion and Backtracking
 
@@ -84,72 +83,67 @@ where the score contribution $\Delta(A)$ for the segment $A=[j+1,k]$ of the
 censensus segmentation can be written as 
 \begin{equation}
 \Delta(A) =
-  \e(A) - 2\sum_{q=1}^m w_q \sum_{\substack{B\in \mathbf{S}_q\\
-                                 B\cap A\ne\emptyset}}   \e(A\cap B) 
+  \mathfrak{e}(A) - 2\sum_{q=1}^m w_q \sum_{\substack{B\in \mathbf{S}_q\\
+                                 B\cap A\ne\emptyset}}   \mathfrak{e}(A\cap B) 
 (\#eq:DeltaA)
 \end{equation}
 Backtracking is performed by recording, for each $k$, the value
-$J(k)\coloneqq j$ for the minimum in (\#eq:recursion) is attained.
+$J(k)\mathrel{:=} j$ for the minimum in Equ. \@ref(eq:recursion) is attained.
 Starting from $k=n$, one obtains the optimal segmentation as segments
 $[J(k)+1,k]$ and setting $k\leftarrow J(k)$ in each step.
 
 ## Efficient computation of $\Delta(A)$ 
 
-As defined in (\#eq:DeltaA), evaluation of $\Delta(A)$ requires $O(n^3 m)$
-time. This is reduced to $O(n^2m)$ computing the terms recursively in terms
-of four auxiliary one-dimensional arrays. In the following we write
-$\min B$ and $\max B$ for the mininum and maximum element of a segment $B$.
-The first two arrays contain the potential contributions of all segments
-that end no later than position $i$ and that begin not later than position
-$i$, respectively.
-\begin{equation} 
-  \delta_{<}(i) \coloneqq \sum_{q=1}^m
-  w_q \sum_{\substack{B\in \mathbf{S}_q \\ \max B \le i}} \e(B)
-  \qquad\text{and}\qquad
-  \delta_{\le}(i) \coloneqq \sum_{q=1}^m
-  w_q \sum_{\substack{B\in \mathbf{S}_q \\ \min B\le i}} \e(B)
+As defined in Equ. \@ref(eq:DeltaA), evaluation of $\Delta(A)$ requires
+$O(n^3 m)$ time. This is reduced to $O(n^2m)$ computing the terms
+recursively in terms of four auxiliary one-dimensional arrays. In the
+following we write $\min B$ and $\max B$ for the mininum and maximum
+element of a segment $B$.  The first two arrays contain the potential
+contributions of all segments that end no later than position $i$ and that
+begin not later than position $i$, respectively.
+\begin{equation}
+\delta_{<}(i) \mathrel{:=} \sum_{q=1}^m w_q \sum_{\substack{B\in
+\mathbf{S}_q \\ \max B \le i}} \mathfrak{e}(B) \qquad\text{and}\qquad
+\delta_{\le}(i) \mathrel{:=} \sum_{q=1}^m w_q \sum_{\substack{B\in
+\mathbf{S}_q \\ \min B\le i}} \mathfrak{e}(B)
 \end{equation}
-Thus $\delta_{<}(k)-\delta_{\le}(j)$ contains the contribution of all
-segments that lie within $[j+1,k]$, with the exception of any segments that
-straddle the interval, i.e., that begin no later than $j$ and end only
-after $k$. These subtracted by $\delta_{\le}(j)$ and need to be corrected
+Thus
+$\delta_{<}(k)-\delta_{\le}(j)$ contains the contribution of all segments
+that lie within $[j+1,k]$, with the exception of any segments that straddle
+the interval, i.e., that begin no later than $j$ and end only after
+$k$. These subtracted by $\delta_{\le}(j)$ and need to be corrected
 for. The second pair of auxiliary arrays handle the contribution of in
 segments $B$ that straddle position $i$, accounting for partial segments
 $B$ up to $i$ and from $i$ onwards, respectively:
-\begin{equation} 
-  \delta^{\cap}_{<}(i) \coloneqq \sum_{q=1}^m w_q 
-  \sum_{\substack{B\in \mathbf{S}_q \\ i\in B, i\ne\max B}}
-  \e(B\cap[1,i])
-  \qquad\text{and}\qquad
-  \delta^{\cap}_{>}(i) \coloneqq \sum_{q=1}^m w_q 
-  \sum_{\substack{B\in \mathbf{S}_q \\ i\in B, i\ne\min B}}
-  \e(B\cap[i,n])
-\end{equation}
-Given an interval $[j+1,k]$, the sum $\delta_{<}(k)+\delta_{>}(j+1)$
-accounts for the intersection for contributions of segments $B$ with
-$B\cap A\ne\emptyset$ and $B\not\subseteq A$. Again intervals $B$
-containing $[j,k+1]$ contribute to these terms. These corrections are
-summarized in
 \begin{equation}
-  \delta^*(i',i'') \coloneqq \sum_{q=1}^m w_q
-  \sum_{\substack{B\in \mathbf{S}_q \\ i',i''\in B \\
-      \min B< i'\le i''<\max B}}
-      \big( \e(B) + \e([i',i'']) - \e(B\cap[1,i'']) - \e(B\cap[i',n])\big)\,,
+\delta^{\cap}_{<}(i) \mathrel{:=} \sum_{q=1}^m w_q \sum_{\substack{B\in
+\mathbf{S}_q \\ i\in B, i\ne\max B}} \mathfrak{e}(B\cap[1,i])
+\qquad\text{and}\qquad \delta^{\cap}_{>}(i) \mathrel{:=} \sum_{q=1}^m w_q
+\sum_{\substack{B\in \mathbf{S}_q \\ i\in B, i\ne\min B}}
+\mathfrak{e}(B\cap[i,n])
 \end{equation}
-which can be computed in $O(m)$ time since there is at most one interval
-$B$ per input segmentation $\mathbf{S}_q$ that contains both $i'$ and
-$i''$. With the help of the auxiliary arrays. The auxiliary arrays
-$\delta_{<}$ and $\delta_{\le}$ themselves can be computed stepwisely,
-with incremental effort $O(m)$ for each position, while 
-$\delta^{\cap}_{<}(i)$, $\delta^{\cap}_{>}(i)$ are sums of at most
-$m$ terms, causing a total setup cost of $O(n m)$. We have 
+Given an interval $[j+1,k]$, the
+sum $\delta_{<}(k)+\delta_{>}(j+1)$ accounts for the intersection for
+contributions of segments $B$ with $B\cap A\ne\emptyset$ and
+$B\not\subseteq A$. Again intervals $B$ containing $[j,k+1]$ contribute to
+these terms. These corrections are summarized in
 \begin{equation}
-  \Delta([j+1,k]) = \e([j+1,k])
-  -2 \big(
-    \delta_{<}(k) - \delta_{\le}(j) +
-    \delta^{\cap}_{<}(k)+ \delta^{\cap}_{>}(j+1) + \delta^*(j+1,k)
-  \big)
-(\#eq:Delta)
+\delta^*(i',i'') \mathrel{:=} \sum_{q=1}^m w_q \sum_{\substack{B\in
+\mathbf{S}_q \\ i',i''\in B \\ \min B< i'\le i''<\max B}} \big(
+\mathfrak{e}(B) + \mathfrak{e}([i',i'']) - \mathfrak{e}(B\cap[1,i'']) -
+\mathfrak{e}(B\cap[i',n])\big)\,,
+\end{equation}
+which can be computed in
+$O(m)$ time since there is at most one interval $B$ per input segmentation
+$\mathbf{S}_q$ that contains both $i'$ and $i''$. With the help of the
+auxiliary arrays. The auxiliary arrays $\delta_{<}$ and $\delta_{\le}$
+themselves can be computed stepwisely, with incremental effort $O(m)$ for
+each position, while $\delta^{\cap}_{<}(i)$, $\delta^{\cap}_{>}(i)$ are
+sums of at most $m$ terms, causing a total setup cost of $O(n m)$. We have
+\begin{equation}
+\Delta([j+1,k]) = \mathfrak{e}([j+1,k]) -2 \big(
+\delta_{<}(k) - \delta_{\le}(j) + \delta^{\cap}_{<}(k)+
+\delta^{\cap}_{>}(j+1) + \delta^*(j+1,k) \big) (\#eq:Delta)
 \end{equation}
 which can now be evaluated for given $j$ and $k$ in $O(m)$ time. Note that
 each combination of $j$ and $k$ appears only once in the course of the
@@ -159,12 +153,12 @@ many correction terms $\delta^*(j+1,k)$ or the final scores.
 ## Segment Length Restrictions
 
 For a large class of potential functions, including the power potentials
-$\e(z)=z^{1+\alpha}$ with $\alpha>1$, it can be shown that no segment in
-the consensus $\mathbf{C}$ can be longer than twice the length $L$ of
-longest input segment. This can be used to restrict the range of the
+$\mathfrak{e}(z)=z^{1+\alpha}$ with $\alpha>1$, it can be shown that no
+segment in the consensus $\mathbf{C}$ can be longer than twice the length
+$L$ of longest input segment. This can be used to restrict the range of the
 recursion to $|k-j+1|\le 2L$. If such \emph{a priori} bounds on segment
 length are known, they can be used to speed up the computation, reducing
-the effort from $O(n^2 m)$ to $O(n m L)$. 
+the effort from $O(n^2 m)$ to $O(n m L)$.
 
 # Usage
 
