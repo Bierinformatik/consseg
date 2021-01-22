@@ -1,21 +1,25 @@
 Weighted Consensus Segmentation in R
 ====================================
 
+R implementation of a dynamic programming algorithm to compute
+the consensus of alternative segmentations
+
+Please refer to the publication and vignette for theoretical background
 
 
 INSTALL
 -------
 
-## Install consseg from CRAN
-install.packages("consseg")
-
-## Or the development version from GitHub:
+## Install development version from GitHub:
 ```
 # install.packages("devtools")
 devtools::install_github("Bierinformatik/consseg")
 ```
 
+## Install consseg from CRAN (in preparation):
+install.packages("consseg")
+
 
 PUBLICATION
 -----------
-[I'm an inline-style link with title](https://www.google.com "Google's Homepage")
+[in submission]()
