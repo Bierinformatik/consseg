@@ -22,4 +22,4 @@ install.packages("consseg")
 
 PUBLICATION
 -----------
-[in submission]()
+[Saker, H.; MachnÃ©, R.; Fallmann, J.; Murray, D.B.; Shahin, A.M.; Stadler, P.F. Weighted Consensus Segmentations. Computation 2021, 9, 17.](https://doi.org/10.3390/computation9020017)
