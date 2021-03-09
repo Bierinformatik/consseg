@@ -21,9 +21,6 @@ knitr::opts_chunk$set(echo = TRUE, global.par=TRUE,
                       fig.height = 2.7, fig.width = 4, fig.align = "center")
 knitr::opts_knit$set(global.par = TRUE)
 
-## redo benchmarking or use existing figure?
-REDOLONG <- FALSE
-times <- 100
 ```
 
 ```{r, include=FALSE}

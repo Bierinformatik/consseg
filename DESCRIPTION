@@ -4,12 +4,12 @@ Version: 0.1
 Authors@R: 
     c(person(given = "Rainer",
              family = "Machne",
-             role = c("aut"),
-             email = "raim@tbi.univie.ac.at",
+             role = c("aut","cre"),
+             email = "machne@hhu.de",
 	           comment = c(ORCID = "0000-0002-1274-5099")),
       person(given = "Jörg",
              family = "Fallmann",
-             role = c("aut", "cre"),
+             role = c("aut"),
              email = "fall@bioinf.uni-leipzig.de",
              comment = c(ORCID = "0000-0002-4573-9939")),
       person(given = "Peter F.",
@@ -35,5 +35,6 @@ Suggests:
     knitr,
     magrittr,
     rmarkdown,
+    bookdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
